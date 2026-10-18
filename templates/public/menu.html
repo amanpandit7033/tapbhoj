@@ -4,115 +4,7 @@
 {% block title %}{{ restaurant.name }} - Digital Menu{% endblock %}
 
 {% block content %}
-<div 
-  x-data="{
-    cart: {},
-    tableNumber: '{{ table_number|escapejs }}',
-    orderNote: '',
-    isOrderSheetOpen: false,
-    vegOnly: false,
-    searchQuery: '',
-    whatsappNumber: '{{ restaurant.whatsapp_number }}',
-    restaurantName: '{{ restaurant.name|escapejs }}',
-
-    addItem(item) {
-      if (!this.cart[item.id]) {
-        this.cart[item.id] = {
-          id: item.id,
-          name: item.name,
-          price: parseFloat(item.price),
-          quantity: 1,
-          is_veg: item.is_veg
-        };
-      } else {
-        this.cart[item.id].quantity += 1;
-      }
-    },
-
-    decreaseItem(itemId) {
-      if (this.cart[itemId]) {
-        this.cart[itemId].quantity -= 1;
-        if (this.cart[itemId].quantity <= 0) {
-          delete this.cart[itemId];
-        }
-      }
-    },
-
-    getItemQuantity(itemId) {
-      return this.cart[itemId] ? this.cart[itemId].quantity : 0;
-    },
-
-    get totalItems() {
-      return Object.values(this.cart).reduce((sum, item) => sum + item.quantity, 0);
-    },
-
-    get totalPrice() {
-      return Object.values(this.cart).reduce((sum, item) => sum + (item.quantity * item.price), 0);
-    },
-
-    buildWhatsAppUrl() {
-      if (!this.tableNumber.trim()) {
-        alert('Please enter your table number before sending the order.');
-        return null;
-      }
-
-      let lines = [];
-      lines.push('*Table ' + this.tableNumber.trim() + ' Order* - ' + this.restaurantName);
-      lines.push('--------------------------------');
-      
-      for (const item of Object.values(this.cart)) {
-        const itemTotal = item.quantity * item.price;
-        lines.push(item.quantity + 'x ' + item.name + ' - ₹' + itemTotal.toFixed(0));
-      }
-      
-      lines.push('--------------------------------');
-      lines.push('*Total: ₹' + this.totalPrice.toFixed(0) + '*');
-      
-      if (this.orderNote.trim()) {
-        lines.push('');
-        lines.push('Note: ' + this.orderNote.trim());
-      }
-      
-      lines.push('');
-      lines.push('_Sent via TapBhoj_');
-
-      const message = lines.join('\n');
-      return 'https://wa.me/' + this.whatsappNumber + '?text=' + encodeURIComponent(message);
-    },
-
-    sendOrder() {
-      const url = this.buildWhatsAppUrl();
-      if (!url) return;
-
-      // Phase 4: Asynchronously log the order in the database
-      const orderData = {
-        table_number: this.tableNumber.trim(),
-        items: Object.values(this.cart).map(i => ({
-          id: i.id,
-          name: i.name,
-          price: i.price,
-          quantity: i.quantity,
-          item_total: i.quantity * i.price,
-          is_veg: i.is_veg
-        })),
-        total_amount: this.totalPrice,
-        customer_note: this.orderNote.trim()
-      };
-
-      try {
-        fetch("{% url 'public:log_order' slug=restaurant.slug %}", {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}'
-          },
-          body: JSON.stringify(orderData)
-        }).catch(() => {});
-      } catch (err) {}
-
-      window.open(url, '_blank');
-    }
-  }" class="relative min-h-screen flex flex-col pb-28">
+<div x-data="menuApp" class="relative min-h-screen flex flex-col pb-28">
   
   <!-- Top Navigation & Restaurant Header -->
   <header class="sticky top-0 z-30 bg-tapbhoj-surface/95 dark:bg-tapbhoj-surface-dark/95 backdrop-blur-md border-b border-black/5 dark:border-white/10 px-4 py-3">
@@ -526,4 +418,120 @@
   </div>
 
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('alpine:init', () => {
+  Alpine.data('menuApp', () => ({
+    cart: {},
+    tableNumber: '{{ table_number|escapejs }}',
+    orderNote: '',
+    isOrderSheetOpen: false,
+    vegOnly: false,
+    searchQuery: '',
+    whatsappNumber: '{{ restaurant.whatsapp_number|escapejs }}',
+    restaurantName: '{{ restaurant.name|escapejs }}',
+    logOrderUrl: "{% url 'public:log_order' slug=restaurant.slug %}",
+    csrfToken: '{{ csrf_token }}',
+
+    addItem(item) {
+      if (!this.cart[item.id]) {
+        this.cart[item.id] = {
+          id: item.id,
+          name: item.name,
+          price: parseFloat(item.price),
+          quantity: 1,
+          is_veg: item.is_veg
+        };
+      } else {
+        this.cart[item.id].quantity += 1;
+      }
+    },
+
+    decreaseItem(itemId) {
+      if (this.cart[itemId]) {
+        this.cart[itemId].quantity -= 1;
+        if (this.cart[itemId].quantity <= 0) {
+          delete this.cart[itemId];
+        }
+      }
+    },
+
+    getItemQuantity(itemId) {
+      return this.cart[itemId] ? this.cart[itemId].quantity : 0;
+    },
+
+    get totalItems() {
+      return Object.values(this.cart).reduce((sum, item) => sum + item.quantity, 0);
+    },
+
+    get totalPrice() {
+      return Object.values(this.cart).reduce((sum, item) => sum + (item.quantity * item.price), 0);
+    },
+
+    buildWhatsAppUrl() {
+      if (!this.tableNumber.trim()) {
+        alert('Please enter your table number before sending the order.');
+        return null;
+      }
+
+      let lines = [];
+      lines.push('*Table ' + this.tableNumber.trim() + ' Order* - ' + this.restaurantName);
+      lines.push('--------------------------------');
+      
+      for (const item of Object.values(this.cart)) {
+        const itemTotal = item.quantity * item.price;
+        lines.push(item.quantity + 'x ' + item.name + ' - ₹' + itemTotal.toFixed(0));
+      }
+      
+      lines.push('--------------------------------');
+      lines.push('*Total: ₹' + this.totalPrice.toFixed(0) + '*');
+      
+      if (this.orderNote.trim()) {
+        lines.push('');
+        lines.push('Note: ' + this.orderNote.trim());
+      }
+      
+      lines.push('');
+      lines.push('_Sent via TapBhoj_');
+
+      const message = lines.join('\n');
+      return 'https://wa.me/' + this.whatsappNumber + '?text=' + encodeURIComponent(message);
+    },
+
+    sendOrder() {
+      const url = this.buildWhatsAppUrl();
+      if (!url) return;
+
+      const orderData = {
+        table_number: this.tableNumber.trim(),
+        items: Object.values(this.cart).map(i => ({
+          id: i.id,
+          name: i.name,
+          price: i.price,
+          quantity: i.quantity,
+          item_total: i.quantity * i.price,
+          is_veg: i.is_veg
+        })),
+        total_amount: this.totalPrice,
+        customer_note: this.orderNote.trim()
+      };
+
+      try {
+        fetch(this.logOrderUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': this.csrfToken
+          },
+          body: JSON.stringify(orderData)
+        }).catch(() => {});
+      } catch (err) {}
+
+      window.open(url, '_blank');
+    }
+  }));
+});
+</script>
 {% endblock %}
