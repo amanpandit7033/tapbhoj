@@ -1,0 +1,12 @@
+{
+  "name": "tapbhoj",
+  "version": "1.0.0",
+  "description": "Digital menu and WhatsApp table ordering platform for small restaurants",
+  "scripts": {
+    "build:css": "npx tailwindcss -i ./static/src/input.css -o ./static/css/styles.css --minify",
+    "watch:css": "npx tailwindcss -i ./static/src/input.css -o ./static/css/styles.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "3.4.17"
+  }
+}

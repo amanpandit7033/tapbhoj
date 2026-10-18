@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>{% block title %}TapBhoj - Digital Menu & WhatsApp Ordering{% endblock %}</title>
+  
+  <!-- Preconnect Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Compiled Tailwind CSS -->
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  
+  <!-- Alpine.js for lightweight client interactivity -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+  
+  <script>
+    // Respect system preference or saved theme preference
+    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  </script>
+  
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-full flex flex-col bg-tapbhoj-bg text-tapbhoj-ink dark:bg-tapbhoj-bg-dark dark:text-tapbhoj-ink-dark antialiased transition-colors duration-200">
+  {% block content %}{% endblock %}
+  
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

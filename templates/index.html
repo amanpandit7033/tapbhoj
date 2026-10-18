@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}TapBhoj - Setup & Verification{% endblock %}
+
+{% block content %}
+<main class="flex-1 flex flex-col justify-center items-center p-4 sm:p-6" x-data="{ isDark: document.documentElement.classList.contains('dark') }">
+  <div class="w-full max-w-md bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl shadow-sm border border-black/5 dark:border-white/10 p-6 sm:p-8 space-y-6">
+    
+    <!-- Header with Official Logo & Dark Mode Toggle -->
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <img src="{% static 'images/tapbhoj-icon.svg' %}" alt="TapBhoj" class="w-11 h-11 rounded-xl shadow-sm">
+        <div>
+          <h1 class="text-2xl font-bold font-heading tracking-tight leading-none text-tapbhoj-ink dark:text-tapbhoj-ink-dark">TapBhoj</h1>
+          <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark mt-1">One tap to table feast</p>
+        </div>
+      </div>
+      
+      <!-- Theme Toggle -->
+      <button 
+        type="button"
+        @click="
+          isDark = !isDark;
+          if (isDark) {
+            document.documentElement.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+          }
+        "
+        class="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl p-2.5 text-tapbhoj-muted dark:text-tapbhoj-muted-dark hover:bg-tapbhoj-bg dark:hover:bg-tapbhoj-bg-dark transition-colors"
+        aria-label="Toggle dark mode"
+      >
+        <template x-if="!isDark">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+        </template>
+        <template x-if="isDark">
+          <svg class="w-5 h-5 text-tapbhoj-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 9h-1m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+        </template>
+      </button>
+    </div>
+
+    <!-- Status Banner -->
+    <div class="rounded-xl p-4 bg-tapbhoj-bg dark:bg-tapbhoj-bg-dark border border-black/5 dark:border-white/5 space-y-2">
+      <div class="flex items-center space-x-2">
+        <span class="inline-block w-2.5 h-2.5 rounded-full bg-tapbhoj-veg animate-pulse"></span>
+        <span class="text-sm font-semibold text-tapbhoj-ink dark:text-tapbhoj-ink-dark">Phase 0 Ready</span>
+      </div>
+      <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark leading-relaxed">
+        Environment configured, PostgreSQL connected, Tailwind CSS compiled, and base tokens active.
+      </p>
+    </div>
+
+    <!-- System Checklist -->
+    <div class="space-y-3">
+      <h2 class="text-xs uppercase font-semibold tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Infrastructure Verification</h2>
+      <ul class="text-sm space-y-2.5">
+        <li class="flex items-center justify-between">
+          <span class="text-tapbhoj-ink dark:text-tapbhoj-ink-dark">Backend</span>
+          <span class="font-medium text-xs px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">Django 6.1 LTS</span>
+        </li>
+        <li class="flex items-center justify-between">
+          <span class="text-tapbhoj-ink dark:text-tapbhoj-ink-dark">Database</span>
+          <span class="font-medium text-xs px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">PostgreSQL (tapbhoj)</span>
+        </li>
+        <li class="flex items-center justify-between">
+          <span class="text-tapbhoj-ink dark:text-tapbhoj-ink-dark">Styling</span>
+          <span class="font-medium text-xs px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">Tailwind + Design Tokens</span>
+        </li>
+        <li class="flex items-center justify-between">
+          <span class="text-tapbhoj-ink dark:text-tapbhoj-ink-dark">Interactivity</span>
+          <span class="font-medium text-xs px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">Alpine.js</span>
+        </li>
+        <li class="flex items-center justify-between">
+          <span class="text-tapbhoj-ink dark:text-tapbhoj-ink-dark">Asset Pipeline</span>
+          <span class="font-medium text-xs px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">WhiteNoise</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Design Token Sample -->
+    <div class="pt-2 border-t border-black/5 dark:border-white/10 space-y-3">
+      <h2 class="text-xs uppercase font-semibold tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Food Marker Tokens</h2>
+      <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-tapbhoj-veg/30 bg-tapbhoj-veg/10 text-tapbhoj-veg dark:text-tapbhoj-veg-dark text-xs font-semibold">
+          <span class="w-2 h-2 rounded-full bg-tapbhoj-veg dark:bg-tapbhoj-veg-dark"></span>
+          <span>Veg</span>
+        </div>
+        <div class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-tapbhoj-nonveg/30 bg-tapbhoj-nonveg/10 text-tapbhoj-nonveg dark:text-tapbhoj-nonveg-dark text-xs font-semibold">
+          <span class="w-2 h-2 rounded-full bg-tapbhoj-nonveg dark:bg-tapbhoj-nonveg-dark"></span>
+          <span>Non-Veg</span>
+        </div>
+        <div class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-tapbhoj-accent/15 text-tapbhoj-ink dark:text-tapbhoj-ink-dark text-xs font-semibold">
+          <span>₹ Price Token</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Next Action -->
+    <div class="pt-2">
+      <div class="w-full min-h-[44px] flex items-center justify-center rounded-xl bg-tapbhoj-brand dark:bg-tapbhoj-brand-dark text-tapbhoj-surface dark:text-tapbhoj-bg-dark font-medium text-sm transition-opacity">
+        Ready for Phase 1: Models & Public Menu
+      </div>
+    </div>
+
+  </div>
+</main>
+{% endblock %}
