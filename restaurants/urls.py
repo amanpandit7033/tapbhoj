@@ -1,4 +1,5 @@
 from django.urls import path
+from billing import views as billing_views
 from menu import views as menu_views
 from . import views
 
@@ -22,4 +23,8 @@ urlpatterns = [
     path('menu/item/<int:pk>/edit/', menu_views.item_edit, name='item_edit'),
     path('menu/item/<int:pk>/delete/', menu_views.item_delete, name='item_delete'),
     path('menu/item/<int:pk>/toggle/', menu_views.item_toggle_availability, name='item_toggle'),
+
+    # Subscription & Billing
+    path('subscription/', billing_views.owner_subscription, name='subscription'),
+    path('subscription/renew/', billing_views.owner_renew, name='subscription_renew'),
 ]

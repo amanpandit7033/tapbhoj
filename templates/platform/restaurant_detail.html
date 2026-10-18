@@ -1,0 +1,156 @@
+{% extends 'platform/base_platform.html' %}
+
+{% block title %}{{ restaurant.name }} - Platform Detail{% endblock %}
+
+{% block platform_content %}
+<div class="max-w-4xl mx-auto space-y-6">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/5 dark:border-white/10 pb-4">
+    <div>
+      <div class="flex items-center space-x-3">
+        <h1 class="text-2xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
+          {{ restaurant.name }}
+        </h1>
+        {% if restaurant.status == 'active' %}
+          <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+            Active
+          </span>
+        {% else %}
+          <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+            Paused
+          </span>
+        {% endif %}
+      </div>
+      <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark mt-1">
+        Slug: <code class="font-mono">/r/{{ restaurant.slug }}/</code> • Created {{ restaurant.created_at|date:"d M Y" }}
+      </p>
+    </div>
+
+    <!-- Actions (Assist & Toggle) -->
+    <div class="flex items-center space-x-2">
+      <!-- Assist Owner (Requirement A6) -->
+      <a 
+        href="{% url 'platform:restaurant_assist' pk=restaurant.pk %}" 
+        class="min-h-[40px] px-4 py-2 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-bold font-heading shadow-sm hover:opacity-95 flex items-center space-x-1.5"
+      >
+        <span>Assist Owner Dashboard ↗</span>
+      </a>
+
+      <!-- Activate / Pause (Requirement A2) -->
+      <a 
+        href="{% url 'platform:restaurant_toggle' pk=restaurant.pk %}" 
+        class="min-h-[40px] px-4 py-2 rounded-xl text-xs font-bold font-heading border border-black/10 dark:border-white/10 flex items-center"
+      >
+        {% if restaurant.status == 'active' %}Pause Menu{% else %}Activate Menu{% endif %}
+      </a>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    
+    <!-- Left 2 Cols: Subscription Manager -->
+    <div class="md:col-span-2 space-y-6">
+      <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-6 border border-black/5 dark:border-white/10 shadow-sm space-y-5">
+        <h2 class="text-xs uppercase font-bold tracking-wider text-tapbhoj-brand dark:text-tapbhoj-accent">
+          Subscription & Expiry Settings (Requirement A4)
+        </h2>
+
+        <div class="p-4 rounded-xl bg-tapbhoj-bg dark:bg-tapbhoj-bg-dark border border-black/5 dark:border-white/5 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Current Status</span>
+            <span class="font-bold text-xs capitalize text-tapbhoj-ink dark:text-tapbhoj-ink-dark">{{ subscription.get_status_display }}</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Active Plan</span>
+            <span class="font-bold text-xs text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
+              {% if subscription.plan %}{{ subscription.plan.name }}{% else %}None (Custom / Trial){% endif %}
+            </span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Days Remaining</span>
+            <span class="font-bold text-xs text-emerald-600 dark:text-emerald-400">
+              {{ subscription.days_remaining }} days
+            </span>
+          </div>
+        </div>
+
+        <form method="post" class="space-y-4">
+          {% csrf_token %}
+
+          <div class="space-y-1.5">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+              Plan
+            </label>
+            {{ form.plan }}
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+              Status
+            </label>
+            {{ form.status }}
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="space-y-1.5">
+              <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+                Trial End Date
+              </label>
+              {{ form.trial_end }}
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+                Current Period End
+              </label>
+              {{ form.current_period_end }}
+            </div>
+          </div>
+
+          <div class="pt-2 flex justify-end">
+            <button type="submit" class="px-5 py-2.5 rounded-xl bg-tapbhoj-brand dark:bg-tapbhoj-brand-dark text-tapbhoj-surface dark:text-tapbhoj-bg-dark text-xs font-bold font-heading shadow-md hover:opacity-95">
+              Update Subscription
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+
+    <!-- Right Col: Owner & Restaurant Overview -->
+    <div class="space-y-6">
+      
+      <!-- Owner Account Card -->
+      <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-5 border border-black/5 dark:border-white/10 shadow-sm space-y-3">
+        <h3 class="text-xs uppercase font-bold tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+          Owner Account
+        </h3>
+        {% if owner %}
+          <div class="space-y-1.5 text-xs">
+            <p><span class="text-tapbhoj-muted">Username:</span> <strong class="text-tapbhoj-ink dark:text-tapbhoj-ink-dark">{{ owner.username }}</strong></p>
+            <p><span class="text-tapbhoj-muted">Email:</span> <strong class="text-tapbhoj-ink dark:text-tapbhoj-ink-dark">{{ owner.email }}</strong></p>
+            <p><span class="text-tapbhoj-muted">Last Login:</span> {{ owner.last_login|default:"Never" }}</p>
+          </div>
+        {% else %}
+          <p class="text-xs text-tapbhoj-muted">No owner user linked.</p>
+        {% endif %}
+      </div>
+
+      <!-- Quick Restaurant Info -->
+      <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-5 border border-black/5 dark:border-white/10 shadow-sm space-y-3 text-xs">
+        <h3 class="text-xs uppercase font-bold tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+          Details
+        </h3>
+        <p><span class="text-tapbhoj-muted">WhatsApp:</span> <strong>+{{ restaurant.whatsapp_number }}</strong></p>
+        <p><span class="text-tapbhoj-muted">Tables:</span> <strong>{{ restaurant.number_of_tables }}</strong></p>
+        <p><span class="text-tapbhoj-muted">Categories:</span> <strong>{{ restaurant.categories.count }}</strong></p>
+        <p><span class="text-tapbhoj-muted">Menu Items:</span> <strong>{{ restaurant.menu_items.count }}</strong></p>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

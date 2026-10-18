@@ -11,6 +11,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('accounts.urls')),
     path('dashboard/', include('restaurants.urls', namespace='dashboard')),
+    path('platform/', include('billing.urls', namespace='platform')),
     path('', include('public.urls', namespace='public')),
     path('', index, name='index'),
 ]

@@ -1,0 +1,149 @@
+{% extends 'platform/base_platform.html' %}
+
+{% block title %}Onboard New Restaurant - TapBhoj Platform Admin{% endblock %}
+
+{% block platform_content %}
+<div class="max-w-2xl mx-auto space-y-6">
+
+  <div class="border-b border-black/5 dark:border-white/10 pb-3 flex items-center justify-between">
+    <div>
+      <h1 class="text-xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
+        Onboard Restaurant (1-Step Setup)
+      </h1>
+      <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+        Creates the restaurant, owner account, trial subscription, and sends welcome email in one step.
+      </p>
+    </div>
+    <a href="{% url 'platform:dashboard' %}" class="text-xs font-semibold text-tapbhoj-muted hover:text-tapbhoj-ink dark:hover:text-tapbhoj-ink-dark">
+      ← Back to List
+    </a>
+  </div>
+
+  <form method="post" class="space-y-6">
+    {% csrf_token %}
+
+    <!-- 1. Restaurant Details -->
+    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-5 sm:p-6 border border-black/5 dark:border-white/10 shadow-sm space-y-4">
+      <h2 class="text-xs uppercase font-bold tracking-wider text-tapbhoj-brand dark:text-tapbhoj-accent">
+        1. Restaurant Information
+      </h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="space-y-1.5 sm:col-span-2">
+          <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+            Restaurant Name <span class="text-red-500">*</span>
+          </label>
+          {{ form.restaurant_name }}
+          {% if form.restaurant_name.errors %}<p class="text-xs text-red-500">{{ form.restaurant_name.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+            URL Slug <span class="text-red-500">*</span>
+          </label>
+          {{ form.slug }}
+          <p class="text-[11px] text-tapbhoj-muted dark:text-tapbhoj-muted-dark">{{ form.slug.help_text }}</p>
+          {% if form.slug.errors %}<p class="text-xs text-red-500">{{ form.slug.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+            WhatsApp Order Number <span class="text-red-500">*</span>
+          </label>
+          {{ form.whatsapp_number }}
+          <p class="text-[11px] text-tapbhoj-muted dark:text-tapbhoj-muted-dark">{{ form.whatsapp_number.help_text }}</p>
+          {% if form.whatsapp_number.errors %}<p class="text-xs text-red-500">{{ form.whatsapp_number.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+            Physical Tables <span class="text-red-500">*</span>
+          </label>
+          {{ form.number_of_tables }}
+          {% if form.number_of_tables.errors %}<p class="text-xs text-red-500">{{ form.number_of_tables.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+            Address (Optional)
+          </label>
+          {{ form.address }}
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Owner User Account Details -->
+    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-5 sm:p-6 border border-black/5 dark:border-white/10 shadow-sm space-y-4">
+      <h2 class="text-xs uppercase font-bold tracking-wider text-tapbhoj-brand dark:text-tapbhoj-accent">
+        2. Owner Credentials & Contact
+      </h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+            Owner Username <span class="text-red-500">*</span>
+          </label>
+          {{ form.owner_username }}
+          {% if form.owner_username.errors %}<p class="text-xs text-red-500">{{ form.owner_username.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+            Owner Email <span class="text-red-500">*</span>
+          </label>
+          {{ form.owner_email }}
+          <p class="text-[11px] text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Login credentials and order reports will be sent here.</p>
+          {% if form.owner_email.errors %}<p class="text-xs text-red-500">{{ form.owner_email.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="space-y-1.5 sm:col-span-2">
+          <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+            Initial Password <span class="text-red-500">*</span>
+          </label>
+          {{ form.owner_password }}
+          {% if form.owner_password.errors %}<p class="text-xs text-red-500">{{ form.owner_password.errors.0 }}</p>{% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Subscription & Trial Plan -->
+    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-5 sm:p-6 border border-black/5 dark:border-white/10 shadow-sm space-y-4">
+      <h2 class="text-xs uppercase font-bold tracking-wider text-tapbhoj-brand dark:text-tapbhoj-accent">
+        3. Trial & Subscription Plan
+      </h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+            Free Trial Days
+          </label>
+          {{ form.trial_days }}
+          <p class="text-[11px] text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Default is 14 days free trial.</p>
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+            Target Plan (Optional)
+          </label>
+          {{ form.initial_plan }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit Action -->
+    <div class="pt-2 flex items-center justify-end space-x-3">
+      <a href="{% url 'platform:dashboard' %}" class="min-h-[44px] px-5 py-2.5 rounded-xl border border-black/10 dark:border-white/10 text-xs font-semibold text-tapbhoj-muted hover:text-tapbhoj-ink dark:hover:text-tapbhoj-ink-dark flex items-center">
+        Cancel
+      </a>
+      <button 
+        type="submit" 
+        class="min-h-[44px] px-7 py-2.5 rounded-xl bg-tapbhoj-brand dark:bg-tapbhoj-brand-dark text-tapbhoj-surface dark:text-tapbhoj-bg-dark font-bold font-heading text-sm shadow-md hover:opacity-95 active:scale-95 transition-all"
+      >
+        Complete Onboarding & Send Credentials
+      </button>
+    </div>
+
+  </form>
+
+</div>
+{% endblock %}

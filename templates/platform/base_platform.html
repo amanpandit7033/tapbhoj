@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col bg-tapbhoj-bg dark:bg-tapbhoj-bg-dark" x-data="{ isDark: document.documentElement.classList.contains('dark') }">
+  
+  <!-- Platform Top Navigation -->
+  <header class="sticky top-0 z-30 bg-slate-900 text-white border-b border-slate-800 px-4 py-3">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      
+      <!-- Brand & Platform Admin Badge -->
+      <div class="flex items-center space-x-3">
+        <a href="{% url 'platform:dashboard' %}" class="flex items-center space-x-2">
+          <img src="{% static 'images/tapbhoj-icon.svg' %}" alt="TapBhoj" class="w-8 h-8 rounded-lg shadow-sm">
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="font-extrabold font-heading text-sm text-white">TapBhoj</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-400 text-slate-900 uppercase tracking-wider">
+                Staff Platform
+              </span>
+            </div>
+            <p class="text-[10px] text-slate-400">Multi-Restaurant Operations</p>
+          </div>
+        </a>
+      </div>
+
+      <!-- Links & User Info -->
+      <div class="flex items-center space-x-3 text-xs">
+        <a href="{% url 'platform:dashboard' %}" class="hidden sm:inline-block font-semibold text-slate-300 hover:text-white transition-colors">
+          Restaurants
+        </a>
+        <a href="{% url 'platform:billing_overview' %}" class="hidden sm:inline-block font-semibold text-slate-300 hover:text-white transition-colors">
+          Billing & Plans
+        </a>
+        <a href="{% url 'admin:index' %}" target="_blank" class="hidden sm:inline-block font-semibold text-slate-400 hover:text-white transition-colors">
+          Django Admin ↗
+        </a>
+
+        <div class="h-4 w-px bg-slate-700 hidden sm:block"></div>
+
+        <!-- Theme Toggle -->
+        <button 
+          type="button"
+          @click="
+            isDark = !isDark;
+            if (isDark) {
+              document.documentElement.classList.add('dark');
+              localStorage.setItem('theme', 'dark');
+            } else {
+              document.documentElement.classList.remove('dark');
+              localStorage.setItem('theme', 'light');
+            }
+          "
+          class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+          aria-label="Toggle theme"
+        >
+          <template x-if="!isDark">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+          </template>
+          <template x-if="isDark">
+            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 9h-1m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+          </template>
+        </button>
+
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition-colors">
+            Sign Out
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Flash Messages -->
+  <div class="max-w-6xl mx-auto w-full px-4 pt-4">
+    {% if messages %}
+      <div class="space-y-2">
+        {% for message in messages %}
+          <div class="p-3.5 rounded-xl text-xs font-medium flex items-center justify-between shadow-sm {% if message.tags == 'success' %}bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50{% elif message.tags == 'error' %}bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800/50{% else %}bg-blue-50 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/50{% endif %}">
+            <span>{{ message }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Content -->
+  <main class="max-w-6xl mx-auto w-full px-4 py-6 flex-1">
+    {% block platform_content %}{% endblock %}
+  </main>
+
+</div>
+{% endblock %}

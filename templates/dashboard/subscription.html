@@ -1,0 +1,110 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Subscription & Billing - {{ restaurant.name }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-3xl mx-auto space-y-6">
+
+  <!-- Header -->
+  <div class="border-b border-black/5 dark:border-white/10 pb-4">
+    <h1 class="text-xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
+      Subscription & Billing
+    </h1>
+    <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+      Manage your TapBhoj monthly or annual plan to keep your menu live.
+    </p>
+  </div>
+
+  <!-- Current Plan Status Card -->
+  <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-6 border border-black/5 dark:border-white/10 shadow-sm space-y-4">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div>
+        <p class="text-[11px] font-bold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+          Current Subscription
+        </p>
+        <h2 class="text-lg font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark mt-0.5">
+          {% if subscription.plan %}{{ subscription.plan.name }}{% elif subscription.status == 'trialing' %}Free Pilot Trial{% else %}Custom Plan{% endif %}
+        </h2>
+      </div>
+
+      <div>
+        {% if subscription.status == 'active' %}
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse"></span>
+            Active
+          </span>
+        {% elif subscription.status == 'trialing' %}
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300">
+            Free Trial
+          </span>
+        {% else %}
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+            {{ subscription.get_status_display }}
+          </span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Expiry Meter -->
+    <div class="p-4 rounded-xl bg-tapbhoj-bg dark:bg-tapbhoj-bg-dark border border-black/5 dark:border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div>
+        <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+          {% if subscription.status == 'trialing' %}Trial Ends{% else %}Current Cycle Ends{% endif %}
+        </p>
+        <p class="text-sm font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark mt-0.5">
+          {{ subscription.expiry_date|date:"l, d F Y"|default:"No Expiry Date" }}
+        </p>
+      </div>
+
+      <div class="text-left sm:text-right">
+        <span class="text-2xl font-extrabold font-heading text-tapbhoj-brand dark:text-tapbhoj-accent">
+          {{ subscription.days_remaining|default:0 }}
+        </span>
+        <span class="text-xs font-semibold text-tapbhoj-muted dark:text-tapbhoj-muted-dark">days remaining</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Plans Selection -->
+  <div class="space-y-4 pt-2">
+    <div>
+      <h2 class="text-base font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
+        Choose a Subscription Plan
+      </h2>
+      <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+        Keep taking table orders on WhatsApp with zero downtime. All prices in INR (₹).
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {% for plan in plans %}
+        <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-5 border border-black/5 dark:border-white/10 shadow-sm flex flex-col justify-between space-y-4 hover:border-tapbhoj-brand/40 transition-all">
+          <div class="space-y-2">
+            <h3 class="font-bold font-heading text-base text-tapbhoj-ink dark:text-tapbhoj-ink-dark">{{ plan.name }}</h3>
+            <p class="text-2xl font-extrabold font-heading text-tapbhoj-brand dark:text-tapbhoj-accent">
+              ₹{{ plan.price|floatformat:0 }}
+              <span class="text-xs font-normal text-tapbhoj-muted">/ {{ plan.duration_days }}d</span>
+            </p>
+            <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark leading-relaxed">
+              {{ plan.description|default:"Unlimited WhatsApp orders, digital menu updates, NFC and QR codes." }}
+            </p>
+          </div>
+
+          <!-- Renew / Select Plan Form (Razorpay integration trigger) -->
+          <form method="post" action="{% url 'dashboard:subscription_renew' %}">
+            {% csrf_token %}
+            <input type="hidden" name="plan_id" value="{{ plan.id }}">
+            <button 
+              type="submit" 
+              class="w-full min-h-[44px] py-2.5 px-4 rounded-xl bg-tapbhoj-brand dark:bg-tapbhoj-brand-dark text-tapbhoj-surface dark:text-tapbhoj-bg-dark font-bold font-heading text-xs shadow-md hover:opacity-95 active:scale-95 transition-all"
+            >
+              Select & Activate
+            </button>
+          </form>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

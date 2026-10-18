@@ -33,11 +33,17 @@ INSTALLED_APPS = [
     'restaurants.apps.RestaurantsConfig',
     'menu.apps.MenuConfig',
     'public.apps.PublicConfig',
+    'billing.apps.BillingConfig',
 ]
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard:home'
 LOGOUT_REDIRECT_URL = 'login'
+
+# Razorpay Configuration
+RAZORPAY_KEY_ID = os.getenv('RAZORPAY_KEY_ID', 'rzp_test_placeholder')
+RAZORPAY_KEY_SECRET = os.getenv('RAZORPAY_KEY_SECRET', 'rzp_secret_placeholder')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'support@tapbhoj.in')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

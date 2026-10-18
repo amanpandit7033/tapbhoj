@@ -95,6 +95,9 @@
       <a href="{% url 'dashboard:tables' %}" class="py-3 text-xs font-semibold border-b-2 {% if 'tables' in request.resolver_match.url_name %}border-tapbhoj-brand dark:border-tapbhoj-accent text-tapbhoj-brand dark:text-tapbhoj-accent{% else %}border-transparent text-tapbhoj-muted hover:text-tapbhoj-ink dark:hover:text-tapbhoj-ink-dark{% endif %}">
         Tables & QR Codes
       </a>
+      <a href="{% url 'dashboard:subscription' %}" class="py-3 text-xs font-semibold border-b-2 {% if 'subscription' in request.resolver_match.url_name %}border-tapbhoj-brand dark:border-tapbhoj-accent text-tapbhoj-brand dark:text-tapbhoj-accent{% else %}border-transparent text-tapbhoj-muted hover:text-tapbhoj-ink dark:hover:text-tapbhoj-ink-dark{% endif %}">
+        Subscription & Plans
+      </a>
       <a href="{% url 'dashboard:profile' %}" class="py-3 text-xs font-semibold border-b-2 {% if request.resolver_match.url_name == 'profile' %}border-tapbhoj-brand dark:border-tapbhoj-accent text-tapbhoj-brand dark:text-tapbhoj-accent{% else %}border-transparent text-tapbhoj-muted hover:text-tapbhoj-ink dark:hover:text-tapbhoj-ink-dark{% endif %}">
         Settings & Profile
       </a>

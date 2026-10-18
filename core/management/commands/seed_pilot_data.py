@@ -201,20 +201,63 @@ class Command(BaseCommand):
             defaults={'restaurant': restaurant}
         )
 
-        # Owner 2 (Chai Shai Cafe - for tenant isolation testing)
-        owner_user2, _ = User.objects.update_or_create(
-            username='owner2',
-            defaults={'email': 'owner@chaishai.com', 'is_staff': False}
+        # Platform Staff / Superuser
+        admin_user, _ = User.objects.update_or_create(
+            username='admin',
+            defaults={'email': 'admin@tapbhoj.in', 'is_staff': True, 'is_superuser': True}
         )
-        owner_user2.set_password('Password@123')
-        owner_user2.save()
-        OwnerProfile.objects.update_or_create(
-            user=owner_user2,
-            defaults={'restaurant': chai_restaurant}
+        admin_user.set_password('Admin@123')
+        admin_user.save()
+
+        # Seed Subscription Plans
+        from billing.models import Plan, Subscription
+        plan_starter, _ = Plan.objects.update_or_create(
+            slug='starter-monthly',
+            defaults={
+                'name': 'Starter Monthly',
+                'price': Decimal('499.00'),
+                'duration_days': 30,
+                'description': 'Ideal for cafes and dhabas with up to 15 tables.',
+                'is_active': True,
+            }
         )
 
+        plan_growth, _ = Plan.objects.update_or_create(
+            slug='growth-quarterly',
+            defaults={
+                'name': 'Growth Quarterly',
+                'price': Decimal('1299.00'),
+                'duration_days': 90,
+                'description': 'Save 15% with 3-month quarterly billing.',
+                'is_active': True,
+            }
+        )
+
+        plan_pro, _ = Plan.objects.update_or_create(
+            slug='pro-annual',
+            defaults={
+                'name': 'Pro Annual',
+                'price': Decimal('4499.00'),
+                'duration_days': 365,
+                'description': 'Best value: 2 months free + custom branding priority.',
+                'is_active': True,
+            }
+        )
+
+        # Seed Subscriptions
+        sub1, _ = Subscription.objects.get_or_create(restaurant=restaurant)
+        sub1.plan = plan_starter
+        sub1.activate_trial(trial_days=14)
+
+        sub2, _ = Subscription.objects.get_or_create(restaurant=chai_restaurant)
+        sub2.plan = plan_starter
+        sub2.status = 'paused'
+        sub2.save()
+
         self.stdout.write(self.style.SUCCESS(
-            'Successfully seeded pilot data and owners:\n'
+            'Successfully seeded pilot data, owners, plans, and admin:\n'
+            '  Platform Staff: username=admin, password=Admin@123\n'
             '  Owner 1: username=owner, password=Password@123 (Dilli Rasoi)\n'
-            '  Owner 2: username=owner2, password=Password@123 (Chai Shai Cafe)'
+            '  Owner 2: username=owner2, password=Password@123 (Chai Shai Cafe)\n'
+            '  Plans: Starter Monthly (INR 499), Growth Quarterly (INR 1299), Pro Annual (INR 4499)'
         ))
