@@ -29,6 +29,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # TapBhoj apps
     'core.apps.CoreConfig',
+    'restaurants.apps.RestaurantsConfig',
+    'menu.apps.MenuConfig',
+    'public.apps.PublicConfig',
 ]
 
 MIDDLEWARE = [

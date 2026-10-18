@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ restaurant.name }} - Temporarily Unavailable{% endblock %}
+
+{% block content %}
+<main class="min-h-screen flex flex-col justify-center items-center p-4">
+  <div class="w-full max-w-sm bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl shadow-sm border border-black/5 dark:border-white/10 p-6 sm:p-8 text-center space-y-5">
+    
+    <!-- Logo or Icon -->
+    <div class="mx-auto w-16 h-16 rounded-2xl bg-tapbhoj-accent/10 flex items-center justify-center text-tapbhoj-accent">
+      {% if restaurant.logo %}
+        <img src="{{ restaurant.logo.url }}" alt="{{ restaurant.name }}" class="w-16 h-16 rounded-2xl object-cover">
+      {% else %}
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      {% endif %}
+    </div>
+
+    <div>
+      <h1 class="text-2xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">{{ restaurant.name }}</h1>
+      <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark mt-1">Digital Menu</p>
+    </div>
+
+    <div class="p-4 rounded-xl bg-tapbhoj-bg dark:bg-tapbhoj-bg-dark border border-black/5 dark:border-white/5 space-y-1">
+      <p class="font-semibold text-sm text-tapbhoj-ink dark:text-tapbhoj-ink-dark">Menu Temporarily Unavailable</p>
+      <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark leading-relaxed">
+        This restaurant's digital menu is temporarily paused. Please check with the staff or try again later.
+      </p>
+    </div>
+
+    {% if restaurant.address %}
+      <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+        {{ restaurant.address }}
+      </p>
+    {% endif %}
+
+    <div class="pt-2 text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark flex items-center justify-center space-x-1">
+      <span>Powered by</span>
+      <span class="font-semibold text-tapbhoj-ink dark:text-tapbhoj-ink-dark">TapBhoj</span>
+    </div>
+
+  </div>
+</main>
+{% endblock %}
