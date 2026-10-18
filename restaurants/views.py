@@ -11,6 +11,9 @@ from .forms import RestaurantProfileForm
 @owner_required
 def dashboard_home(request):
     """Owner dashboard home screen with status, quick stats, and primary actions."""
+    from django.utils import timezone
+    from django.db.models import Sum, Q
+
     restaurant = request.restaurant
     categories = restaurant.categories.all()
     items = restaurant.menu_items.all()
@@ -19,12 +22,20 @@ def dashboard_home(request):
     total_items = items.count()
     sold_out_items = items.filter(is_available=False).count()
 
+    # Today's Orders & Sales
+    today_start = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    today_orders = restaurant.orders.filter(created_at__gte=today_start)
+    today_orders_count = today_orders.count()
+    today_sales = today_orders.filter(~Q(status='cancelled')).aggregate(s=Sum('total_amount'))['s'] or 0
+
     context = {
         'restaurant': restaurant,
         'total_categories': total_categories,
         'total_items': total_items,
         'sold_out_items': sold_out_items,
         'number_of_tables': restaurant.number_of_tables,
+        'today_orders_count': today_orders_count,
+        'today_sales': today_sales,
     }
     return render(request, 'dashboard/home.html', context)
 

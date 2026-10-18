@@ -1,0 +1,249 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Orders & Insights - {{ restaurant.name }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="space-y-6">
+
+  <!-- Header & Date Filter Toolbar -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/5 dark:border-white/10 pb-4">
+    <div>
+      <h1 class="text-xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
+        Orders & Table Insights
+      </h1>
+      <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+        Real-time record of WhatsApp orders sent by customers at tables.
+      </p>
+    </div>
+
+    <!-- Date Range Filter Pills -->
+    <div class="flex items-center space-x-1 overflow-x-auto py-1">
+      <a 
+        href="?range=today{% if status_filter %}&status={{ status_filter }}{% endif %}" 
+        class="px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap {% if date_filter == 'today' %}bg-tapbhoj-brand dark:bg-tapbhoj-accent text-tapbhoj-surface dark:text-tapbhoj-bg-dark{% else %}bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark text-tapbhoj-muted dark:text-tapbhoj-muted-dark border border-black/5 dark:border-white/10{% endif %}"
+      >
+        Today
+      </a>
+      <a 
+        href="?range=yesterday{% if status_filter %}&status={{ status_filter }}{% endif %}" 
+        class="px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap {% if date_filter == 'yesterday' %}bg-tapbhoj-brand dark:bg-tapbhoj-accent text-tapbhoj-surface dark:text-tapbhoj-bg-dark{% else %}bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark text-tapbhoj-muted dark:text-tapbhoj-muted-dark border border-black/5 dark:border-white/10{% endif %}"
+      >
+        Yesterday
+      </a>
+      <a 
+        href="?range=7days{% if status_filter %}&status={{ status_filter }}{% endif %}" 
+        class="px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap {% if date_filter == '7days' %}bg-tapbhoj-brand dark:bg-tapbhoj-accent text-tapbhoj-surface dark:text-tapbhoj-bg-dark{% else %}bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark text-tapbhoj-muted dark:text-tapbhoj-muted-dark border border-black/5 dark:border-white/10{% endif %}"
+      >
+        Last 7 Days
+      </a>
+      <a 
+        href="?range=all{% if status_filter %}&status={{ status_filter }}{% endif %}" 
+        class="px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap {% if date_filter == 'all' %}bg-tapbhoj-brand dark:bg-tapbhoj-accent text-tapbhoj-surface dark:text-tapbhoj-bg-dark{% else %}bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark text-tapbhoj-muted dark:text-tapbhoj-muted-dark border border-black/5 dark:border-white/10{% endif %}"
+      >
+        All Time
+      </a>
+    </div>
+  </div>
+
+  <!-- Key Metrics Grid -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
+      <p class="text-[10px] font-bold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Today's Orders</p>
+      <p class="text-2xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">{{ today_count }}</p>
+    </div>
+
+    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
+      <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Today's Sales</p>
+      <p class="text-2xl font-bold font-heading text-emerald-600 dark:text-emerald-400">₹{{ today_sales|floatformat:0 }}</p>
+    </div>
+
+    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
+      <p class="text-[10px] font-bold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Range Volume</p>
+      <p class="text-2xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">₹{{ filtered_sales|floatformat:0 }}</p>
+    </div>
+
+    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
+      <p class="text-[10px] font-bold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Top Table</p>
+      <p class="text-2xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
+        {% if most_active_table %}T-{{ most_active_table }}{% else %}-{% endif %}
+      </p>
+    </div>
+  </div>
+
+  <!-- Insights Analytics Row: Popular Dishes & Table Activity -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    
+    <!-- Top Ordered Dishes (Requirement O9) -->
+    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-5 border border-black/5 dark:border-white/10 shadow-sm space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xs uppercase font-bold tracking-wider text-tapbhoj-brand dark:text-tapbhoj-accent">
+          Top Popular Dishes (Ranked)
+        </h2>
+        <span class="text-[11px] text-tapbhoj-muted dark:text-tapbhoj-muted-dark">By Quantity</span>
+      </div>
+
+      {% if popular_dishes %}
+        <div class="space-y-3">
+          {% for dish in popular_dishes %}
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2.5">
+                <span class="w-5 h-5 rounded-md bg-tapbhoj-bg dark:bg-tapbhoj-bg-dark flex items-center justify-center text-[10px] font-extrabold text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+                  #{{ forloop.counter }}
+                </span>
+                {% if dish.is_veg %}
+                  <span class="w-3 h-3 rounded-sm border border-tapbhoj-veg p-0.5 flex items-center justify-center flex-shrink-0">
+                    <span class="w-1.5 h-1.5 rounded-full bg-tapbhoj-veg"></span>
+                  </span>
+                {% else %}
+                  <span class="w-3 h-3 rounded-sm border border-tapbhoj-nonveg p-0.5 flex items-center justify-center flex-shrink-0">
+                    <span class="w-1.5 h-1.5 rounded-full bg-tapbhoj-nonveg"></span>
+                  </span>
+                {% endif %}
+                <span class="text-xs font-semibold text-tapbhoj-ink dark:text-tapbhoj-ink-dark truncate max-w-[180px]">
+                  {{ dish.name }}
+                </span>
+              </div>
+
+              <div class="text-right">
+                <span class="text-xs font-bold text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
+                  {{ dish.count }} ordered
+                </span>
+                <span class="text-[11px] text-tapbhoj-muted dark:text-tapbhoj-muted-dark block">
+                  ₹{{ dish.revenue|floatformat:0 }}
+                </span>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark py-4 text-center">
+          No order data recorded in this period yet.
+        </p>
+      {% endif %}
+    </div>
+
+    <!-- Orders Per Table Breakdown -->
+    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-5 border border-black/5 dark:border-white/10 shadow-sm space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xs uppercase font-bold tracking-wider text-tapbhoj-brand dark:text-tapbhoj-accent">
+          Activity Per Table
+        </h2>
+        <span class="text-[11px] text-tapbhoj-muted dark:text-tapbhoj-muted-dark">By Volume</span>
+      </div>
+
+      {% if orders_by_table %}
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+          {% for t in orders_by_table %}
+            <div class="p-3 rounded-xl bg-tapbhoj-bg dark:bg-tapbhoj-bg-dark border border-black/5 dark:border-white/5 space-y-0.5">
+              <span class="text-xs font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
+                Table {{ t.table }}
+              </span>
+              <p class="text-[11px] text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+                {{ t.count }} orders • ₹{{ t.revenue|floatformat:0 }}
+              </p>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark py-4 text-center">
+          No table activity in this period.
+        </p>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <!-- Orders History Feed -->
+  <div class="space-y-3">
+    <div class="flex items-center justify-between">
+      <h2 class="text-xs uppercase font-bold tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+        Order Records ({{ orders|length }})
+      </h2>
+    </div>
+
+    {% if orders %}
+      <div class="space-y-3">
+        {% for order in orders %}
+          <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 sm:p-5 border border-black/5 dark:border-white/10 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            
+            <!-- Order Details -->
+            <div class="space-y-2 flex-1">
+              <div class="flex items-center space-x-2.5">
+                <span class="px-2.5 py-1 rounded-xl bg-tapbhoj-brand dark:bg-tapbhoj-brand-dark text-tapbhoj-surface dark:text-tapbhoj-bg-dark text-xs font-bold font-heading">
+                  Table {{ order.table_number }}
+                </span>
+                <span class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+                  {{ order.created_at|date:"h:i A, d M" }}
+                </span>
+                
+                <!-- Status Badge -->
+                {% if order.status == 'sent' %}
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300">
+                    Sent on WhatsApp
+                  </span>
+                {% elif order.status == 'preparing' %}
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+                    Preparing
+                  </span>
+                {% elif order.status == 'completed' %}
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+                    Completed
+                  </span>
+                {% else %}
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                    Cancelled
+                  </span>
+                {% endif %}
+              </div>
+
+              <!-- Items Breakdown -->
+              <div class="text-xs text-tapbhoj-ink dark:text-tapbhoj-ink-dark space-y-0.5">
+                <p class="font-medium">
+                  {{ order.items_summary }}
+                </p>
+                {% if order.customer_note %}
+                  <p class="text-[11px] text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-2 py-1 rounded-lg inline-block">
+                    Note: "{{ order.customer_note }}"
+                  </p>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Total Amount & Status Actions -->
+            <div class="flex items-center justify-between sm:justify-end sm:flex-col sm:items-end gap-2 pt-2 sm:pt-0 border-t sm:border-0 border-black/5 dark:border-white/5">
+              <span class="text-lg font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
+                ₹{{ order.total_amount|floatformat:0 }}
+              </span>
+
+              <!-- Status Change Dropdown / Buttons -->
+              <form method="post" action="{% url 'dashboard:order_status' pk=order.pk %}" class="flex items-center space-x-1.5">
+                {% csrf_token %}
+                {% if order.status == 'sent' %}
+                  <input type="hidden" name="status" value="preparing">
+                  <button type="submit" class="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200 text-xs font-semibold hover:bg-amber-200">
+                    Mark Preparing
+                  </button>
+                {% elif order.status == 'preparing' %}
+                  <input type="hidden" name="status" value="completed">
+                  <button type="submit" class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-200 text-xs font-semibold hover:bg-emerald-200">
+                    Mark Completed
+                  </button>
+                {% elif order.status == 'completed' %}
+                  <span class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">✓ Served</span>
+                {% endif %}
+              </form>
+            </div>
+
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-8 border border-black/5 dark:border-white/10 text-center space-y-2">
+        <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">No orders logged in this period.</p>
+        <p class="text-[11px] text-tapbhoj-muted">Orders sent by customers from table QR codes will appear here in real time.</p>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

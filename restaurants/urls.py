@@ -1,6 +1,7 @@
 from django.urls import path
 from billing import views as billing_views
 from menu import views as menu_views
+from orders import views as orders_views
 from . import views
 
 app_name = 'dashboard'
@@ -27,4 +28,8 @@ urlpatterns = [
     # Subscription & Billing
     path('subscription/', billing_views.owner_subscription, name='subscription'),
     path('subscription/renew/', billing_views.owner_renew, name='subscription_renew'),
+
+    # Orders & Insights (Phase 4)
+    path('orders/', orders_views.dashboard_orders, name='orders'),
+    path('orders/<int:pk>/status/', orders_views.order_update_status, name='order_status'),
 ]

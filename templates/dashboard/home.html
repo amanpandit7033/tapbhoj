@@ -42,13 +42,16 @@
   <!-- Key Metrics Grid -->
   <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
     <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
-      <p class="text-[11px] font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Total Dishes</p>
-      <p class="text-2xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">{{ total_items }}</p>
+      <p class="text-[11px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Today's Orders</p>
+      <div class="flex items-baseline space-x-2">
+        <p class="text-2xl font-bold font-heading text-emerald-600 dark:text-emerald-400">{{ today_orders_count }}</p>
+        <span class="text-xs text-tapbhoj-muted">₹{{ today_sales|floatformat:0 }}</span>
+      </div>
     </div>
 
     <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
-      <p class="text-[11px] font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Categories</p>
-      <p class="text-2xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">{{ total_categories }}</p>
+      <p class="text-[11px] font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Total Dishes</p>
+      <p class="text-2xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">{{ total_items }}</p>
     </div>
 
     <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
@@ -65,8 +68,21 @@
   </div>
 
   <!-- Primary Navigation Actions -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
     
+    <!-- Orders & Insights Card -->
+    <a href="{% url 'dashboard:orders' %}" class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-5 border border-black/5 dark:border-white/10 shadow-sm hover:border-tapbhoj-brand/30 dark:hover:border-tapbhoj-accent/30 transition-all flex items-start space-x-4">
+      <div class="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 flex items-center justify-center flex-shrink-0">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+      </div>
+      <div class="space-y-1">
+        <h3 class="font-bold font-heading text-sm text-tapbhoj-ink dark:text-tapbhoj-ink-dark">Orders & Insights</h3>
+        <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark leading-relaxed">
+          View today's live orders, top popular dishes, and table activity.
+        </p>
+      </div>
+    </a>
+
     <!-- Manage Menu Card -->
     <a href="{% url 'dashboard:menu' %}" class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-5 border border-black/5 dark:border-white/10 shadow-sm hover:border-tapbhoj-brand/30 dark:hover:border-tapbhoj-accent/30 transition-all flex items-start space-x-4">
       <div class="w-12 h-12 rounded-xl bg-tapbhoj-brand/10 dark:bg-tapbhoj-accent/20 flex items-center justify-center text-tapbhoj-brand dark:text-tapbhoj-accent flex-shrink-0">

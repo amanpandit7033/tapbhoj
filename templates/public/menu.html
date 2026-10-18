@@ -82,13 +82,37 @@
 
     sendOrder() {
       const url = this.buildWhatsAppUrl();
-      if (url) {
-        window.open(url, '_blank');
-      }
+      if (!url) return;
+
+      // Phase 4: Asynchronously log the order in the database
+      const orderData = {
+        table_number: this.tableNumber.trim(),
+        items: Object.values(this.cart).map(i => ({
+          id: i.id,
+          name: i.name,
+          price: i.price,
+          quantity: i.quantity,
+          item_total: i.quantity * i.price,
+          is_veg: i.is_veg
+        })),
+        total_amount: this.totalPrice,
+        customer_note: this.orderNote.trim()
+      };
+
+      try {
+        fetch("{% url 'public:log_order' slug=restaurant.slug %}", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+          },
+          body: JSON.stringify(orderData)
+        }).catch(() => {});
+      } catch (err) {}
+
+      window.open(url, '_blank');
     }
-  }"
-  class="relative min-h-screen flex flex-col pb-28"
->
+  }" class="relative min-h-screen flex flex-col pb-28">
   
   <!-- Top Navigation & Restaurant Header -->
   <header class="sticky top-0 z-30 bg-tapbhoj-surface/95 dark:bg-tapbhoj-surface-dark/95 backdrop-blur-md border-b border-black/5 dark:border-white/10 px-4 py-3">

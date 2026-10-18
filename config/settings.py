@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'menu.apps.MenuConfig',
     'public.apps.PublicConfig',
     'billing.apps.BillingConfig',
+    'orders.apps.OrdersConfig',
 ]
 
 LOGIN_URL = 'login'

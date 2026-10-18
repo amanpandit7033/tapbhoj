@@ -247,15 +247,47 @@ class Command(BaseCommand):
         # Seed Subscriptions
         sub1, _ = Subscription.objects.get_or_create(restaurant=restaurant)
         sub1.plan = plan_starter
-        sub1.activate_trial(trial_days=14)
+        # Seed Sample Orders for Dilli Rasoi (Phase 4)
+        from orders.models import OrderLog
+        OrderLog.objects.filter(restaurant=restaurant).delete()
 
-        sub2, _ = Subscription.objects.get_or_create(restaurant=chai_restaurant)
-        sub2.plan = plan_starter
-        sub2.status = 'paused'
-        sub2.save()
+        OrderLog.objects.create(
+            restaurant=restaurant,
+            table_number='3',
+            items_json=[
+                {'id': 1, 'name': 'Paneer Tikka', 'price': 260.0, 'quantity': 2, 'item_total': 520.0, 'is_veg': True},
+                {'id': 3, 'name': 'Butter Naan', 'price': 55.0, 'quantity': 2, 'item_total': 110.0, 'is_veg': True},
+            ],
+            total_amount=Decimal('630.00'),
+            customer_note='Less spicy please',
+            status='sent',
+        )
+
+        OrderLog.objects.create(
+            restaurant=restaurant,
+            table_number='5',
+            items_json=[
+                {'id': 2, 'name': 'Dal Makhani', 'price': 280.0, 'quantity': 1, 'item_total': 280.0, 'is_veg': True},
+                {'id': 3, 'name': 'Butter Naan', 'price': 55.0, 'quantity': 4, 'item_total': 220.0, 'is_veg': True},
+                {'id': 4, 'name': 'Chicken Malai Tikka', 'price': 320.0, 'quantity': 1, 'item_total': 320.0, 'is_veg': False},
+            ],
+            total_amount=Decimal('820.00'),
+            status='preparing',
+        )
+
+        OrderLog.objects.create(
+            restaurant=restaurant,
+            table_number='1',
+            items_json=[
+                {'id': 2, 'name': 'Dal Makhani', 'price': 280.0, 'quantity': 1, 'item_total': 280.0, 'is_veg': True},
+                {'id': 5, 'name': 'Special Masala Chaas', 'price': 70.0, 'quantity': 2, 'item_total': 140.0, 'is_veg': True},
+            ],
+            total_amount=Decimal('420.00'),
+            status='completed',
+        )
 
         self.stdout.write(self.style.SUCCESS(
-            'Successfully seeded pilot data, owners, plans, and admin:\n'
+            'Successfully seeded pilot data, owners, plans, orders, and admin:\n'
             '  Platform Staff: username=admin, password=Admin@123\n'
             '  Owner 1: username=owner, password=Password@123 (Dilli Rasoi)\n'
             '  Owner 2: username=owner2, password=Password@123 (Chai Shai Cafe)\n'
