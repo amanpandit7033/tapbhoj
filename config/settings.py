@@ -29,10 +29,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # TapBhoj apps
     'core.apps.CoreConfig',
+    'accounts.apps.AccountsConfig',
     'restaurants.apps.RestaurantsConfig',
     'menu.apps.MenuConfig',
     'public.apps.PublicConfig',
 ]
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'dashboard:home'
+LOGOUT_REDIRECT_URL = 'login'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

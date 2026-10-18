@@ -1,0 +1,69 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ restaurant.name }} - Table QR Cards</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&family=Figtree:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <style>
+    @media print {
+      body { background: white !important; }
+      .no-print { display: none !important; }
+      .page-break { page-break-after: always; }
+    }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-900 font-sans p-6">
+
+  <!-- Print Action Toolbar -->
+  <div class="no-print max-w-4xl mx-auto mb-6 p-4 bg-white rounded-2xl shadow-sm flex items-center justify-between">
+    <div>
+      <h1 class="text-lg font-bold font-heading">Print Table Cards</h1>
+      <p class="text-xs text-gray-500">Ready to print for table tents, stickers, or acrylic holders.</p>
+    </div>
+    <div class="flex items-center space-x-3">
+      <button onclick="window.print()" class="px-5 py-2.5 rounded-xl bg-tapbhoj-brand text-white font-bold text-xs shadow-md">
+        🖨️ Print Cards
+      </button>
+      <button onclick="window.close()" class="px-4 py-2.5 rounded-xl border border-gray-200 text-xs font-semibold">
+        Close
+      </button>
+    </div>
+  </div>
+
+  <!-- Cards Grid (optimized for 2-column or 3-column printing) -->
+  <div class="max-w-4xl mx-auto grid grid-cols-2 gap-6">
+    {% for table in tables %}
+      <div class="bg-white border-2 border-gray-900 rounded-3xl p-6 text-center flex flex-col items-center justify-between space-y-4 shadow-sm">
+        
+        <!-- Header -->
+        <div class="space-y-1">
+          <p class="text-xs uppercase font-extrabold tracking-widest text-emerald-800">TapBhoj Digital Menu</p>
+          <h2 class="text-2xl font-extrabold font-heading text-gray-900">{{ restaurant.name }}</h2>
+          <div class="inline-block px-3 py-1 rounded-full bg-gray-900 text-white font-heading font-extrabold text-sm tracking-wide">
+            TABLE {{ table.number }}
+          </div>
+        </div>
+
+        <!-- High-res QR Code -->
+        <div class="p-3 bg-white border border-gray-200 rounded-2xl shadow-inner">
+          <img src="{{ table.qr_url }}" alt="Table {{ table.number }} QR" class="w-44 h-44 object-contain">
+        </div>
+
+        <!-- Instructions -->
+        <div class="space-y-1">
+          <p class="text-xs font-bold text-gray-900">
+            📱 Tap Phone on NFC or Scan QR Code
+          </p>
+          <p class="text-[11px] text-gray-500">
+            Browse full menu & send order instantly via WhatsApp
+          </p>
+        </div>
+
+      </div>
+    {% endfor %}
+  </div>
+
+</body>
+</html>

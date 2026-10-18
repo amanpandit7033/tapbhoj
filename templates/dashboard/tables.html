@@ -1,0 +1,98 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Tables & QR Codes - {{ restaurant.name }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="space-y-6" x-data="{ copiedTable: null }">
+
+  <!-- Header with Print All Table Cards CTA -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/5 dark:border-white/10 pb-4">
+    <div>
+      <h1 class="text-xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">Tables & QR Codes</h1>
+      <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+        Showing all {{ restaurant.number_of_tables }} tables. Write these URLs onto NFC cards or print QR codes.
+      </p>
+    </div>
+
+    <div class="flex items-center space-x-2">
+      <a 
+        href="{% url 'dashboard:table_print' %}" 
+        target="_blank"
+        class="min-h-[40px] px-4 py-2 rounded-xl bg-tapbhoj-brand dark:bg-tapbhoj-brand-dark text-tapbhoj-surface dark:text-tapbhoj-bg-dark text-xs font-bold font-heading shadow-md hover:opacity-95 flex items-center space-x-2"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+        <span>Print Table Stands Sheet</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Table Cards Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+    {% for table in tables %}
+      <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-5 border border-black/5 dark:border-white/10 shadow-sm flex flex-col justify-between space-y-4">
+        
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <span class="w-9 h-9 rounded-xl bg-tapbhoj-brand/10 dark:bg-tapbhoj-accent/20 flex items-center justify-center font-bold font-heading text-sm text-tapbhoj-brand dark:text-tapbhoj-accent">
+              T-{{ table.number }}
+            </span>
+            <span class="font-bold text-sm text-tapbhoj-ink dark:text-tapbhoj-ink-dark">Table {{ table.number }}</span>
+          </div>
+
+          <!-- Preview / QR Icon link -->
+          <a 
+            href="{% url 'dashboard:table_qr' table_number=table.number %}" 
+            target="_blank" 
+            class="p-1.5 rounded-lg text-tapbhoj-muted hover:text-tapbhoj-ink dark:hover:text-tapbhoj-ink-dark"
+            title="Preview QR Code"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
+          </a>
+        </div>
+
+        <!-- URL Box -->
+        <div class="p-2.5 rounded-xl bg-tapbhoj-bg dark:bg-tapbhoj-bg-dark border border-black/5 dark:border-white/5 space-y-1">
+          <p class="text-[10px] uppercase font-bold text-tapbhoj-muted dark:text-tapbhoj-muted-dark tracking-wider">NFC / Direct URL</p>
+          <p class="text-xs font-mono text-tapbhoj-ink dark:text-tapbhoj-ink-dark truncate" title="{{ table.url }}">
+            {{ table.url }}
+          </p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button 
+            type="button"
+            @click="
+              navigator.clipboard.writeText('{{ table.url }}');
+              copiedTable = {{ table.number }};
+              setTimeout(() => { if (copiedTable === {{ table.number }}) copiedTable = null; }, 2000);
+            "
+            class="min-h-[38px] px-2.5 py-1.5 rounded-xl border border-black/10 dark:border-white/10 text-xs font-semibold text-tapbhoj-ink dark:text-tapbhoj-ink-dark hover:bg-tapbhoj-bg dark:hover:bg-tapbhoj-bg-dark flex items-center justify-center space-x-1 transition-colors"
+          >
+            <template x-if="copiedTable !== {{ table.number }}">
+              <span class="flex items-center space-x-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                <span>Copy</span>
+              </span>
+            </template>
+            <template x-if="copiedTable === {{ table.number }}">
+              <span class="text-emerald-600 dark:text-emerald-400 font-bold">Copied!</span>
+            </template>
+          </button>
+
+          <a 
+            href="{% url 'dashboard:table_qr' table_number=table.number %}" 
+            download="{{ restaurant.slug }}-table-{{ table.number }}-qr.png"
+            class="min-h-[38px] px-2.5 py-1.5 rounded-xl bg-tapbhoj-brand dark:bg-tapbhoj-brand-dark text-tapbhoj-surface dark:text-tapbhoj-bg-dark text-xs font-semibold flex items-center justify-center space-x-1 hover:opacity-95 shadow-sm"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+            <span>QR Code</span>
+          </a>
+        </div>
+
+      </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}

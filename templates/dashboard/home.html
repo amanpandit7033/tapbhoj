@@ -1,0 +1,99 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Dashboard - {{ restaurant.name }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="space-y-6">
+
+  <!-- Status & Quick Action Hero -->
+  <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-5 sm:p-6 border border-black/5 dark:border-white/10 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="space-y-1">
+      <div class="flex items-center space-x-2">
+        <h1 class="text-xl sm:text-2xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
+          {{ restaurant.name }}
+        </h1>
+      </div>
+      <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+        WhatsApp orders will be directed to: <span class="font-bold text-tapbhoj-ink dark:text-tapbhoj-ink-dark">+{{ restaurant.whatsapp_number }}</span>
+      </p>
+    </div>
+
+    <!-- Toggle Status Button -->
+    <form method="post" action="{% url 'dashboard:toggle_status' %}">
+      {% csrf_token %}
+      {% if restaurant.status == 'active' %}
+        <button 
+          type="submit" 
+          class="min-h-[44px] w-full sm:w-auto px-4 py-2.5 rounded-xl border border-amber-300 dark:border-amber-700/60 bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-200 text-xs font-semibold hover:bg-amber-100 transition-colors"
+        >
+          ⏸ Pause Digital Menu
+        </button>
+      {% else %}
+        <button 
+          type="submit" 
+          class="min-h-[44px] w-full sm:w-auto px-4 py-2.5 rounded-xl bg-tapbhoj-brand dark:bg-tapbhoj-brand-dark text-tapbhoj-surface dark:text-tapbhoj-bg-dark text-xs font-bold font-heading shadow-md hover:opacity-95 transition-opacity"
+        >
+          ▶ Activate Menu
+        </button>
+      {% endif %}
+    </form>
+  </div>
+
+  <!-- Key Metrics Grid -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
+      <p class="text-[11px] font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Total Dishes</p>
+      <p class="text-2xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">{{ total_items }}</p>
+    </div>
+
+    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
+      <p class="text-[11px] font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Categories</p>
+      <p class="text-2xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">{{ total_categories }}</p>
+    </div>
+
+    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
+      <p class="text-[11px] font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Sold Out</p>
+      <p class="text-2xl font-bold font-heading {% if sold_out_items > 0 %}text-amber-600 dark:text-amber-400{% else %}text-tapbhoj-ink dark:text-tapbhoj-ink-dark{% endif %}">
+        {{ sold_out_items }}
+      </p>
+    </div>
+
+    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
+      <p class="text-[11px] font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Tables</p>
+      <p class="text-2xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">{{ number_of_tables }}</p>
+    </div>
+  </div>
+
+  <!-- Primary Navigation Actions -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    
+    <!-- Manage Menu Card -->
+    <a href="{% url 'dashboard:menu' %}" class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-5 border border-black/5 dark:border-white/10 shadow-sm hover:border-tapbhoj-brand/30 dark:hover:border-tapbhoj-accent/30 transition-all flex items-start space-x-4">
+      <div class="w-12 h-12 rounded-xl bg-tapbhoj-brand/10 dark:bg-tapbhoj-accent/20 flex items-center justify-center text-tapbhoj-brand dark:text-tapbhoj-accent flex-shrink-0">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+      </div>
+      <div class="space-y-1">
+        <h3 class="font-bold font-heading text-sm text-tapbhoj-ink dark:text-tapbhoj-ink-dark">Manage Menu Items</h3>
+        <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark leading-relaxed">
+          Add new dishes, update prices, and mark sold-out items with one tap.
+        </p>
+      </div>
+    </a>
+
+    <!-- Table QR Codes Card -->
+    <a href="{% url 'dashboard:tables' %}" class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-5 border border-black/5 dark:border-white/10 shadow-sm hover:border-tapbhoj-brand/30 dark:hover:border-tapbhoj-accent/30 transition-all flex items-start space-x-4">
+      <div class="w-12 h-12 rounded-xl bg-tapbhoj-accent/15 flex items-center justify-center text-tapbhoj-ink dark:text-tapbhoj-accent flex-shrink-0">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
+      </div>
+      <div class="space-y-1">
+        <h3 class="font-bold font-heading text-sm text-tapbhoj-ink dark:text-tapbhoj-ink-dark">Table Links & QR Codes</h3>
+        <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark leading-relaxed">
+          Download high-resolution QR codes for each table and print table tent cards.
+        </p>
+      </div>
+    </a>
+
+  </div>
+
+</div>
+{% endblock %}

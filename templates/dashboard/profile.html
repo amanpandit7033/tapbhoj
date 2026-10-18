@@ -1,0 +1,122 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Restaurant Settings - {{ restaurant.name }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-2xl mx-auto space-y-6">
+  
+  <div class="border-b border-black/5 dark:border-white/10 pb-3 flex items-center justify-between">
+    <div>
+      <h1 class="text-xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">Restaurant Profile & Settings</h1>
+      <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Update your restaurant details, WhatsApp number, and table capacity.</p>
+    </div>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-5 sm:p-7 border border-black/5 dark:border-white/10 shadow-sm space-y-5">
+    {% csrf_token %}
+
+    <!-- Restaurant Name -->
+    <div class="space-y-1.5">
+      <label for="{{ form.name.id_for_label }}" class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+        Restaurant Name <span class="text-red-500">*</span>
+      </label>
+      {{ form.name }}
+      {% if form.name.errors %}
+        <p class="text-xs text-red-500">{{ form.name.errors.0 }}</p>
+      {% endif %}
+    </div>
+
+    <!-- WhatsApp Number -->
+    <div class="space-y-1.5">
+      <label for="{{ form.whatsapp_number.id_for_label }}" class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+        WhatsApp Order Number <span class="text-red-500">*</span>
+      </label>
+      {{ form.whatsapp_number }}
+      <p class="text-[11px] text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+        Orders from customers' phones will be sent directly to this WhatsApp number. Use country code without + (e.g. 919876543210).
+      </p>
+      {% if form.whatsapp_number.errors %}
+        <p class="text-xs text-red-500">{{ form.whatsapp_number.errors.0 }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Number of Tables -->
+    <div class="space-y-1.5">
+      <label for="{{ form.number_of_tables.id_for_label }}" class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+        Total Physical Tables <span class="text-red-500">*</span>
+      </label>
+      {{ form.number_of_tables }}
+      <p class="text-[11px] text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+        TapBhoj will generate distinct QR codes and NFC URLs for each table up to this number.
+      </p>
+      {% if form.number_of_tables.errors %}
+        <p class="text-xs text-red-500">{{ form.number_of_tables.errors.0 }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Address -->
+    <div class="space-y-1.5">
+      <label for="{{ form.address.id_for_label }}" class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+        Restaurant Address
+      </label>
+      {{ form.address }}
+      {% if form.address.errors %}
+        <p class="text-xs text-red-500">{{ form.address.errors.0 }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Google Review URL -->
+    <div class="space-y-1.5">
+      <label for="{{ form.google_review_url.id_for_label }}" class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+        Google Review Link
+      </label>
+      {{ form.google_review_url }}
+      <p class="text-[11px] text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+        Shown at the bottom of the public menu so diners can quickly leave a 5-star Google review.
+      </p>
+      {% if form.google_review_url.errors %}
+        <p class="text-xs text-red-500">{{ form.google_review_url.errors.0 }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Description / Tagline -->
+    <div class="space-y-1.5">
+      <label for="{{ form.description.id_for_label }}" class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+        Short Tagline / Description
+      </label>
+      {{ form.description }}
+      {% if form.description.errors %}
+        <p class="text-xs text-red-500">{{ form.description.errors.0 }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Logo Upload -->
+    <div class="space-y-1.5">
+      <label for="{{ form.logo.id_for_label }}" class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+        Restaurant Logo
+      </label>
+      {% if restaurant.logo %}
+        <div class="flex items-center space-x-3 mb-2">
+          <img src="{{ restaurant.logo.url }}" alt="{{ restaurant.name }}" class="w-12 h-12 rounded-xl object-cover border border-black/10">
+          <span class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Current Logo</span>
+        </div>
+      {% endif %}
+      {{ form.logo }}
+      {% if form.logo.errors %}
+        <p class="text-xs text-red-500">{{ form.logo.errors.0 }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Submit Button -->
+    <div class="pt-4 border-t border-black/5 dark:border-white/10 flex justify-end">
+      <button 
+        type="submit" 
+        class="min-h-[44px] px-6 py-2.5 rounded-xl bg-tapbhoj-brand dark:bg-tapbhoj-brand-dark text-tapbhoj-surface dark:text-tapbhoj-bg-dark font-bold font-heading text-sm shadow-md hover:opacity-95 active:scale-95 transition-all"
+      >
+        Save Changes
+      </button>
+    </div>
+
+  </form>
+</div>
+{% endblock %}

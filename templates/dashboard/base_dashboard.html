@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col bg-tapbhoj-bg dark:bg-tapbhoj-bg-dark pb-20 md:pb-8" x-data="{ isDark: document.documentElement.classList.contains('dark') }">
+  
+  <!-- Dashboard Top Bar -->
+  <header class="sticky top-0 z-30 bg-tapbhoj-surface/95 dark:bg-tapbhoj-surface-dark/95 backdrop-blur-md border-b border-black/5 dark:border-white/10 px-4 py-3">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      
+      <!-- Restaurant Identity -->
+      <div class="flex items-center space-x-3">
+        <a href="{% url 'dashboard:home' %}" class="flex items-center space-x-2">
+          <img src="{% static 'images/tapbhoj-icon.svg' %}" alt="TapBhoj" class="w-9 h-9 rounded-xl shadow-sm">
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="font-bold font-heading text-sm text-tapbhoj-ink dark:text-tapbhoj-ink-dark">{{ restaurant.name }}</span>
+              {% if restaurant.status == 'active' %}
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1 animate-pulse"></span>
+                  Active
+                </span>
+              {% else %}
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+                  Paused
+                </span>
+              {% endif %}
+            </div>
+            <p class="text-[11px] text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Owner Dashboard</p>
+          </div>
+        </a>
+      </div>
+
+      <!-- Header Actions (Live Menu link, Theme Toggle, Logout) -->
+      <div class="flex items-center space-x-2">
+        <a 
+          href="{% url 'public:menu' slug=restaurant.slug %}" 
+          target="_blank"
+          class="hidden sm:inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-tapbhoj-bg dark:bg-tapbhoj-bg-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark hover:bg-tapbhoj-surface transition-colors"
+        >
+          <span>View Public Menu</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+        </a>
+
+        <!-- Theme Toggle -->
+        <button 
+          type="button"
+          @click="
+            isDark = !isDark;
+            if (isDark) {
+              document.documentElement.classList.add('dark');
+              localStorage.setItem('theme', 'dark');
+            } else {
+              document.documentElement.classList.remove('dark');
+              localStorage.setItem('theme', 'light');
+            }
+          "
+          class="w-9 h-9 flex items-center justify-center rounded-xl text-tapbhoj-muted dark:text-tapbhoj-muted-dark hover:bg-tapbhoj-bg dark:hover:bg-tapbhoj-bg-dark transition-colors"
+          aria-label="Toggle dark mode"
+        >
+          <template x-if="!isDark">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+          </template>
+          <template x-if="isDark">
+            <svg class="w-4 h-4 text-tapbhoj-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 9h-1m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+          </template>
+        </button>
+
+        <!-- Logout Form -->
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button 
+            type="submit" 
+            class="w-9 h-9 flex items-center justify-center rounded-xl text-tapbhoj-muted hover:text-red-600 dark:hover:text-red-400 transition-colors"
+            title="Sign Out"
+            aria-label="Sign out"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Desktop Sub-Navigation -->
+  <nav class="hidden md:block bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border-b border-black/5 dark:border-white/5">
+    <div class="max-w-4xl mx-auto flex items-center space-x-6 px-4">
+      <a href="{% url 'dashboard:home' %}" class="py-3 text-xs font-semibold border-b-2 {% if request.resolver_match.url_name == 'home' %}border-tapbhoj-brand dark:border-tapbhoj-accent text-tapbhoj-brand dark:text-tapbhoj-accent{% else %}border-transparent text-tapbhoj-muted hover:text-tapbhoj-ink dark:hover:text-tapbhoj-ink-dark{% endif %}">
+        Home
+      </a>
+      <a href="{% url 'dashboard:menu' %}" class="py-3 text-xs font-semibold border-b-2 {% if 'menu' in request.resolver_match.url_name %}border-tapbhoj-brand dark:border-tapbhoj-accent text-tapbhoj-brand dark:text-tapbhoj-accent{% else %}border-transparent text-tapbhoj-muted hover:text-tapbhoj-ink dark:hover:text-tapbhoj-ink-dark{% endif %}">
+        Menu Manager
+      </a>
+      <a href="{% url 'dashboard:tables' %}" class="py-3 text-xs font-semibold border-b-2 {% if 'tables' in request.resolver_match.url_name %}border-tapbhoj-brand dark:border-tapbhoj-accent text-tapbhoj-brand dark:text-tapbhoj-accent{% else %}border-transparent text-tapbhoj-muted hover:text-tapbhoj-ink dark:hover:text-tapbhoj-ink-dark{% endif %}">
+        Tables & QR Codes
+      </a>
+      <a href="{% url 'dashboard:profile' %}" class="py-3 text-xs font-semibold border-b-2 {% if request.resolver_match.url_name == 'profile' %}border-tapbhoj-brand dark:border-tapbhoj-accent text-tapbhoj-brand dark:text-tapbhoj-accent{% else %}border-transparent text-tapbhoj-muted hover:text-tapbhoj-ink dark:hover:text-tapbhoj-ink-dark{% endif %}">
+        Settings & Profile
+      </a>
+    </div>
+  </nav>
+
+  <!-- Flash Messages -->
+  <div class="max-w-4xl mx-auto w-full px-4 pt-4">
+    {% if messages %}
+      <div class="space-y-2">
+        {% for message in messages %}
+          <div class="p-3.5 rounded-xl text-xs font-medium flex items-center justify-between shadow-sm {% if message.tags == 'success' %}bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50{% elif message.tags == 'error' %}bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800/50{% else %}bg-blue-50 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/50{% endif %}">
+            <span>{{ message }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Dashboard Page Content -->
+  <main class="max-w-4xl mx-auto w-full px-4 py-4 flex-1">
+    {% block dashboard_content %}{% endblock %}
+  </main>
+
+  <!-- Mobile Bottom Navigation Bar (Thumb friendly, min 44px tap targets) -->
+  <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-tapbhoj-surface/95 dark:bg-tapbhoj-surface-dark/95 backdrop-blur-md border-t border-black/10 dark:border-white/10">
+    <div class="grid grid-cols-4 h-16">
+      <a 
+        href="{% url 'dashboard:home' %}" 
+        class="flex flex-col items-center justify-center space-y-1 text-xs font-medium {% if request.resolver_match.url_name == 'home' %}text-tapbhoj-brand dark:text-tapbhoj-accent font-bold{% else %}text-tapbhoj-muted dark:text-tapbhoj-muted-dark{% endif %}"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+        <span>Home</span>
+      </a>
+      <a 
+        href="{% url 'dashboard:menu' %}" 
+        class="flex flex-col items-center justify-center space-y-1 text-xs font-medium {% if 'menu' in request.resolver_match.url_name %}text-tapbhoj-brand dark:text-tapbhoj-accent font-bold{% else %}text-tapbhoj-muted dark:text-tapbhoj-muted-dark{% endif %}"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+        <span>Menu</span>
+      </a>
+      <a 
+        href="{% url 'dashboard:tables' %}" 
+        class="flex flex-col items-center justify-center space-y-1 text-xs font-medium {% if 'tables' in request.resolver_match.url_name %}text-tapbhoj-brand dark:text-tapbhoj-accent font-bold{% else %}text-tapbhoj-muted dark:text-tapbhoj-muted-dark{% endif %}"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
+        <span>Tables</span>
+      </a>
+      <a 
+        href="{% url 'dashboard:profile' %}" 
+        class="flex flex-col items-center justify-center space-y-1 text-xs font-medium {% if request.resolver_match.url_name == 'profile' %}text-tapbhoj-brand dark:text-tapbhoj-accent font-bold{% else %}text-tapbhoj-muted dark:text-tapbhoj-muted-dark{% endif %}"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+        <span>Profile</span>
+      </a>
+    </div>
+  </nav>
+
+</div>
+{% endblock %}

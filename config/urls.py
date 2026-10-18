@@ -9,6 +9,8 @@ from core.views import index
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', include('accounts.urls')),
+    path('dashboard/', include('restaurants.urls', namespace='dashboard')),
     path('', include('public.urls', namespace='public')),
     path('', index, name='index'),
 ]

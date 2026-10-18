@@ -1,0 +1,141 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}{% if is_edit %}Edit Dish{% else %}Add Dish{% endif %} - {{ restaurant.name }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-xl mx-auto space-y-6">
+  
+  <div class="border-b border-black/5 dark:border-white/10 pb-3 flex items-center justify-between">
+    <div>
+      <h1 class="text-xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
+        {% if is_edit %}Edit Dish{% else %}Add Dish to Menu{% endif %}
+      </h1>
+      <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Enter dish details, pricing, and diet type.</p>
+    </div>
+    <a href="{% url 'dashboard:menu' %}" class="text-xs font-semibold text-tapbhoj-muted hover:text-tapbhoj-ink dark:hover:text-tapbhoj-ink-dark">
+      ← Back to Menu
+    </a>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-5 sm:p-7 border border-black/5 dark:border-white/10 shadow-sm space-y-5">
+    {% csrf_token %}
+
+    <!-- Category Selection (Scoper) -->
+    <div class="space-y-1.5">
+      <label for="{{ form.category.id_for_label }}" class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+        Category <span class="text-red-500">*</span>
+      </label>
+      {{ form.category }}
+      {% if form.category.errors %}
+        <p class="text-xs text-red-500">{{ form.category.errors.0 }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Dish Name -->
+    <div class="space-y-1.5">
+      <label for="{{ form.name.id_for_label }}" class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+        Dish Name <span class="text-red-500">*</span>
+      </label>
+      {{ form.name }}
+      {% if form.name.errors %}
+        <p class="text-xs text-red-500">{{ form.name.errors.0 }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Price (INR) -->
+    <div class="space-y-1.5">
+      <label for="{{ form.price.id_for_label }}" class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+        Price in Rupees (₹) <span class="text-red-500">*</span>
+      </label>
+      <div class="relative">
+        <span class="absolute left-3.5 top-2.5 text-sm font-bold text-tapbhoj-muted dark:text-tapbhoj-muted-dark">₹</span>
+        <div class="pl-5">
+          {{ form.price }}
+        </div>
+      </div>
+      {% if form.price.errors %}
+        <p class="text-xs text-red-500">{{ form.price.errors.0 }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Veg / Non-Veg Checkbox -->
+    <div class="p-3.5 rounded-xl bg-tapbhoj-bg dark:bg-tapbhoj-bg-dark border border-black/5 dark:border-white/5 flex items-center justify-between">
+      <div>
+        <label for="{{ form.is_veg.id_for_label }}" class="text-xs font-bold text-tapbhoj-ink dark:text-tapbhoj-ink-dark cursor-pointer">
+          Vegetarian Dish
+        </label>
+        <p class="text-[11px] text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Checked = Veg (Green dot), Unchecked = Non-Veg (Red dot)</p>
+      </div>
+      {{ form.is_veg }}
+    </div>
+
+    <!-- Description -->
+    <div class="space-y-1.5">
+      <label for="{{ form.description.id_for_label }}" class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+        Description
+      </label>
+      {{ form.description }}
+      {% if form.description.errors %}
+        <p class="text-xs text-red-500">{{ form.description.errors.0 }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Tags (Bestseller, Spicy, etc.) -->
+    <div class="space-y-1.5">
+      <label for="{{ form.tags.id_for_label }}" class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+        Highlight Tags
+      </label>
+      {{ form.tags }}
+      <p class="text-[11px] text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Comma-separated, e.g. Bestseller, Chef's Pick, Jain Option</p>
+      {% if form.tags.errors %}
+        <p class="text-xs text-red-500">{{ form.tags.errors.0 }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Availability & Position Row -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="space-y-1.5">
+        <label for="{{ form.position.id_for_label }}" class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+          Display Position
+        </label>
+        {{ form.position }}
+      </div>
+
+      <div class="flex items-center space-x-2 pt-6">
+        {{ form.is_available }}
+        <label for="{{ form.is_available.id_for_label }}" class="text-xs font-semibold text-tapbhoj-ink dark:text-tapbhoj-ink-dark cursor-pointer">
+          Available for ordering
+        </label>
+      </div>
+    </div>
+
+    <!-- Photo Upload -->
+    <div class="space-y-1.5">
+      <label for="{{ form.photo.id_for_label }}" class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+        Dish Photo (Optional)
+      </label>
+      {% if item.photo %}
+        <div class="flex items-center space-x-3 mb-2">
+          <img src="{{ item.photo.url }}" alt="{{ item.name }}" class="w-12 h-12 rounded-xl object-cover border border-black/10">
+          <span class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Current photo</span>
+        </div>
+      {% endif %}
+      {{ form.photo }}
+    </div>
+
+    <!-- Submit Button -->
+    <div class="pt-4 border-t border-black/5 dark:border-white/10 flex items-center justify-end space-x-3">
+      <a href="{% url 'dashboard:menu' %}" class="min-h-[44px] px-4 py-2.5 rounded-xl border border-black/10 dark:border-white/10 text-xs font-semibold text-tapbhoj-muted hover:text-tapbhoj-ink dark:hover:text-tapbhoj-ink-dark flex items-center">
+        Cancel
+      </a>
+      <button 
+        type="submit" 
+        class="min-h-[44px] px-6 py-2.5 rounded-xl bg-tapbhoj-brand dark:bg-tapbhoj-brand-dark text-tapbhoj-surface dark:text-tapbhoj-bg-dark font-bold font-heading text-sm shadow-md hover:opacity-95 active:scale-95 transition-all"
+      >
+        {% if is_edit %}Save Changes{% else %}Add Dish to Menu{% endif %}
+      </button>
+    </div>
+
+  </form>
+</div>
+{% endblock %}

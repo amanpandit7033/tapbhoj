@@ -174,14 +174,47 @@ class Command(BaseCommand):
                 )
 
         # Also create a paused restaurant for verification of C9
-        Restaurant.objects.update_or_create(
+        chai_restaurant, _ = Restaurant.objects.update_or_create(
             slug='chai-shai',
             defaults={
                 'name': 'Chai Shai Cafe',
                 'description': 'Artisanal teas and cafe bites.',
                 'whatsapp_number': '919876543211',
                 'status': 'paused',
+                'number_of_tables': 6,
             }
         )
 
-        self.stdout.write(self.style.SUCCESS('Successfully seeded pilot data for Dilli Rasoi and Chai Shai Cafe.'))
+        # Create or update Owner Users for Testing
+        from django.contrib.auth.models import User
+        from accounts.models import OwnerProfile
+
+        # Owner 1 (Dilli Rasoi)
+        owner_user, _ = User.objects.update_or_create(
+            username='owner',
+            defaults={'email': 'owner@dillirasoi.com', 'is_staff': False}
+        )
+        owner_user.set_password('Password@123')
+        owner_user.save()
+        OwnerProfile.objects.update_or_create(
+            user=owner_user,
+            defaults={'restaurant': restaurant}
+        )
+
+        # Owner 2 (Chai Shai Cafe - for tenant isolation testing)
+        owner_user2, _ = User.objects.update_or_create(
+            username='owner2',
+            defaults={'email': 'owner@chaishai.com', 'is_staff': False}
+        )
+        owner_user2.set_password('Password@123')
+        owner_user2.save()
+        OwnerProfile.objects.update_or_create(
+            user=owner_user2,
+            defaults={'restaurant': chai_restaurant}
+        )
+
+        self.stdout.write(self.style.SUCCESS(
+            'Successfully seeded pilot data and owners:\n'
+            '  Owner 1: username=owner, password=Password@123 (Dilli Rasoi)\n'
+            '  Owner 2: username=owner2, password=Password@123 (Chai Shai Cafe)'
+        ))

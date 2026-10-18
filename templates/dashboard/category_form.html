@@ -1,0 +1,65 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}{% if is_edit %}Edit Category{% else %}Add Category{% endif %} - {{ restaurant.name }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-xl mx-auto space-y-6">
+  
+  <div class="border-b border-black/5 dark:border-white/10 pb-3 flex items-center justify-between">
+    <div>
+      <h1 class="text-xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
+        {% if is_edit %}Edit Category{% else %}Add Category{% endif %}
+      </h1>
+      <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Food categories group related items on the public menu.</p>
+    </div>
+    <a href="{% url 'dashboard:menu' %}" class="text-xs font-semibold text-tapbhoj-muted hover:text-tapbhoj-ink dark:hover:text-tapbhoj-ink-dark">
+      ← Back to Menu
+    </a>
+  </div>
+
+  <form method="post" class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-5 sm:p-7 border border-black/5 dark:border-white/10 shadow-sm space-y-5">
+    {% csrf_token %}
+
+    <div class="space-y-1.5">
+      <label for="{{ form.name.id_for_label }}" class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+        Category Name <span class="text-red-500">*</span>
+      </label>
+      {{ form.name }}
+      {% if form.name.errors %}
+        <p class="text-xs text-red-500">{{ form.name.errors.0 }}</p>
+      {% endif %}
+    </div>
+
+    <div class="space-y-1.5">
+      <label for="{{ form.position.id_for_label }}" class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+        Display Order
+      </label>
+      {{ form.position }}
+      <p class="text-[11px] text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Lower numbers appear first on the menu (e.g. 1 for Starters, 2 for Mains).</p>
+      {% if form.position.errors %}
+        <p class="text-xs text-red-500">{{ form.position.errors.0 }}</p>
+      {% endif %}
+    </div>
+
+    <div class="flex items-center space-x-2 pt-2">
+      {{ form.is_visible }}
+      <label for="{{ form.is_visible.id_for_label }}" class="text-xs font-semibold text-tapbhoj-ink dark:text-tapbhoj-ink-dark cursor-pointer">
+        Visible on public menu
+      </label>
+    </div>
+
+    <div class="pt-4 border-t border-black/5 dark:border-white/10 flex items-center justify-end space-x-3">
+      <a href="{% url 'dashboard:menu' %}" class="min-h-[44px] px-4 py-2.5 rounded-xl border border-black/10 dark:border-white/10 text-xs font-semibold text-tapbhoj-muted hover:text-tapbhoj-ink dark:hover:text-tapbhoj-ink-dark flex items-center">
+        Cancel
+      </a>
+      <button 
+        type="submit" 
+        class="min-h-[44px] px-6 py-2.5 rounded-xl bg-tapbhoj-brand dark:bg-tapbhoj-brand-dark text-tapbhoj-surface dark:text-tapbhoj-bg-dark font-bold font-heading text-sm shadow-md hover:opacity-95 active:scale-95 transition-all"
+      >
+        {% if is_edit %}Save Changes{% else %}Add Category{% endif %}
+      </button>
+    </div>
+
+  </form>
+</div>
+{% endblock %}
