@@ -11,8 +11,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
   
-  <!-- Compiled Tailwind CSS -->
-  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <!-- Compiled Tailwind CSS with auto cache-busting in development -->
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}?v={{ STATIC_VERSION }}">
+  
+  <style>
+    /* Prevent Alpine Flash of Unstyled Content (FOUC) */
+    [x-cloak] { display: none !important; }
+  </style>
   
   <!-- Alpine.js for lightweight client interactivity -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
