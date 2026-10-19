@@ -121,3 +121,59 @@ class SubscriptionEditForm(forms.ModelForm):
                 'class': 'w-full text-sm rounded-xl px-3.5 py-2.5 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark'
             }),
         }
+
+
+class RestaurantEditForm(forms.ModelForm):
+    class Meta:
+        model = Restaurant
+        fields = ['name', 'slug', 'whatsapp_number', 'number_of_tables', 'address', 'google_review_url', 'status']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'w-full text-sm rounded-xl px-3.5 py-2 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark'
+            }),
+            'slug': forms.TextInput(attrs={
+                'class': 'w-full text-sm rounded-xl px-3.5 py-2 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark'
+            }),
+            'whatsapp_number': forms.TextInput(attrs={
+                'class': 'w-full text-sm rounded-xl px-3.5 py-2 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark'
+            }),
+            'number_of_tables': forms.NumberInput(attrs={
+                'class': 'w-full text-sm rounded-xl px-3.5 py-2 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark'
+            }),
+            'address': forms.TextInput(attrs={
+                'class': 'w-full text-sm rounded-xl px-3.5 py-2 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark'
+            }),
+            'google_review_url': forms.URLInput(attrs={
+                'class': 'w-full text-sm rounded-xl px-3.5 py-2 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark'
+            }),
+            'status': forms.Select(attrs={
+                'class': 'w-full text-sm rounded-xl px-3.5 py-2 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark'
+            }),
+        }
+
+    def clean_slug(self):
+        slug = self.cleaned_data['slug'].lower().strip()
+        qs = Restaurant.objects.filter(slug=slug)
+        if self.instance and self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError('A restaurant with this slug already exists.')
+        return slug
+
+
+class OwnerAccountEditForm(forms.Form):
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={
+            'class': 'w-full text-sm rounded-xl px-3.5 py-2 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark'
+        })
+    )
+    new_password = forms.CharField(
+        required=False,
+        widget=forms.PasswordInput(attrs={
+            'class': 'w-full text-sm rounded-xl px-3.5 py-2 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark',
+            'placeholder': 'Leave blank to keep unchanged'
+        }),
+        help_text='Enter a new password if you want to reset the owner login.'
+    )
+

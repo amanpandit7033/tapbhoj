@@ -178,3 +178,95 @@ class PlatformAdminAndBillingTests(TestCase):
 
         self.assertEqual(self.subscription.status, 'expired')
         self.assertEqual(self.restaurant.status, 'paused')
+
+    def test_platform_update_restaurant_and_owner_password(self):
+        """Staff can update restaurant details and reset owner's password."""
+        self.client.login(username='staff', password='Password@123')
+        url = reverse('platform:restaurant_detail', kwargs={'pk': self.restaurant.pk})
+
+        # 1. Update store profile
+        post_data = {
+            'action': 'update_restaurant',
+            'name': 'Updated Test Bistro',
+            'slug': 'updated-test-bistro',
+            'whatsapp_number': '919111111111',
+            'number_of_tables': 18,
+            'address': 'New Address 45',
+            'google_review_url': 'https://g.page/r/updated',
+            'status': 'active',
+        }
+        response = self.client.post(url, post_data)
+        self.assertEqual(response.status_code, 302)
+        self.restaurant.refresh_from_db()
+        self.assertEqual(self.restaurant.name, 'Updated Test Bistro')
+        self.assertEqual(self.restaurant.number_of_tables, 18)
+
+        # 2. Reset owner password
+        owner_post = {
+            'action': 'update_owner',
+            'email': 'new_owner_email@bistro.com',
+            'new_password': 'BrandNewPassword@456',
+        }
+        response = self.client.post(url, owner_post)
+        self.assertEqual(response.status_code, 302)
+        self.owner_user.refresh_from_db()
+        self.assertEqual(self.owner_user.email, 'new_owner_email@bistro.com')
+        # Check login works with new password
+        login_success = self.client.login(username='bistro_owner', password='BrandNewPassword@456')
+        self.assertTrue(login_success)
+
+    def test_platform_live_orders_and_analytics(self):
+        """Staff can view live cross-store orders and platform analytics."""
+        from orders.models import OrderLog
+        OrderLog.objects.create(
+            restaurant=self.restaurant,
+            table_number='4',
+            items_json=[{'name': 'Paneer Tikka', 'quantity': 2, 'price': 250, 'is_veg': True}],
+            total_amount=Decimal('500.00'),
+            customer_note='Extra spicy',
+            status='sent'
+        )
+
+        self.client.login(username='staff', password='Password@123')
+
+        # Live orders feed
+        orders_url = reverse('platform:live_orders')
+        response = self.client.get(orders_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Live Orders Feed')
+        self.assertContains(response, 'Paneer Tikka')
+
+        # Analytics dashboard
+        analytics_url = reverse('platform:analytics')
+        response = self.client.get(analytics_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Platform Analytics')
+        self.assertContains(response, 'Total Platform GMV')
+        self.assertContains(response, 'Paneer Tikka')
+
+    def test_platform_clear_orders_and_delete_restaurant(self):
+        """Staff can purge test orders and delete a store permanently."""
+        from orders.models import OrderLog
+        OrderLog.objects.create(
+            restaurant=self.restaurant,
+            table_number='1',
+            items_json=[],
+            total_amount=Decimal('100.00'),
+            status='sent'
+        )
+        self.assertEqual(self.restaurant.orders.count(), 1)
+
+        self.client.login(username='staff', password='Password@123')
+
+        # Clear test orders
+        clear_url = reverse('platform:restaurant_clear_orders', kwargs={'pk': self.restaurant.pk})
+        response = self.client.post(clear_url)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.restaurant.orders.count(), 0)
+
+        # Delete restaurant
+        delete_url = reverse('platform:restaurant_delete', kwargs={'pk': self.restaurant.pk})
+        del_response = self.client.post(delete_url)
+        self.assertEqual(del_response.status_code, 302)
+        self.assertFalse(Restaurant.objects.filter(pk=self.restaurant.pk).exists())
+

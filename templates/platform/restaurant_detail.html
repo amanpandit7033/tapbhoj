@@ -3,7 +3,7 @@
 {% block title %}{{ restaurant.name }} - Platform Detail{% endblock %}
 
 {% block platform_content %}
-<div class="max-w-4xl mx-auto space-y-6">
+<div class="space-y-6" x-data="{ activeTab: '{{ active_tab|default:"overview" }}' }">
 
   <!-- Header -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/5 dark:border-white/10 pb-4">
@@ -22,14 +22,18 @@
           </span>
         {% endif %}
       </div>
-      <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark mt-1">
-        Slug: <code class="font-mono">/r/{{ restaurant.slug }}/</code> • Created {{ restaurant.created_at|date:"d M Y" }}
+      <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark mt-1 flex items-center space-x-2">
+        <span>Public Menu:</span>
+        <a href="{% url 'public:menu' slug=restaurant.slug %}" target="_blank" class="font-mono text-tapbhoj-brand dark:text-tapbhoj-accent hover:underline">
+          /r/{{ restaurant.slug }}/ ↗
+        </a>
+        <span>• Created {{ restaurant.created_at|date:"d M Y" }}</span>
       </p>
     </div>
 
-    <!-- Actions (Assist & Toggle) -->
-    <div class="flex items-center space-x-2">
-      <!-- Assist Owner (Requirement A6) -->
+    <!-- Top Action Buttons -->
+    <div class="flex flex-wrap items-center gap-2">
+      <!-- Assist Owner Dashboard (Requirement A6) -->
       <a 
         href="{% url 'platform:restaurant_assist' pk=restaurant.pk %}" 
         class="min-h-[40px] px-4 py-2 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-bold font-heading shadow-sm hover:opacity-95 flex items-center space-x-1.5"
@@ -40,116 +44,406 @@
       <!-- Activate / Pause (Requirement A2) -->
       <a 
         href="{% url 'platform:restaurant_toggle' pk=restaurant.pk %}" 
-        class="min-h-[40px] px-4 py-2 rounded-xl text-xs font-bold font-heading border border-black/10 dark:border-white/10 flex items-center"
+        class="min-h-[40px] px-4 py-2 rounded-xl text-xs font-bold font-heading border border-black/10 dark:border-white/10 flex items-center hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
       >
-        {% if restaurant.status == 'active' %}Pause Menu{% else %}Activate Menu{% endif %}
+        {% if restaurant.status == 'active' %}Pause Store{% else %}Activate Store{% endif %}
+      </a>
+
+      <!-- Delete Store -->
+      <a 
+        href="{% url 'platform:restaurant_delete' pk=restaurant.pk %}" 
+        class="min-h-[40px] px-3 py-2 rounded-xl text-xs font-bold font-heading text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 border border-red-200 dark:border-red-900/40 flex items-center transition-colors"
+      >
+        Delete Store
       </a>
     </div>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    
-    <!-- Left 2 Cols: Subscription Manager -->
-    <div class="md:col-span-2 space-y-6">
-      <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-6 border border-black/5 dark:border-white/10 shadow-sm space-y-5">
-        <h2 class="text-xs uppercase font-bold tracking-wider text-tapbhoj-brand dark:text-tapbhoj-accent">
-          Subscription & Expiry Settings (Requirement A4)
-        </h2>
+  <!-- Navigation Tabs -->
+  <div class="flex items-center space-x-2 border-b border-black/5 dark:border-white/10 overflow-x-auto pb-1 text-xs">
+    <button 
+      type="button" 
+      @click="activeTab = 'overview'" 
+      :class="activeTab === 'overview' ? 'border-b-2 border-tapbhoj-brand dark:border-tapbhoj-accent text-tapbhoj-brand dark:text-tapbhoj-accent font-bold' : 'text-tapbhoj-muted hover:text-tapbhoj-ink font-semibold'"
+      class="px-4 py-2 transition-colors whitespace-nowrap"
+    >
+      Overview & Subscription
+    </button>
+    <button 
+      type="button" 
+      @click="activeTab = 'settings'" 
+      :class="activeTab === 'settings' ? 'border-b-2 border-tapbhoj-brand dark:border-tapbhoj-accent text-tapbhoj-brand dark:text-tapbhoj-accent font-bold' : 'text-tapbhoj-muted hover:text-tapbhoj-ink font-semibold'"
+      class="px-4 py-2 transition-colors whitespace-nowrap"
+    >
+      Store & Owner Accounts
+    </button>
+    <button 
+      type="button" 
+      @click="activeTab = 'menu'" 
+      :class="activeTab === 'menu' ? 'border-b-2 border-tapbhoj-brand dark:border-tapbhoj-accent text-tapbhoj-brand dark:text-tapbhoj-accent font-bold' : 'text-tapbhoj-muted hover:text-tapbhoj-ink font-semibold'"
+      class="px-4 py-2 transition-colors whitespace-nowrap flex items-center space-x-1.5"
+    >
+      <span>Menu Inspector</span>
+      <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-black/5 dark:bg-white/10">{{ total_items_count }}</span>
+    </button>
+    <button 
+      type="button" 
+      @click="activeTab = 'orders'" 
+      :class="activeTab === 'orders' ? 'border-b-2 border-tapbhoj-brand dark:border-tapbhoj-accent text-tapbhoj-brand dark:text-tapbhoj-accent font-bold' : 'text-tapbhoj-muted hover:text-tapbhoj-ink font-semibold'"
+      class="px-4 py-2 transition-colors whitespace-nowrap flex items-center space-x-1.5"
+    >
+      <span>Recent Orders</span>
+      <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-black/5 dark:bg-white/10">{{ orders_count }}</span>
+    </button>
+  </div>
 
-        <div class="p-4 rounded-xl bg-tapbhoj-bg dark:bg-tapbhoj-bg-dark border border-black/5 dark:border-white/5 space-y-1.5">
-          <div class="flex items-center justify-between">
-            <span class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Current Status</span>
-            <span class="font-bold text-xs capitalize text-tapbhoj-ink dark:text-tapbhoj-ink-dark">{{ subscription.get_status_display }}</span>
+  <!-- TAB 1: Overview & Subscription -->
+  <div x-show="activeTab === 'overview'" class="space-y-6">
+    
+    <!-- Quick Metric Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+      <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
+        <p class="text-[10px] font-bold uppercase tracking-wider text-tapbhoj-muted">Tables</p>
+        <p class="text-2xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">{{ restaurant.number_of_tables }}</p>
+      </div>
+      <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
+        <p class="text-[10px] font-bold uppercase tracking-wider text-tapbhoj-muted">Categories</p>
+        <p class="text-2xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">{{ categories.count }}</p>
+      </div>
+      <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
+        <p class="text-[10px] font-bold uppercase tracking-wider text-tapbhoj-muted">Total Dishes</p>
+        <p class="text-2xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">{{ total_items_count }}</p>
+      </div>
+      <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
+        <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Total Orders</p>
+        <p class="text-2xl font-bold font-heading text-emerald-600 dark:text-emerald-400">{{ orders_count }}</p>
+      </div>
+      <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
+        <p class="text-[10px] font-bold uppercase tracking-wider text-tapbhoj-brand dark:text-tapbhoj-accent">Recorded GMV</p>
+        <p class="text-2xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">₹{{ orders_total|floatformat:0 }}</p>
+      </div>
+    </div>
+
+    <!-- Subscription & Expiry Form -->
+    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-6 border border-black/5 dark:border-white/10 shadow-sm space-y-5">
+      <div class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3">
+        <h2 class="text-sm font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
+          Subscription Lifecycle & Dates (Requirement A4)
+        </h2>
+        <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+          {{ subscription.days_remaining }} days remaining
+        </span>
+      </div>
+
+      <form method="post" class="space-y-4">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="update_subscription">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="space-y-1.5">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted">Plan</label>
+            {{ sub_form.plan }}
           </div>
-          <div class="flex items-center justify-between">
-            <span class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Active Plan</span>
-            <span class="font-bold text-xs text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
-              {% if subscription.plan %}{{ subscription.plan.name }}{% else %}None (Custom / Trial){% endif %}
-            </span>
-          </div>
-          <div class="flex items-center justify-between">
-            <span class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Days Remaining</span>
-            <span class="font-bold text-xs text-emerald-600 dark:text-emerald-400">
-              {{ subscription.days_remaining }} days
-            </span>
+          <div class="space-y-1.5">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted">Status</label>
+            {{ sub_form.status }}
           </div>
         </div>
 
-        <form method="post" class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="space-y-1.5">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted">Trial End Date</label>
+            {{ sub_form.trial_end }}
+          </div>
+          <div class="space-y-1.5">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted">Current Period End</label>
+            {{ sub_form.current_period_end }}
+          </div>
+        </div>
+
+        <div class="pt-2 flex justify-end">
+          <button type="submit" class="min-h-[40px] px-5 py-2.5 rounded-xl bg-tapbhoj-brand dark:bg-tapbhoj-brand-dark text-tapbhoj-surface dark:text-tapbhoj-bg-dark text-xs font-bold font-heading shadow-md hover:opacity-95">
+            Save Subscription Settings
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+
+  <!-- TAB 2: Store & Owner Accounts -->
+  <div x-show="activeTab === 'settings'" class="space-y-6" style="display: none;">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <!-- Edit Store Profile -->
+      <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-6 border border-black/5 dark:border-white/10 shadow-sm space-y-4">
+        <h2 class="text-sm font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark border-b border-black/5 dark:border-white/10 pb-2">
+          Store Details
+        </h2>
+
+        <form method="post" class="space-y-3">
           {% csrf_token %}
+          <input type="hidden" name="action" value="update_restaurant">
 
-          <div class="space-y-1.5">
-            <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
-              Plan
-            </label>
-            {{ form.plan }}
+          <div class="space-y-1">
+            <label class="block text-xs font-semibold text-tapbhoj-muted">Restaurant Name</label>
+            {{ restaurant_form.name }}
           </div>
 
-          <div class="space-y-1.5">
-            <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
-              Status
-            </label>
-            {{ form.status }}
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="space-y-1">
+              <label class="block text-xs font-semibold text-tapbhoj-muted">URL Slug</label>
+              {{ restaurant_form.slug }}
+            </div>
+            <div class="space-y-1">
+              <label class="block text-xs font-semibold text-tapbhoj-muted">WhatsApp (no +)</label>
+              {{ restaurant_form.whatsapp_number }}
+            </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="space-y-1.5">
-              <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
-                Trial End Date
-              </label>
-              {{ form.trial_end }}
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="space-y-1">
+              <label class="block text-xs font-semibold text-tapbhoj-muted">Number of Tables</label>
+              {{ restaurant_form.number_of_tables }}
             </div>
+            <div class="space-y-1">
+              <label class="block text-xs font-semibold text-tapbhoj-muted">Status</label>
+              {{ restaurant_form.status }}
+            </div>
+          </div>
 
-            <div class="space-y-1.5">
-              <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
-                Current Period End
-              </label>
-              {{ form.current_period_end }}
-            </div>
+          <div class="space-y-1">
+            <label class="block text-xs font-semibold text-tapbhoj-muted">Address</label>
+            {{ restaurant_form.address }}
+          </div>
+
+          <div class="space-y-1">
+            <label class="block text-xs font-semibold text-tapbhoj-muted">Google Review URL</label>
+            {{ restaurant_form.google_review_url }}
           </div>
 
           <div class="pt-2 flex justify-end">
-            <button type="submit" class="px-5 py-2.5 rounded-xl bg-tapbhoj-brand dark:bg-tapbhoj-brand-dark text-tapbhoj-surface dark:text-tapbhoj-bg-dark text-xs font-bold font-heading shadow-md hover:opacity-95">
-              Update Subscription
+            <button type="submit" class="min-h-[40px] px-5 py-2 rounded-xl bg-tapbhoj-brand dark:bg-tapbhoj-brand-dark text-tapbhoj-surface dark:text-tapbhoj-bg-dark text-xs font-bold font-heading shadow-sm hover:opacity-95">
+              Update Store Details
             </button>
           </div>
         </form>
-
       </div>
-    </div>
 
-    <!-- Right Col: Owner & Restaurant Overview -->
-    <div class="space-y-6">
-      
-      <!-- Owner Account Card -->
-      <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-5 border border-black/5 dark:border-white/10 shadow-sm space-y-3">
-        <h3 class="text-xs uppercase font-bold tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
-          Owner Account
-        </h3>
-        {% if owner %}
-          <div class="space-y-1.5 text-xs">
-            <p><span class="text-tapbhoj-muted">Username:</span> <strong class="text-tapbhoj-ink dark:text-tapbhoj-ink-dark">{{ owner.username }}</strong></p>
-            <p><span class="text-tapbhoj-muted">Email:</span> <strong class="text-tapbhoj-ink dark:text-tapbhoj-ink-dark">{{ owner.email }}</strong></p>
-            <p><span class="text-tapbhoj-muted">Last Login:</span> {{ owner.last_login|default:"Never" }}</p>
+      <!-- Edit Owner Account & Credentials -->
+      <div class="space-y-6">
+        <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-6 border border-black/5 dark:border-white/10 shadow-sm space-y-4">
+          <h2 class="text-sm font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark border-b border-black/5 dark:border-white/10 pb-2">
+            Owner Account & Password Reset
+          </h2>
+
+          {% if owner %}
+            <form method="post" class="space-y-3">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="update_owner">
+
+              <div class="space-y-1">
+                <label class="block text-xs font-semibold text-tapbhoj-muted">Username (Fixed)</label>
+                <input type="text" value="{{ owner.username }}" disabled class="w-full text-sm rounded-xl px-3.5 py-2 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-tapbhoj-muted cursor-not-allowed">
+              </div>
+
+              <div class="space-y-1">
+                <label class="block text-xs font-semibold text-tapbhoj-muted">Owner Email</label>
+                {{ owner_form.email }}
+              </div>
+
+              <div class="space-y-1">
+                <label class="block text-xs font-semibold text-tapbhoj-muted">Set New Password</label>
+                {{ owner_form.new_password }}
+                <p class="text-[10px] text-tapbhoj-muted">Leave empty unless resetting owner's password.</p>
+              </div>
+
+              <div class="pt-2 flex justify-end">
+                <button type="submit" class="min-h-[40px] px-5 py-2 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-bold font-heading shadow-sm hover:opacity-95">
+                  Save Owner Credentials
+                </button>
+              </div>
+            </form>
+          {% else %}
+            <p class="text-xs text-tapbhoj-muted">No owner account attached to this restaurant.</p>
+          {% endif %}
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="bg-red-50/50 dark:bg-red-950/20 rounded-2xl p-6 border border-red-200 dark:border-red-900/40 space-y-4">
+          <h2 class="text-sm font-bold font-heading text-red-600 dark:text-red-400 border-b border-red-200 dark:border-red-900/40 pb-2">
+            Danger Zone
+          </h2>
+
+          <div class="space-y-3 text-xs">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="font-bold text-tapbhoj-ink dark:text-tapbhoj-ink-dark">Purge Test Orders</p>
+                <p class="text-[10px] text-tapbhoj-muted">Delete all recorded order history for this store.</p>
+              </div>
+              <form method="post" action="{% url 'platform:restaurant_clear_orders' pk=restaurant.pk %}" onsubmit="return confirm('Clear all orders for this store?');">
+                {% csrf_token %}
+                <button type="submit" class="px-3 py-1.5 rounded-xl border border-red-300 dark:border-red-800 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/40 font-semibold text-xs">
+                  Clear Orders
+                </button>
+              </form>
+            </div>
+
+            <div class="flex items-center justify-between pt-2 border-t border-red-200 dark:border-red-900/30">
+              <div>
+                <p class="font-bold text-red-600 dark:text-red-400">Permanently Delete Store</p>
+                <p class="text-[10px] text-tapbhoj-muted">Erase this restaurant, its menu, QR routing, and owner account.</p>
+              </div>
+              <a href="{% url 'platform:restaurant_delete' pk=restaurant.pk %}" class="px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-xs">
+                Delete Store
+              </a>
+            </div>
           </div>
-        {% else %}
-          <p class="text-xs text-tapbhoj-muted">No owner user linked.</p>
-        {% endif %}
-      </div>
+        </div>
 
-      <!-- Quick Restaurant Info -->
-      <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-5 border border-black/5 dark:border-white/10 shadow-sm space-y-3 text-xs">
-        <h3 class="text-xs uppercase font-bold tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
-          Details
-        </h3>
-        <p><span class="text-tapbhoj-muted">WhatsApp:</span> <strong>+{{ restaurant.whatsapp_number }}</strong></p>
-        <p><span class="text-tapbhoj-muted">Tables:</span> <strong>{{ restaurant.number_of_tables }}</strong></p>
-        <p><span class="text-tapbhoj-muted">Categories:</span> <strong>{{ restaurant.categories.count }}</strong></p>
-        <p><span class="text-tapbhoj-muted">Menu Items:</span> <strong>{{ restaurant.menu_items.count }}</strong></p>
       </div>
 
     </div>
+  </div>
 
+  <!-- TAB 3: Menu Inspector -->
+  <div x-show="activeTab === 'menu'" class="space-y-6" style="display: none;">
+    <div class="flex items-center justify-between">
+      <h2 class="text-base font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
+        Store Categories & Dishes
+      </h2>
+      <a 
+        href="{% url 'platform:restaurant_assist' pk=restaurant.pk %}" 
+        class="text-xs font-bold text-tapbhoj-brand dark:text-tapbhoj-accent hover:underline"
+      >
+        Open Owner Menu Editor ↗
+      </a>
+    </div>
+
+    {% for category in categories %}
+      <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl border border-black/5 dark:border-white/10 shadow-sm overflow-hidden">
+        <div class="p-4 bg-tapbhoj-bg dark:bg-tapbhoj-bg-dark border-b border-black/5 dark:border-white/10 flex items-center justify-between">
+          <h3 class="font-bold text-sm font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
+            {{ category.name }}
+          </h3>
+          <span class="text-xs text-tapbhoj-muted">{{ category.items.count }} items</span>
+        </div>
+
+        <div class="divide-y divide-black/5 dark:divide-white/5">
+          {% for item in category.items.all %}
+            <div class="p-3.5 flex items-center justify-between text-xs hover:bg-black/[0.01]">
+              <div class="flex items-center space-x-2.5">
+                {% if item.is_veg %}
+                  <span class="w-3.5 h-3.5 rounded-sm border border-tapbhoj-veg p-0.5 flex-shrink-0" title="Veg">
+                    <span class="block w-full h-full rounded-full bg-tapbhoj-veg"></span>
+                  </span>
+                {% else %}
+                  <span class="w-3.5 h-3.5 rounded-sm border border-tapbhoj-nonveg p-0.5 flex-shrink-0" title="Non-Veg">
+                    <span class="block w-full h-full rounded-full bg-tapbhoj-nonveg"></span>
+                  </span>
+                {% endif %}
+                <div>
+                  <strong class="text-tapbhoj-ink dark:text-tapbhoj-ink-dark">{{ item.name }}</strong>
+                  {% if item.tags %}
+                    <span class="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10 text-tapbhoj-muted">{{ item.tags }}</span>
+                  {% endif %}
+                  {% if item.description %}
+                    <p class="text-[11px] text-tapbhoj-muted truncate max-w-sm">{{ item.description }}</p>
+                  {% endif %}
+                </div>
+              </div>
+
+              <div class="flex items-center space-x-4">
+                <span class="font-bold font-mono text-sm text-tapbhoj-ink dark:text-tapbhoj-ink-dark">₹{{ item.price|floatformat:0 }}</span>
+                
+                <a 
+                  href="{% url 'platform:item_toggle' pk=item.pk %}" 
+                  class="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors {% if item.is_available %}bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 hover:bg-emerald-200{% else %}bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 hover:bg-amber-200{% endif %}"
+                >
+                  {% if item.is_available %}Available{% else %}Sold Out{% endif %}
+                </a>
+              </div>
+            </div>
+          {% empty %}
+            <div class="p-4 text-center text-tapbhoj-muted text-xs">No items in this category.</div>
+          {% endfor %}
+        </div>
+      </div>
+    {% empty %}
+      <div class="p-12 text-center bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl border border-black/5 dark:border-white/10">
+        <p class="text-sm font-semibold">No menu categories created yet.</p>
+        <p class="text-xs text-tapbhoj-muted mt-1">Use the Assist Owner button above to add categories and dishes.</p>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- TAB 4: Recent Orders -->
+  <div x-show="activeTab === 'orders'" class="space-y-4" style="display: none;">
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="text-base font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
+          Order Records for {{ restaurant.name }}
+        </h2>
+        <p class="text-xs text-tapbhoj-muted">Total recorded: {{ orders_count }} orders (₹{{ orders_total|floatformat:0 }})</p>
+      </div>
+
+      {% if orders %}
+        <form method="post" action="{% url 'platform:restaurant_clear_orders' pk=restaurant.pk %}" onsubmit="return confirm('Clear all orders for this store?');">
+          {% csrf_token %}
+          <button type="submit" class="px-3 py-1.5 rounded-xl border border-red-300 dark:border-red-800 text-red-600 text-xs font-semibold hover:bg-red-50">
+            Purge Orders
+          </button>
+        </form>
+      {% endif %}
+    </div>
+
+    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl border border-black/5 dark:border-white/10 shadow-sm overflow-hidden">
+      {% if orders %}
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-tapbhoj-bg dark:bg-tapbhoj-bg-dark border-b border-black/5 dark:border-white/10 text-[10px] uppercase font-bold text-tapbhoj-muted tracking-wider">
+              <tr>
+                <th class="py-3 px-4">Time</th>
+                <th class="py-3 px-4">Table</th>
+                <th class="py-3 px-4">Items Summary</th>
+                <th class="py-3 px-4 text-right">Amount</th>
+                <th class="py-3 px-4 text-center">Status</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-black/5 dark:divide-white/5">
+              {% for order in orders %}
+                <tr class="hover:bg-black/[0.02] dark:hover:bg-white/[0.02]">
+                  <td class="py-3 px-4 whitespace-nowrap text-tapbhoj-muted font-mono text-[11px]">
+                    {{ order.created_at|date:"d M, H:i" }}
+                  </td>
+                  <td class="py-3 px-4 whitespace-nowrap font-bold">
+                    Table {{ order.table_number }}
+                  </td>
+                  <td class="py-3 px-4 max-w-xs sm:max-w-md">
+                    <p class="font-medium truncate">{{ order.items_summary }}</p>
+                    {% if order.customer_note %}
+                      <p class="text-[10px] text-tapbhoj-muted italic truncate">"{{ order.customer_note }}"</p>
+                    {% endif %}
+                  </td>
+                  <td class="py-3 px-4 text-right font-mono font-bold">
+                    ₹{{ order.total_amount|floatformat:0 }}
+                  </td>
+                  <td class="py-3 px-4 text-center whitespace-nowrap">
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+                      {{ order.get_status_display }}
+                    </span>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="p-12 text-center text-tapbhoj-muted text-xs">
+          No orders logged yet for this restaurant.
+        </div>
+      {% endif %}
+    </div>
   </div>
 
 </div>

@@ -25,9 +25,14 @@
       </div>
 
       <!-- Links & User Info -->
-      <div class="flex items-center space-x-3 text-xs">
         <a href="{% url 'platform:dashboard' %}" class="hidden sm:inline-block font-semibold text-slate-300 hover:text-white transition-colors">
           Restaurants
+        </a>
+        <a href="{% url 'platform:live_orders' %}" class="hidden sm:inline-block font-semibold text-slate-300 hover:text-white transition-colors">
+          Live Orders
+        </a>
+        <a href="{% url 'platform:analytics' %}" class="hidden sm:inline-block font-semibold text-slate-300 hover:text-white transition-colors">
+          Analytics
         </a>
         <a href="{% url 'platform:billing_overview' %}" class="hidden sm:inline-block font-semibold text-slate-300 hover:text-white transition-colors">
           Billing & Plans

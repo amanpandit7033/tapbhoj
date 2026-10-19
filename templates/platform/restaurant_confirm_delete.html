@@ -1,0 +1,51 @@
+{% extends 'platform/base_platform.html' %}
+
+{% block title %}Delete {{ restaurant.name }} - Platform Admin{% endblock %}
+
+{% block platform_content %}
+<div class="max-w-xl mx-auto space-y-6 pt-6">
+
+  <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-6 border border-red-200 dark:border-red-900/50 shadow-md space-y-4">
+    <div class="flex items-center space-x-3 text-red-600 dark:text-red-400">
+      <svg class="w-8 h-8 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+      </svg>
+      <div>
+        <h1 class="text-lg font-bold font-heading text-red-600 dark:text-red-400">
+          Delete Restaurant: {{ restaurant.name }}
+        </h1>
+        <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+          This action cannot be undone.
+        </p>
+      </div>
+    </div>
+
+    <div class="p-4 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-900/30 text-xs text-red-900 dark:text-red-300 space-y-2">
+      <p class="font-semibold">Deleting this store will permanently erase:</p>
+      <ul class="list-disc list-inside space-y-1 text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+        <li><strong>{{ restaurant.name }}</strong> profile and public menu link (<code>/r/{{ restaurant.slug }}/</code>)</li>
+        <li>All <strong>{{ restaurant.categories.count }}</strong> menu categories and <strong>{{ restaurant.menu_items.count }}</strong> dishes</li>
+        <li>All <strong>{{ restaurant.orders.count }}</strong> logged orders and history</li>
+        <li>Linked subscription data and QR card table routing</li>
+      </ul>
+    </div>
+
+    <form method="post" class="flex items-center justify-end space-x-3 pt-3 border-t border-black/5 dark:border-white/10">
+      {% csrf_token %}
+      <a 
+        href="{% url 'platform:restaurant_detail' pk=restaurant.pk %}" 
+        class="min-h-[40px] px-4 py-2 rounded-xl border border-black/10 dark:border-white/10 text-xs font-semibold text-tapbhoj-muted hover:text-tapbhoj-ink dark:hover:text-tapbhoj-ink-dark flex items-center"
+      >
+        Cancel
+      </a>
+      <button 
+        type="submit" 
+        class="min-h-[40px] px-5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold font-heading shadow-md transition-colors"
+      >
+        Yes, Permanently Delete Store
+      </button>
+    </form>
+  </div>
+
+</div>
+{% endblock %}
