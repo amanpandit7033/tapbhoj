@@ -5,298 +5,152 @@
 {% block platform_content %}
 <div class="space-y-6" x-data="{ activeTab: '{{ active_tab|default:"overview" }}' }">
 
-  <!-- Header -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/5 dark:border-white/10 pb-4">
+  <!-- Breadcrumbs & Quick Back Link -->
+  <div class="flex items-center space-x-2 text-xs text-slate-500">
+    <a href="{% url 'platform:dashboard' %}" class="flex items-center space-x-1 hover:text-slate-900 dark:hover:text-white font-medium">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+      <span>Stores</span>
+    </a>
+    <span>/</span>
+    <span class="font-semibold text-slate-900 dark:text-white">{{ restaurant.name }}</span>
+  </div>
+
+  <!-- Top Hero Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800 pb-5">
     <div>
       <div class="flex items-center space-x-3">
-        <h1 class="text-2xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
+        <h1 class="text-2xl font-extrabold font-heading text-slate-900 dark:text-white tracking-tight">
           {{ restaurant.name }}
         </h1>
         {% if restaurant.status == 'active' %}
-          <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+          <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
             Active
           </span>
         {% else %}
-          <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+          <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
             Paused
           </span>
         {% endif %}
       </div>
-      <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark mt-1 flex items-center space-x-2">
-        <span>Public Menu:</span>
-        <a href="{% url 'public:menu' slug=restaurant.slug %}" target="_blank" class="font-mono text-tapbhoj-brand dark:text-tapbhoj-accent hover:underline">
-          /r/{{ restaurant.slug }}/ ↗
+      <p class="text-xs text-slate-500 mt-1 flex items-center space-x-2">
+        <span>Created: {{ restaurant.created_at|date:"d M, Y" }}</span>
+        <span>•</span>
+        <a href="{% url 'public:menu' slug=restaurant.slug %}" target="_blank" class="font-mono text-slate-700 dark:text-slate-300 hover:underline">
+          tapbhoj.in/r/{{ restaurant.slug }}/ ↗
         </a>
-        <span>• Created {{ restaurant.created_at|date:"d M Y" }}</span>
       </p>
     </div>
 
-    <!-- Top Action Buttons -->
-    <div class="flex flex-wrap items-center gap-2">
-      <!-- Assist Owner Dashboard (Requirement A6) -->
+    <!-- Header Actions -->
+    <div class="flex flex-wrap items-center gap-2.5">
       <a 
         href="{% url 'platform:restaurant_assist' pk=restaurant.pk %}" 
-        class="min-h-[40px] px-4 py-2 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-bold font-heading shadow-sm hover:opacity-95 flex items-center space-x-1.5"
+        class="min-h-[40px] px-4 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold font-heading shadow-sm hover:opacity-95 flex items-center space-x-1.5 transition-all"
       >
-        <span>Assist Owner Dashboard ↗</span>
+        <span>Assist Owner ↗</span>
       </a>
 
-      <!-- Activate / Pause (Requirement A2) -->
       <a 
         href="{% url 'platform:restaurant_toggle' pk=restaurant.pk %}" 
-        class="min-h-[40px] px-4 py-2 rounded-xl text-xs font-bold font-heading border border-black/10 dark:border-white/10 flex items-center hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+        class="min-h-[40px] px-4 py-2 rounded-xl text-xs font-bold font-heading border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center transition-colors"
       >
         {% if restaurant.status == 'active' %}Pause Store{% else %}Activate Store{% endif %}
       </a>
 
-      <!-- Delete Store -->
       <a 
         href="{% url 'platform:restaurant_delete' pk=restaurant.pk %}" 
-        class="min-h-[40px] px-3 py-2 rounded-xl text-xs font-bold font-heading text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 border border-red-200 dark:border-red-900/40 flex items-center transition-colors"
+        class="min-h-[40px] px-3.5 py-2 rounded-xl text-xs font-bold font-heading text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 border border-red-200 dark:border-red-900/40 flex items-center transition-colors"
       >
-        Delete Store
+        Delete
       </a>
     </div>
   </div>
 
-  <!-- Navigation Tabs -->
-  <div class="flex items-center space-x-2 border-b border-black/5 dark:border-white/10 overflow-x-auto pb-1 text-xs">
-    <button 
-      type="button" 
-      @click="activeTab = 'overview'" 
-      :class="activeTab === 'overview' ? 'border-b-2 border-tapbhoj-brand dark:border-tapbhoj-accent text-tapbhoj-brand dark:text-tapbhoj-accent font-bold' : 'text-tapbhoj-muted hover:text-tapbhoj-ink font-semibold'"
-      class="px-4 py-2 transition-colors whitespace-nowrap"
-    >
-      Overview & Subscription
-    </button>
-    <button 
-      type="button" 
-      @click="activeTab = 'settings'" 
-      :class="activeTab === 'settings' ? 'border-b-2 border-tapbhoj-brand dark:border-tapbhoj-accent text-tapbhoj-brand dark:text-tapbhoj-accent font-bold' : 'text-tapbhoj-muted hover:text-tapbhoj-ink font-semibold'"
-      class="px-4 py-2 transition-colors whitespace-nowrap"
-    >
-      Store & Owner Accounts
-    </button>
-    <button 
-      type="button" 
-      @click="activeTab = 'menu'" 
-      :class="activeTab === 'menu' ? 'border-b-2 border-tapbhoj-brand dark:border-tapbhoj-accent text-tapbhoj-brand dark:text-tapbhoj-accent font-bold' : 'text-tapbhoj-muted hover:text-tapbhoj-ink font-semibold'"
-      class="px-4 py-2 transition-colors whitespace-nowrap flex items-center space-x-1.5"
-    >
-      <span>Menu Inspector</span>
-      <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-black/5 dark:bg-white/10">{{ total_items_count }}</span>
-    </button>
-    <button 
-      type="button" 
-      @click="activeTab = 'orders'" 
-      :class="activeTab === 'orders' ? 'border-b-2 border-tapbhoj-brand dark:border-tapbhoj-accent text-tapbhoj-brand dark:text-tapbhoj-accent font-bold' : 'text-tapbhoj-muted hover:text-tapbhoj-ink font-semibold'"
-      class="px-4 py-2 transition-colors whitespace-nowrap flex items-center space-x-1.5"
-    >
-      <span>Recent Orders</span>
-      <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-black/5 dark:bg-white/10">{{ orders_count }}</span>
-    </button>
-  </div>
+  <!-- Main 3-Column Split Layout (Matching Design Reference) -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-  <!-- TAB 1: Overview & Subscription -->
-  <div x-show="activeTab === 'overview'" class="space-y-6">
-    
-    <!-- Quick Metric Cards -->
-    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
-      <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
-        <p class="text-[10px] font-bold uppercase tracking-wider text-tapbhoj-muted">Tables</p>
-        <p class="text-2xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">{{ restaurant.number_of_tables }}</p>
-      </div>
-      <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
-        <p class="text-[10px] font-bold uppercase tracking-wider text-tapbhoj-muted">Categories</p>
-        <p class="text-2xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">{{ categories.count }}</p>
-      </div>
-      <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
-        <p class="text-[10px] font-bold uppercase tracking-wider text-tapbhoj-muted">Total Dishes</p>
-        <p class="text-2xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">{{ total_items_count }}</p>
-      </div>
-      <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
-        <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Total Orders</p>
-        <p class="text-2xl font-bold font-heading text-emerald-600 dark:text-emerald-400">{{ orders_count }}</p>
-      </div>
-      <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
-        <p class="text-[10px] font-bold uppercase tracking-wider text-tapbhoj-brand dark:text-tapbhoj-accent">Recorded GMV</p>
-        <p class="text-2xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">₹{{ orders_total|floatformat:0 }}</p>
-      </div>
-    </div>
-
-    <!-- Subscription & Expiry Form -->
-    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-6 border border-black/5 dark:border-white/10 shadow-sm space-y-5">
-      <div class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3">
-        <h2 class="text-sm font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
-          Subscription Lifecycle & Dates (Requirement A4)
-        </h2>
-        <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">
-          {{ subscription.days_remaining }} days remaining
-        </span>
-      </div>
-
-      <form method="post" class="space-y-4">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="update_subscription">
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="space-y-1.5">
-            <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted">Plan</label>
-            {{ sub_form.plan }}
-          </div>
-          <div class="space-y-1.5">
-            <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted">Status</label>
-            {{ sub_form.status }}
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="space-y-1.5">
-            <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted">Trial End Date</label>
-            {{ sub_form.trial_end }}
-          </div>
-          <div class="space-y-1.5">
-            <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted">Current Period End</label>
-            {{ sub_form.current_period_end }}
-          </div>
-        </div>
-
-        <div class="pt-2 flex justify-end">
-          <button type="submit" class="min-h-[40px] px-5 py-2.5 rounded-xl bg-tapbhoj-brand dark:bg-tapbhoj-brand-dark text-tapbhoj-surface dark:text-tapbhoj-bg-dark text-xs font-bold font-heading shadow-md hover:opacity-95">
-            Save Subscription Settings
-          </button>
-        </div>
-      </form>
-    </div>
-
-  </div>
-
-  <!-- TAB 2: Store & Owner Accounts -->
-  <div x-show="activeTab === 'settings'" class="space-y-6" style="display: none;">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-      <!-- Edit Store Profile -->
-      <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-6 border border-black/5 dark:border-white/10 shadow-sm space-y-4">
-        <h2 class="text-sm font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark border-b border-black/5 dark:border-white/10 pb-2">
-          Store Details
-        </h2>
-
-        <form method="post" class="space-y-3">
-          {% csrf_token %}
-          <input type="hidden" name="action" value="update_restaurant">
-
-          <div class="space-y-1">
-            <label class="block text-xs font-semibold text-tapbhoj-muted">Restaurant Name</label>
-            {{ restaurant_form.name }}
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div class="space-y-1">
-              <label class="block text-xs font-semibold text-tapbhoj-muted">URL Slug</label>
-              {{ restaurant_form.slug }}
-            </div>
-            <div class="space-y-1">
-              <label class="block text-xs font-semibold text-tapbhoj-muted">WhatsApp (no +)</label>
-              {{ restaurant_form.whatsapp_number }}
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div class="space-y-1">
-              <label class="block text-xs font-semibold text-tapbhoj-muted">Number of Tables</label>
-              {{ restaurant_form.number_of_tables }}
-            </div>
-            <div class="space-y-1">
-              <label class="block text-xs font-semibold text-tapbhoj-muted">Status</label>
-              {{ restaurant_form.status }}
-            </div>
-          </div>
-
-          <div class="space-y-1">
-            <label class="block text-xs font-semibold text-tapbhoj-muted">Address</label>
-            {{ restaurant_form.address }}
-          </div>
-
-          <div class="space-y-1">
-            <label class="block text-xs font-semibold text-tapbhoj-muted">Google Review URL</label>
-            {{ restaurant_form.google_review_url }}
-          </div>
-
-          <div class="pt-2 flex justify-end">
-            <button type="submit" class="min-h-[40px] px-5 py-2 rounded-xl bg-tapbhoj-brand dark:bg-tapbhoj-brand-dark text-tapbhoj-surface dark:text-tapbhoj-bg-dark text-xs font-bold font-heading shadow-sm hover:opacity-95">
-              Update Store Details
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Edit Owner Account & Credentials -->
-      <div class="space-y-6">
-        <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-6 border border-black/5 dark:border-white/10 shadow-sm space-y-4">
-          <h2 class="text-sm font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark border-b border-black/5 dark:border-white/10 pb-2">
-            Owner Account & Password Reset
-          </h2>
-
-          {% if owner %}
-            <form method="post" class="space-y-3">
-              {% csrf_token %}
-              <input type="hidden" name="action" value="update_owner">
-
-              <div class="space-y-1">
-                <label class="block text-xs font-semibold text-tapbhoj-muted">Username (Fixed)</label>
-                <input type="text" value="{{ owner.username }}" disabled class="w-full text-sm rounded-xl px-3.5 py-2 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-tapbhoj-muted cursor-not-allowed">
-              </div>
-
-              <div class="space-y-1">
-                <label class="block text-xs font-semibold text-tapbhoj-muted">Owner Email</label>
-                {{ owner_form.email }}
-              </div>
-
-              <div class="space-y-1">
-                <label class="block text-xs font-semibold text-tapbhoj-muted">Set New Password</label>
-                {{ owner_form.new_password }}
-                <p class="text-[10px] text-tapbhoj-muted">Leave empty unless resetting owner's password.</p>
-              </div>
-
-              <div class="pt-2 flex justify-end">
-                <button type="submit" class="min-h-[40px] px-5 py-2 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-bold font-heading shadow-sm hover:opacity-95">
-                  Save Owner Credentials
-                </button>
-              </div>
-            </form>
+    <!-- LEFT PROFILE CARD (4 cols on lg) -->
+    <div class="lg:col-span-4 space-y-5">
+      
+      <!-- Store Summary Card -->
+      <div class="bg-white dark:bg-[#1e293b] rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm text-center space-y-4">
+        
+        <!-- Large Centered Avatar -->
+        <div class="relative w-20 h-20 mx-auto">
+          {% if restaurant.logo %}
+            <img src="{{ restaurant.logo.url }}" alt="{{ restaurant.name }}" class="w-full h-full rounded-2xl object-cover border border-slate-200 dark:border-slate-700 shadow-sm">
           {% else %}
-            <p class="text-xs text-tapbhoj-muted">No owner account attached to this restaurant.</p>
+            <div class="w-full h-full rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 flex items-center justify-center font-heading font-extrabold text-2xl shadow-sm">
+              {{ restaurant.name|slice:":1" }}
+            </div>
           {% endif %}
         </div>
 
-        <!-- Danger Zone -->
-        <div class="bg-red-50/50 dark:bg-red-950/20 rounded-2xl p-6 border border-red-200 dark:border-red-900/40 space-y-4">
-          <h2 class="text-sm font-bold font-heading text-red-600 dark:text-red-400 border-b border-red-200 dark:border-red-900/40 pb-2">
-            Danger Zone
-          </h2>
+        <div>
+          <h2 class="text-base font-bold font-heading text-slate-900 dark:text-white">{{ restaurant.name }}</h2>
+          <p class="text-xs text-slate-400 font-mono mt-0.5">Store ID: #{{ restaurant.id }} • {{ restaurant.slug }}</p>
+        </div>
 
-          <div class="space-y-3 text-xs">
+        <!-- Quick Action Buttons Row -->
+        <div class="flex items-center justify-center space-x-2 pt-1">
+          <a 
+            href="https://wa.me/{{ restaurant.whatsapp_number }}" 
+            target="_blank"
+            class="flex flex-col items-center justify-center w-16 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 transition-colors"
+            title="Chat on WhatsApp"
+          >
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+            <span class="text-[10px] font-bold mt-1">WhatsApp</span>
+          </a>
+
+          <a 
+            href="{% url 'platform:restaurant_assist' pk=restaurant.pk %}" 
+            class="flex flex-col items-center justify-center w-16 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200 transition-colors"
+            title="Login as Owner"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+            <span class="text-[10px] font-bold mt-1">Assist</span>
+          </a>
+
+          <a 
+            href="{% url 'public:menu' slug=restaurant.slug %}" 
+            target="_blank"
+            class="flex flex-col items-center justify-center w-16 py-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 transition-colors"
+            title="Open Public Menu"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+            <span class="text-[10px] font-bold mt-1">Menu</span>
+          </a>
+        </div>
+
+        <!-- Store Activity Status -->
+        <p class="text-[11px] text-slate-400 font-medium">
+          • Last updated {{ restaurant.updated_at|date:"d M Y at H:i" }}
+        </p>
+
+        <!-- Store Info / Activity Timeline -->
+        <div class="border-t border-slate-100 dark:border-slate-800 pt-4 text-left space-y-3 text-xs">
+          <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Store Essentials</p>
+          <div class="space-y-2">
             <div class="flex items-center justify-between">
-              <div>
-                <p class="font-bold text-tapbhoj-ink dark:text-tapbhoj-ink-dark">Purge Test Orders</p>
-                <p class="text-[10px] text-tapbhoj-muted">Delete all recorded order history for this store.</p>
-              </div>
-              <form method="post" action="{% url 'platform:restaurant_clear_orders' pk=restaurant.pk %}" onsubmit="return confirm('Clear all orders for this store?');">
-                {% csrf_token %}
-                <button type="submit" class="px-3 py-1.5 rounded-xl border border-red-300 dark:border-red-800 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/40 font-semibold text-xs">
-                  Clear Orders
-                </button>
-              </form>
+              <span class="text-slate-500">Owner User:</span>
+              <strong class="text-slate-900 dark:text-white">{{ owner.username|default:"Unassigned" }}</strong>
             </div>
-
-            <div class="flex items-center justify-between pt-2 border-t border-red-200 dark:border-red-900/30">
-              <div>
-                <p class="font-bold text-red-600 dark:text-red-400">Permanently Delete Store</p>
-                <p class="text-[10px] text-tapbhoj-muted">Erase this restaurant, its menu, QR routing, and owner account.</p>
-              </div>
-              <a href="{% url 'platform:restaurant_delete' pk=restaurant.pk %}" class="px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-xs">
-                Delete Store
-              </a>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500">Owner Email:</span>
+              <strong class="text-slate-900 dark:text-white truncate max-w-[150px]">{{ owner.email|default:"None" }}</strong>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500">Phone:</span>
+              <strong class="text-slate-900 dark:text-white">+{{ restaurant.whatsapp_number }}</strong>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500">Tables:</span>
+              <strong class="text-slate-900 dark:text-white">{{ restaurant.number_of_tables }}</strong>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500">Active Plan:</span>
+              <strong class="text-slate-900 dark:text-white">{{ subscription.plan.name|default:"Free Trial" }}</strong>
             </div>
           </div>
         </div>
@@ -304,146 +158,404 @@
       </div>
 
     </div>
-  </div>
 
-  <!-- TAB 3: Menu Inspector -->
-  <div x-show="activeTab === 'menu'" class="space-y-6" style="display: none;">
-    <div class="flex items-center justify-between">
-      <h2 class="text-base font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
-        Store Categories & Dishes
-      </h2>
-      <a 
-        href="{% url 'platform:restaurant_assist' pk=restaurant.pk %}" 
-        class="text-xs font-bold text-tapbhoj-brand dark:text-tapbhoj-accent hover:underline"
-      >
-        Open Owner Menu Editor ↗
-      </a>
-    </div>
+    <!-- RIGHT WORKSPACE (8 cols on lg) -->
+    <div class="lg:col-span-8 space-y-6">
 
-    {% for category in categories %}
-      <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl border border-black/5 dark:border-white/10 shadow-sm overflow-hidden">
-        <div class="p-4 bg-tapbhoj-bg dark:bg-tapbhoj-bg-dark border-b border-black/5 dark:border-white/10 flex items-center justify-between">
-          <h3 class="font-bold text-sm font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
-            {{ category.name }}
-          </h3>
-          <span class="text-xs text-tapbhoj-muted">{{ category.items.count }} items</span>
+      <!-- Navigation Tabs (Matching Design Reference) -->
+      <div class="flex items-center space-x-6 border-b border-slate-200/80 dark:border-slate-800 text-xs font-semibold overflow-x-auto pb-0.5">
+        <button 
+          type="button" 
+          @click="activeTab = 'overview'" 
+          :class="activeTab === 'overview' ? 'border-b-2 border-slate-900 dark:border-white text-slate-900 dark:text-white font-bold' : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
+          class="pb-3 transition-colors whitespace-nowrap"
+        >
+          Overview
+        </button>
+        <button 
+          type="button" 
+          @click="activeTab = 'settings'" 
+          :class="activeTab === 'settings' ? 'border-b-2 border-slate-900 dark:border-white text-slate-900 dark:text-white font-bold' : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
+          class="pb-3 transition-colors whitespace-nowrap"
+        >
+          Store & Accounts
+        </button>
+        <button 
+          type="button" 
+          @click="activeTab = 'menu'" 
+          :class="activeTab === 'menu' ? 'border-b-2 border-slate-900 dark:border-white text-slate-900 dark:text-white font-bold' : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
+          class="pb-3 transition-colors whitespace-nowrap flex items-center space-x-1.5"
+        >
+          <span>Menu Inspector</span>
+          <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">{{ total_items_count }}</span>
+        </button>
+        <button 
+          type="button" 
+          @click="activeTab = 'orders'" 
+          :class="activeTab === 'orders' ? 'border-b-2 border-slate-900 dark:border-white text-slate-900 dark:text-white font-bold' : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
+          class="pb-3 transition-colors whitespace-nowrap flex items-center space-x-1.5"
+        >
+          <span>Recent Orders</span>
+          <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">{{ orders_count }}</span>
+        </button>
+        <button 
+          type="button" 
+          @click="activeTab = 'subscription'" 
+          :class="activeTab === 'subscription' ? 'border-b-2 border-slate-900 dark:border-white text-slate-900 dark:text-white font-bold' : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
+          class="pb-3 transition-colors whitespace-nowrap"
+        >
+          Subscription
+        </button>
+      </div>
+
+      <!-- TAB 1: OVERVIEW -->
+      <div x-show="activeTab === 'overview'" class="space-y-6">
+        
+        <!-- KPI Metric Cards (Matching Screenshot) -->
+        <div class="grid grid-cols-3 gap-4">
+          <div class="bg-white dark:bg-[#1e293b] rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1">
+            <p class="text-[11px] font-medium text-slate-400">Total Recorded Orders</p>
+            <p class="text-3xl font-extrabold font-heading text-slate-900 dark:text-white">{{ orders_count }}</p>
+            <p class="text-[10px] text-slate-400">WhatsApp orders logged</p>
+          </div>
+
+          <div class="bg-white dark:bg-[#1e293b] rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1">
+            <p class="text-[11px] font-medium text-slate-400">Recorded Revenue</p>
+            <p class="text-3xl font-extrabold font-heading text-slate-900 dark:text-white">₹{{ orders_total|floatformat:0 }}</p>
+            <p class="text-[10px] text-emerald-600 font-medium">Gross table order value</p>
+          </div>
+
+          <div class="bg-white dark:bg-[#1e293b] rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1">
+            <p class="text-[11px] font-medium text-slate-400">Active Days Left</p>
+            <p class="text-3xl font-extrabold font-heading text-slate-900 dark:text-white">{{ subscription.days_remaining }}</p>
+            <p class="text-[10px] text-blue-600 font-medium">{{ subscription.get_status_display }}</p>
+          </div>
         </div>
 
-        <div class="divide-y divide-black/5 dark:divide-white/5">
-          {% for item in category.items.all %}
-            <div class="p-3.5 flex items-center justify-between text-xs hover:bg-black/[0.01]">
-              <div class="flex items-center space-x-2.5">
-                {% if item.is_veg %}
-                  <span class="w-3.5 h-3.5 rounded-sm border border-tapbhoj-veg p-0.5 flex-shrink-0" title="Veg">
-                    <span class="block w-full h-full rounded-full bg-tapbhoj-veg"></span>
-                  </span>
-                {% else %}
-                  <span class="w-3.5 h-3.5 rounded-sm border border-tapbhoj-nonveg p-0.5 flex-shrink-0" title="Non-Veg">
-                    <span class="block w-full h-full rounded-full bg-tapbhoj-nonveg"></span>
-                  </span>
-                {% endif %}
-                <div>
-                  <strong class="text-tapbhoj-ink dark:text-tapbhoj-ink-dark">{{ item.name }}</strong>
-                  {% if item.tags %}
-                    <span class="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10 text-tapbhoj-muted">{{ item.tags }}</span>
-                  {% endif %}
-                  {% if item.description %}
-                    <p class="text-[11px] text-tapbhoj-muted truncate max-w-sm">{{ item.description }}</p>
-                  {% endif %}
+        <!-- Quick Summary List -->
+        <div class="bg-white dark:bg-[#1e293b] rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+            <h3 class="text-sm font-bold font-heading text-slate-900 dark:text-white">
+              Menu & Table Configuration
+            </h3>
+            <a href="{% url 'public:menu' slug=restaurant.slug %}" target="_blank" class="text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
+              Preview Digital Menu ↗
+            </a>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+              <span class="text-slate-400">Tables Set</span>
+              <p class="text-lg font-bold mt-0.5">{{ restaurant.number_of_tables }}</p>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+              <span class="text-slate-400">Categories</span>
+              <p class="text-lg font-bold mt-0.5">{{ categories.count }}</p>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+              <span class="text-slate-400">Dishes</span>
+              <p class="text-lg font-bold mt-0.5">{{ total_items_count }}</p>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+              <span class="text-slate-400">NFC / QR Link</span>
+              <p class="text-xs font-mono font-bold mt-1 truncate">/r/{{ restaurant.slug }}/</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TAB 2: STORE & OWNER ACCOUNTS -->
+      <div x-show="activeTab === 'settings'" class="space-y-6" style="display: none;">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          <!-- Edit Store Profile -->
+          <div class="bg-white dark:bg-[#1e293b] rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
+            <h3 class="text-sm font-bold font-heading text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2">
+              Edit Store Profile
+            </h3>
+
+            <form method="post" class="space-y-3">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="update_restaurant">
+
+              <div class="space-y-1">
+                <label class="block text-xs font-semibold text-slate-500">Restaurant Name</label>
+                {{ restaurant_form.name }}
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div class="space-y-1">
+                  <label class="block text-xs font-semibold text-slate-500">URL Slug</label>
+                  {{ restaurant_form.slug }}
+                </div>
+                <div class="space-y-1">
+                  <label class="block text-xs font-semibold text-slate-500">WhatsApp (no +)</label>
+                  {{ restaurant_form.whatsapp_number }}
                 </div>
               </div>
 
-              <div class="flex items-center space-x-4">
-                <span class="font-bold font-mono text-sm text-tapbhoj-ink dark:text-tapbhoj-ink-dark">₹{{ item.price|floatformat:0 }}</span>
-                
-                <a 
-                  href="{% url 'platform:item_toggle' pk=item.pk %}" 
-                  class="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors {% if item.is_available %}bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 hover:bg-emerald-200{% else %}bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 hover:bg-amber-200{% endif %}"
-                >
-                  {% if item.is_available %}Available{% else %}Sold Out{% endif %}
-                </a>
+              <div class="grid grid-cols-2 gap-3">
+                <div class="space-y-1">
+                  <label class="block text-xs font-semibold text-slate-500">Tables</label>
+                  {{ restaurant_form.number_of_tables }}
+                </div>
+                <div class="space-y-1">
+                  <label class="block text-xs font-semibold text-slate-500">Status</label>
+                  {{ restaurant_form.status }}
+                </div>
+              </div>
+
+              <div class="space-y-1">
+                <label class="block text-xs font-semibold text-slate-500">Address</label>
+                {{ restaurant_form.address }}
+              </div>
+
+              <div class="space-y-1">
+                <label class="block text-xs font-semibold text-slate-500">Google Review URL</label>
+                {{ restaurant_form.google_review_url }}
+              </div>
+
+              <div class="pt-2 flex justify-end">
+                <button type="submit" class="min-h-[40px] px-5 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold font-heading shadow-sm hover:opacity-95">
+                  Save Store Details
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Edit Owner Account & Password -->
+          <div class="space-y-6">
+            <div class="bg-white dark:bg-[#1e293b] rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
+              <h3 class="text-sm font-bold font-heading text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2">
+                Owner Account & Password Reset
+              </h3>
+
+              {% if owner %}
+                <form method="post" class="space-y-3">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="update_owner">
+
+                  <div class="space-y-1">
+                    <label class="block text-xs font-semibold text-slate-500">Username (Fixed)</label>
+                    <input type="text" value="{{ owner.username }}" disabled class="w-full text-sm rounded-xl px-3.5 py-2 bg-slate-100 dark:bg-slate-800 border-none text-slate-400 cursor-not-allowed">
+                  </div>
+
+                  <div class="space-y-1">
+                    <label class="block text-xs font-semibold text-slate-500">Owner Email</label>
+                    {{ owner_form.email }}
+                  </div>
+
+                  <div class="space-y-1">
+                    <label class="block text-xs font-semibold text-slate-500">Reset Password</label>
+                    {{ owner_form.new_password }}
+                    <p class="text-[10px] text-slate-400">Leave blank to keep existing password.</p>
+                  </div>
+
+                  <div class="pt-2 flex justify-end">
+                    <button type="submit" class="min-h-[40px] px-5 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold font-heading shadow-sm hover:opacity-95">
+                      Save Owner Account
+                    </button>
+                  </div>
+                </form>
+              {% else %}
+                <p class="text-xs text-slate-400">No owner account linked.</p>
+              {% endif %}
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="bg-red-50/40 dark:bg-red-950/20 rounded-2xl p-6 border border-red-200/80 dark:border-red-900/40 space-y-3">
+              <h3 class="text-sm font-bold font-heading text-red-600 dark:text-red-400 border-b border-red-200/60 pb-2">
+                Danger Zone
+              </h3>
+              <div class="flex items-center justify-between text-xs pt-1">
+                <div>
+                  <p class="font-bold text-slate-900 dark:text-white">Purge Test Orders</p>
+                  <p class="text-[10px] text-slate-400">Clear all recorded orders for this store.</p>
+                </div>
+                <form method="post" action="{% url 'platform:restaurant_clear_orders' pk=restaurant.pk %}" onsubmit="return confirm('Purge test orders?');">
+                  {% csrf_token %}
+                  <button type="submit" class="px-3 py-1.5 rounded-xl border border-red-300 dark:border-red-800 text-red-600 font-semibold hover:bg-red-100">
+                    Purge
+                  </button>
+                </form>
               </div>
             </div>
-          {% empty %}
-            <div class="p-4 text-center text-tapbhoj-muted text-xs">No items in this category.</div>
-          {% endfor %}
+          </div>
+
         </div>
       </div>
-    {% empty %}
-      <div class="p-12 text-center bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl border border-black/5 dark:border-white/10">
-        <p class="text-sm font-semibold">No menu categories created yet.</p>
-        <p class="text-xs text-tapbhoj-muted mt-1">Use the Assist Owner button above to add categories and dishes.</p>
-      </div>
-    {% endfor %}
-  </div>
 
-  <!-- TAB 4: Recent Orders -->
-  <div x-show="activeTab === 'orders'" class="space-y-4" style="display: none;">
-    <div class="flex items-center justify-between">
-      <div>
-        <h2 class="text-base font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
-          Order Records for {{ restaurant.name }}
-        </h2>
-        <p class="text-xs text-tapbhoj-muted">Total recorded: {{ orders_count }} orders (₹{{ orders_total|floatformat:0 }})</p>
-      </div>
+      <!-- TAB 3: MENU INSPECTOR -->
+      <div x-show="activeTab === 'menu'" class="space-y-6" style="display: none;">
+        
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-base font-bold font-heading text-slate-900 dark:text-white">Categories & Dishes</h3>
+            <p class="text-xs text-slate-400">Manage dish availability directly or assist owner to edit items.</p>
+          </div>
+          <a 
+            href="{% url 'platform:restaurant_assist' pk=restaurant.pk %}" 
+            class="text-xs font-bold text-slate-900 dark:text-white hover:underline flex items-center space-x-1"
+          >
+            <span>Open Menu Manager ↗</span>
+          </a>
+        </div>
 
-      {% if orders %}
-        <form method="post" action="{% url 'platform:restaurant_clear_orders' pk=restaurant.pk %}" onsubmit="return confirm('Clear all orders for this store?');">
-          {% csrf_token %}
-          <button type="submit" class="px-3 py-1.5 rounded-xl border border-red-300 dark:border-red-800 text-red-600 text-xs font-semibold hover:bg-red-50">
-            Purge Orders
-          </button>
-        </form>
-      {% endif %}
-    </div>
+        {% for category in categories %}
+          <div class="bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
+            
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <h4 class="font-bold text-xs font-heading text-slate-900 dark:text-white">{{ category.name }}</h4>
+              <span class="text-[11px] text-slate-400">{{ category.items.count }} items</span>
+            </div>
 
-    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl border border-black/5 dark:border-white/10 shadow-sm overflow-hidden">
-      {% if orders %}
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs">
-            <thead class="bg-tapbhoj-bg dark:bg-tapbhoj-bg-dark border-b border-black/5 dark:border-white/10 text-[10px] uppercase font-bold text-tapbhoj-muted tracking-wider">
-              <tr>
-                <th class="py-3 px-4">Time</th>
-                <th class="py-3 px-4">Table</th>
-                <th class="py-3 px-4">Items Summary</th>
-                <th class="py-3 px-4 text-right">Amount</th>
-                <th class="py-3 px-4 text-center">Status</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-black/5 dark:divide-white/5">
-              {% for order in orders %}
-                <tr class="hover:bg-black/[0.02] dark:hover:bg-white/[0.02]">
-                  <td class="py-3 px-4 whitespace-nowrap text-tapbhoj-muted font-mono text-[11px]">
-                    {{ order.created_at|date:"d M, H:i" }}
-                  </td>
-                  <td class="py-3 px-4 whitespace-nowrap font-bold">
-                    Table {{ order.table_number }}
-                  </td>
-                  <td class="py-3 px-4 max-w-xs sm:max-w-md">
-                    <p class="font-medium truncate">{{ order.items_summary }}</p>
-                    {% if order.customer_note %}
-                      <p class="text-[10px] text-tapbhoj-muted italic truncate">"{{ order.customer_note }}"</p>
+            <!-- Dish Rows (Document List Style from Reference) -->
+            <div class="divide-y divide-slate-100 dark:divide-slate-800">
+              {% for item in category.items.all %}
+                <div class="p-3.5 flex items-center justify-between text-xs hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                  
+                  <div class="flex items-center space-x-3">
+                    {% if item.is_veg %}
+                      <span class="w-4 h-4 rounded-sm border border-emerald-600 p-0.5 flex-shrink-0" title="Veg">
+                        <span class="block w-full h-full rounded-full bg-emerald-600"></span>
+                      </span>
+                    {% else %}
+                      <span class="w-4 h-4 rounded-sm border border-red-600 p-0.5 flex-shrink-0" title="Non-Veg">
+                        <span class="block w-full h-full rounded-full bg-red-600"></span>
+                      </span>
                     {% endif %}
-                  </td>
-                  <td class="py-3 px-4 text-right font-mono font-bold">
-                    ₹{{ order.total_amount|floatformat:0 }}
-                  </td>
-                  <td class="py-3 px-4 text-center whitespace-nowrap">
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
-                      {{ order.get_status_display }}
-                    </span>
-                  </td>
-                </tr>
+
+                    <div>
+                      <span class="font-bold text-slate-900 dark:text-white">{{ item.name }}</span>
+                      {% if item.tags %}
+                        <span class="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 font-semibold">{{ item.tags }}</span>
+                      {% endif %}
+                      {% if item.description %}
+                        <p class="text-[11px] text-slate-400 truncate max-w-sm">{{ item.description }}</p>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                  <div class="flex items-center space-x-4">
+                    <span class="font-bold font-mono text-slate-900 dark:text-white">₹{{ item.price|floatformat:0 }}</span>
+                    <a 
+                      href="{% url 'platform:item_toggle' pk=item.pk %}" 
+                      class="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-colors {% if item.is_available %}bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 hover:bg-emerald-200{% else %}bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 hover:bg-amber-200{% endif %}"
+                    >
+                      {% if item.is_available %}Available{% else %}Sold Out{% endif %}
+                    </a>
+                  </div>
+
+                </div>
+              {% empty %}
+                <div class="p-4 text-center text-xs text-slate-400">No items in this category.</div>
               {% endfor %}
-            </tbody>
-          </table>
+            </div>
+
+          </div>
+        {% empty %}
+          <div class="p-12 text-center bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200/80 dark:border-slate-800">
+            <p class="text-sm font-semibold">No menu categories yet.</p>
+          </div>
+        {% endfor %}
+
+      </div>
+
+      <!-- TAB 4: RECENT ORDERS -->
+      <div x-show="activeTab === 'orders'" class="space-y-4" style="display: none;">
+        
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-bold font-heading text-slate-900 dark:text-white">Orders Logged</h3>
+          {% if orders %}
+            <form method="post" action="{% url 'platform:restaurant_clear_orders' pk=restaurant.pk %}" onsubmit="return confirm('Purge orders?');">
+              {% csrf_token %}
+              <button type="submit" class="px-3 py-1.5 rounded-xl border border-red-300 text-red-600 text-xs font-semibold hover:bg-red-50">
+                Purge
+              </button>
+            </form>
+          {% endif %}
         </div>
-      {% else %}
-        <div class="p-12 text-center text-tapbhoj-muted text-xs">
-          No orders logged yet for this restaurant.
+
+        <div class="bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
+          {% if orders %}
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                  <tr>
+                    <th class="py-3 px-4">Time</th>
+                    <th class="py-3 px-4">Table</th>
+                    <th class="py-3 px-4">Items Summary</th>
+                    <th class="py-3 px-4 text-right">Amount</th>
+                    <th class="py-3 px-4 text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                  {% for order in orders %}
+                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
+                      <td class="py-3 px-4 whitespace-nowrap text-slate-400 font-mono text-[11px]">{{ order.created_at|date:"d M, H:i" }}</td>
+                      <td class="py-3 px-4 whitespace-nowrap font-bold">Table {{ order.table_number }}</td>
+                      <td class="py-3 px-4 max-w-xs truncate">{{ order.items_summary }}</td>
+                      <td class="py-3 px-4 text-right font-mono font-bold">₹{{ order.total_amount|floatformat:0 }}</td>
+                      <td class="py-3 px-4 text-center whitespace-nowrap">
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">{{ order.get_status_display }}</span>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="p-12 text-center text-xs text-slate-400">No orders logged yet.</div>
+          {% endif %}
         </div>
-      {% endif %}
+
+      </div>
+
+      <!-- TAB 5: SUBSCRIPTION -->
+      <div x-show="activeTab === 'subscription'" class="space-y-6" style="display: none;">
+        <div class="bg-white dark:bg-[#1e293b] rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
+          <h3 class="text-sm font-bold font-heading text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2">
+            Subscription Lifecycle Settings
+          </h3>
+
+          <form method="post" class="space-y-4">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="update_subscription">
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="space-y-1.5">
+                <label class="block text-xs font-semibold text-slate-500">Plan</label>
+                {{ sub_form.plan }}
+              </div>
+              <div class="space-y-1.5">
+                <label class="block text-xs font-semibold text-slate-500">Status</label>
+                {{ sub_form.status }}
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="space-y-1.5">
+                <label class="block text-xs font-semibold text-slate-500">Trial End Date</label>
+                {{ sub_form.trial_end }}
+              </div>
+              <div class="space-y-1.5">
+                <label class="block text-xs font-semibold text-slate-500">Current Period End</label>
+                {{ sub_form.current_period_end }}
+              </div>
+            </div>
+
+            <div class="pt-2 flex justify-end">
+              <button type="submit" class="min-h-[40px] px-5 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold font-heading shadow-md hover:opacity-95">
+                Update Subscription
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
     </div>
+
   </div>
 
 </div>

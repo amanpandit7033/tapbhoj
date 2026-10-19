@@ -2,47 +2,180 @@
 {% load static %}
 
 {% block content %}
-<div class="min-h-screen flex flex-col bg-tapbhoj-bg dark:bg-tapbhoj-bg-dark pb-20 md:pb-8" x-data="{ isDark: document.documentElement.classList.contains('dark') }">
+<div class="min-h-screen flex bg-slate-50 dark:bg-[#0f172a] text-slate-900 dark:text-slate-100 font-sans pb-16 lg:pb-0" x-data="{ isDark: document.documentElement.classList.contains('dark'), mobileSidebarOpen: false }">
   
-  <!-- Dashboard Top Bar -->
-  <header class="sticky top-0 z-30 bg-tapbhoj-surface/95 dark:bg-tapbhoj-surface-dark/95 backdrop-blur-md border-b border-black/5 dark:border-white/10 px-4 py-3">
-    <div class="max-w-4xl mx-auto flex items-center justify-between">
+  <!-- Mobile Sidebar Backdrop -->
+  <div 
+    x-show="mobileSidebarOpen" 
+    @click="mobileSidebarOpen = false" 
+    x-transition.opacity 
+    class="fixed inset-0 z-40 bg-black/50 lg:hidden"
+    style="display: none;"
+  ></div>
+
+  <!-- Left Collapsible Sidebar (Matching Reference SaaS Design) -->
+  <aside 
+    :class="mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
+    class="fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-[#1e293b] border-r border-slate-200/80 dark:border-slate-800 flex flex-col justify-between transition-transform duration-200 ease-in-out"
+  >
+    <!-- Top Identity & Navigation -->
+    <div class="flex flex-col flex-1 overflow-y-auto">
       
-      <!-- Restaurant Identity -->
-      <div class="flex items-center space-x-3">
-        <a href="{% url 'dashboard:home' %}" class="flex items-center space-x-2">
-          <img src="{% static 'images/tapbhoj-icon.svg' %}" alt="TapBhoj" class="w-9 h-9 rounded-xl shadow-sm">
-          <div>
-            <div class="flex items-center space-x-2">
-              <span class="font-bold font-heading text-sm text-tapbhoj-ink dark:text-tapbhoj-ink-dark">{{ restaurant.name }}</span>
-              {% if restaurant.status == 'active' %}
-                <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1 animate-pulse"></span>
-                  Active
-                </span>
-              {% else %}
-                <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
-                  Paused
-                </span>
-              {% endif %}
+      <!-- Restaurant Header -->
+      <div class="h-16 flex items-center justify-between px-6 border-b border-slate-100 dark:border-slate-800">
+        <a href="{% url 'dashboard:home' %}" class="flex items-center space-x-2.5">
+          {% if restaurant.logo %}
+            <img src="{{ restaurant.logo.url }}" alt="{{ restaurant.name }}" class="w-8 h-8 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shadow-sm">
+          {% else %}
+            <div class="w-8 h-8 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 flex items-center justify-center font-heading font-extrabold text-sm shadow-sm">
+              {{ restaurant.name|slice:":1" }}
             </div>
-            <p class="text-[11px] text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Owner Dashboard</p>
+          {% endif %}
+          <div class="truncate max-w-[130px]">
+            <span class="font-extrabold font-heading text-sm text-slate-900 dark:text-white truncate block">{{ restaurant.name }}</span>
+            <span class="text-[10px] text-slate-400">Owner Portal</span>
           </div>
         </a>
+        <button @click="mobileSidebarOpen = false" class="lg:hidden text-slate-400 hover:text-slate-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
       </div>
 
-      <!-- Header Actions (Live Menu link, Theme Toggle, Logout) -->
-      <div class="flex items-center space-x-2">
+      <!-- Navigation Links -->
+      <nav class="p-4 space-y-1 text-xs font-medium">
+        
+        <p class="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+          Store Operations
+        </p>
+
+        <!-- Home / Dashboard -->
+        <a 
+          href="{% url 'dashboard:home' %}" 
+          class="flex items-center space-x-3 px-3 py-2.5 rounded-xl transition-colors {% if request.resolver_match.url_name == 'home' %}bg-slate-100 dark:bg-slate-800/80 text-slate-900 dark:text-white font-bold shadow-sm{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white{% endif %}"
+        >
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+          <span>Dashboard Overview</span>
+        </a>
+
+        <!-- Orders & Insights -->
+        <a 
+          href="{% url 'dashboard:orders' %}" 
+          class="flex items-center space-x-3 px-3 py-2.5 rounded-xl transition-colors {% if 'orders' in request.resolver_match.url_name %}bg-slate-100 dark:bg-slate-800/80 text-slate-900 dark:text-white font-bold shadow-sm{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white{% endif %}"
+        >
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+          <span>Orders & Insights</span>
+        </a>
+
+        <!-- Menu Manager -->
+        <a 
+          href="{% url 'dashboard:menu' %}" 
+          class="flex items-center space-x-3 px-3 py-2.5 rounded-xl transition-colors {% if 'menu' in request.resolver_match.url_name %}bg-slate-100 dark:bg-slate-800/80 text-slate-900 dark:text-white font-bold shadow-sm{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white{% endif %}"
+        >
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+          <span>Menu Manager</span>
+        </a>
+
+        <!-- Tables & QR -->
+        <a 
+          href="{% url 'dashboard:tables' %}" 
+          class="flex items-center space-x-3 px-3 py-2.5 rounded-xl transition-colors {% if 'tables' in request.resolver_match.url_name %}bg-slate-100 dark:bg-slate-800/80 text-slate-900 dark:text-white font-bold shadow-sm{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white{% endif %}"
+        >
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
+          <span>Tables & QR Cards</span>
+        </a>
+
+        <div class="pt-4">
+          <p class="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            Account & Plan
+          </p>
+
+          <!-- Subscription -->
+          <a 
+            href="{% url 'dashboard:subscription' %}" 
+            class="flex items-center space-x-3 px-3 py-2.5 rounded-xl transition-colors {% if 'subscription' in request.resolver_match.url_name %}bg-slate-100 dark:bg-slate-800/80 text-slate-900 dark:text-white font-bold shadow-sm{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white{% endif %}"
+          >
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+            <span>Subscription & Billing</span>
+          </a>
+
+          <!-- Profile -->
+          <a 
+            href="{% url 'dashboard:profile' %}" 
+            class="flex items-center space-x-3 px-3 py-2.5 rounded-xl transition-colors {% if request.resolver_match.url_name == 'profile' %}bg-slate-100 dark:bg-slate-800/80 text-slate-900 dark:text-white font-bold shadow-sm{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white{% endif %}"
+          >
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            <span>Store Profile</span>
+          </a>
+        </div>
+
+      </nav>
+    </div>
+
+    <!-- Pinned Bottom User & Sign Out -->
+    <div class="p-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+      <div class="flex items-center space-x-2.5">
+        <div class="w-8 h-8 rounded-full bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-bold flex items-center justify-center text-xs shadow-sm">
+          {{ request.user.username|slice:":1"|upper }}
+        </div>
+        <div class="truncate max-w-[120px]">
+          <p class="text-xs font-bold leading-tight truncate">{{ request.user.username }}</p>
+          <p class="text-[10px] text-slate-400">Store Owner</p>
+        </div>
+      </div>
+
+      <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors" title="Sign Out">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+        </button>
+      </form>
+    </div>
+
+  </aside>
+
+  <!-- Main Content Wrapper (Shifted right on desktop) -->
+  <div class="flex-1 flex flex-col min-w-0 lg:pl-64">
+    
+    <!-- Top Global Header Bar -->
+    <header class="h-16 sticky top-0 z-30 bg-white/95 dark:bg-[#1e293b]/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 px-4 sm:px-8 flex items-center justify-between">
+      
+      <!-- Mobile Sidebar Toggle -->
+      <div class="flex items-center space-x-3">
+        <button 
+          @click="mobileSidebarOpen = true" 
+          class="lg:hidden p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+          aria-label="Open sidebar"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </button>
+
+        <div class="flex items-center space-x-2">
+          <span class="font-bold text-sm text-slate-900 dark:text-white hidden sm:inline">{{ restaurant.name }}</span>
+          {% if restaurant.status == 'active' %}
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
+              Active
+            </span>
+          {% else %}
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+              Paused
+            </span>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Right Actions (View Menu & Theme) -->
+      <div class="flex items-center space-x-2.5">
+        
         <a 
           href="{% url 'public:menu' slug=restaurant.slug %}" 
           target="_blank"
-          class="hidden sm:inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-tapbhoj-bg dark:bg-tapbhoj-bg-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark hover:bg-tapbhoj-surface transition-colors"
+          class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold font-heading shadow-sm hover:opacity-95 transition-opacity"
         >
-          <span>View Public Menu</span>
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+          <span>View Live Menu ↗</span>
         </a>
 
-        <!-- Theme Toggle -->
+        <!-- Dark / Light Theme Toggle -->
         <button 
           type="button"
           @click="
@@ -55,113 +188,77 @@
               localStorage.setItem('theme', 'light');
             }
           "
-          class="w-9 h-9 flex items-center justify-center rounded-xl text-tapbhoj-muted dark:text-tapbhoj-muted-dark hover:bg-tapbhoj-bg dark:hover:bg-tapbhoj-bg-dark transition-colors"
-          aria-label="Toggle dark mode"
+          class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          aria-label="Toggle theme"
         >
           <template x-if="!isDark">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
           </template>
           <template x-if="isDark">
-            <svg class="w-4 h-4 text-tapbhoj-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 9h-1m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 9h-1m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
           </template>
         </button>
 
-        <!-- Logout Form -->
-        <form method="post" action="{% url 'logout' %}">
-          {% csrf_token %}
-          <button 
-            type="submit" 
-            class="w-9 h-9 flex items-center justify-center rounded-xl text-tapbhoj-muted hover:text-red-600 dark:hover:text-red-400 transition-colors"
-            title="Sign Out"
-            aria-label="Sign out"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-          </button>
-        </form>
       </div>
+    </header>
 
-    </div>
-  </header>
-
-  <!-- Desktop Sub-Navigation -->
-  <nav class="hidden md:block bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border-b border-black/5 dark:border-white/5">
-    <div class="max-w-4xl mx-auto flex items-center space-x-6 px-4">
-      <a href="{% url 'dashboard:home' %}" class="py-3 text-xs font-semibold border-b-2 {% if request.resolver_match.url_name == 'home' %}border-tapbhoj-brand dark:border-tapbhoj-accent text-tapbhoj-brand dark:text-tapbhoj-accent{% else %}border-transparent text-tapbhoj-muted hover:text-tapbhoj-ink dark:hover:text-tapbhoj-ink-dark{% endif %}">
-        Home
-      </a>
-      <a href="{% url 'dashboard:orders' %}" class="py-3 text-xs font-semibold border-b-2 {% if 'orders' in request.resolver_match.url_name %}border-tapbhoj-brand dark:border-tapbhoj-accent text-tapbhoj-brand dark:text-tapbhoj-accent{% else %}border-transparent text-tapbhoj-muted hover:text-tapbhoj-ink dark:hover:text-tapbhoj-ink-dark{% endif %}">
-        Orders & Insights
-      </a>
-      <a href="{% url 'dashboard:menu' %}" class="py-3 text-xs font-semibold border-b-2 {% if 'menu' in request.resolver_match.url_name %}border-tapbhoj-brand dark:border-tapbhoj-accent text-tapbhoj-brand dark:text-tapbhoj-accent{% else %}border-transparent text-tapbhoj-muted hover:text-tapbhoj-ink dark:hover:text-tapbhoj-ink-dark{% endif %}">
-        Menu Manager
-      </a>
-      <a href="{% url 'dashboard:tables' %}" class="py-3 text-xs font-semibold border-b-2 {% if 'tables' in request.resolver_match.url_name %}border-tapbhoj-brand dark:border-tapbhoj-accent text-tapbhoj-brand dark:text-tapbhoj-accent{% else %}border-transparent text-tapbhoj-muted hover:text-tapbhoj-ink dark:hover:text-tapbhoj-ink-dark{% endif %}">
-        Tables & QR Codes
-      </a>
-      <a href="{% url 'dashboard:subscription' %}" class="py-3 text-xs font-semibold border-b-2 {% if 'subscription' in request.resolver_match.url_name %}border-tapbhoj-brand dark:border-tapbhoj-accent text-tapbhoj-brand dark:text-tapbhoj-accent{% else %}border-transparent text-tapbhoj-muted hover:text-tapbhoj-ink dark:hover:text-tapbhoj-ink-dark{% endif %}">
-        Subscription & Plans
-      </a>
-      <a href="{% url 'dashboard:profile' %}" class="py-3 text-xs font-semibold border-b-2 {% if request.resolver_match.url_name == 'profile' %}border-tapbhoj-brand dark:border-tapbhoj-accent text-tapbhoj-brand dark:text-tapbhoj-accent{% else %}border-transparent text-tapbhoj-muted hover:text-tapbhoj-ink dark:hover:text-tapbhoj-ink-dark{% endif %}">
-        Settings & Profile
-      </a>
-    </div>
-  </nav>
-
-  <!-- Flash Messages -->
-  <div class="max-w-4xl mx-auto w-full px-4 pt-4">
+    <!-- Flash Messages -->
     {% if messages %}
-      <div class="space-y-2">
-        {% for message in messages %}
-          <div class="p-3.5 rounded-xl text-xs font-medium flex items-center justify-between shadow-sm {% if message.tags == 'success' %}bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50{% elif message.tags == 'error' %}bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800/50{% else %}bg-blue-50 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/50{% endif %}">
-            <span>{{ message }}</span>
-          </div>
-        {% endfor %}
+      <div class="px-4 sm:px-8 pt-4">
+        <div class="space-y-2">
+          {% for message in messages %}
+            <div class="p-3.5 rounded-xl text-xs font-medium flex items-center justify-between shadow-sm {% if message.tags == 'success' %}bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50{% elif message.tags == 'error' %}bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800/50{% else %}bg-blue-50 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/50{% endif %}">
+              <span>{{ message }}</span>
+            </div>
+          {% endfor %}
+        </div>
       </div>
     {% endif %}
+
+    <!-- Main Workspace Content -->
+    <main class="flex-1 px-4 sm:px-8 py-6">
+      {% block dashboard_content %}{% endblock %}
+    </main>
+
   </div>
 
-  <!-- Dashboard Page Content -->
-  <main class="max-w-4xl mx-auto w-full px-4 py-4 flex-1">
-    {% block dashboard_content %}{% endblock %}
-  </main>
-
-  <!-- Mobile Bottom Navigation Bar (Thumb friendly, min 44px tap targets) -->
-  <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-tapbhoj-surface/95 dark:bg-tapbhoj-surface-dark/95 backdrop-blur-md border-t border-black/10 dark:border-white/10">
+  <!-- Mobile Bottom Navigation Bar (Thumb friendly, min 44px tap targets for mobile counter staff) -->
+  <nav class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-[#1e293b]/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800">
     <div class="grid grid-cols-5 h-16">
       <a 
         href="{% url 'dashboard:home' %}" 
-        class="flex flex-col items-center justify-center space-y-1 text-xs font-medium {% if request.resolver_match.url_name == 'home' %}text-tapbhoj-brand dark:text-tapbhoj-accent font-bold{% else %}text-tapbhoj-muted dark:text-tapbhoj-muted-dark{% endif %}"
+        class="flex flex-col items-center justify-center space-y-1 text-xs font-medium {% if request.resolver_match.url_name == 'home' %}text-slate-900 dark:text-white font-bold{% else %}text-slate-400{% endif %}"
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-        <span>Home</span>
+        <span class="text-[10px]">Home</span>
       </a>
       <a 
         href="{% url 'dashboard:orders' %}" 
-        class="flex flex-col items-center justify-center space-y-1 text-xs font-medium {% if 'orders' in request.resolver_match.url_name %}text-tapbhoj-brand dark:text-tapbhoj-accent font-bold{% else %}text-tapbhoj-muted dark:text-tapbhoj-muted-dark{% endif %}"
+        class="flex flex-col items-center justify-center space-y-1 text-xs font-medium {% if 'orders' in request.resolver_match.url_name %}text-slate-900 dark:text-white font-bold{% else %}text-slate-400{% endif %}"
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-        <span>Orders</span>
+        <span class="text-[10px]">Orders</span>
       </a>
       <a 
         href="{% url 'dashboard:menu' %}" 
-        class="flex flex-col items-center justify-center space-y-1 text-xs font-medium {% if 'menu' in request.resolver_match.url_name %}text-tapbhoj-brand dark:text-tapbhoj-accent font-bold{% else %}text-tapbhoj-muted dark:text-tapbhoj-muted-dark{% endif %}"
+        class="flex flex-col items-center justify-center space-y-1 text-xs font-medium {% if 'menu' in request.resolver_match.url_name %}text-slate-900 dark:text-white font-bold{% else %}text-slate-400{% endif %}"
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-        <span>Menu</span>
+        <span class="text-[10px]">Menu</span>
       </a>
       <a 
         href="{% url 'dashboard:tables' %}" 
-        class="flex flex-col items-center justify-center space-y-1 text-xs font-medium {% if 'tables' in request.resolver_match.url_name %}text-tapbhoj-brand dark:text-tapbhoj-accent font-bold{% else %}text-tapbhoj-muted dark:text-tapbhoj-muted-dark{% endif %}"
+        class="flex flex-col items-center justify-center space-y-1 text-xs font-medium {% if 'tables' in request.resolver_match.url_name %}text-slate-900 dark:text-white font-bold{% else %}text-slate-400{% endif %}"
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
-        <span>Tables</span>
+        <span class="text-[10px]">Tables</span>
       </a>
       <a 
         href="{% url 'dashboard:profile' %}" 
-        class="flex flex-col items-center justify-center space-y-1 text-xs font-medium {% if request.resolver_match.url_name == 'profile' %}text-tapbhoj-brand dark:text-tapbhoj-accent font-bold{% else %}text-tapbhoj-muted dark:text-tapbhoj-muted-dark{% endif %}"
+        class="flex flex-col items-center justify-center space-y-1 text-xs font-medium {% if request.resolver_match.url_name == 'profile' %}text-slate-900 dark:text-white font-bold{% else %}text-slate-400{% endif %}"
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-        <span>Profile</span>
+        <span class="text-[10px]">Profile</span>
       </a>
     </div>
   </nav>
