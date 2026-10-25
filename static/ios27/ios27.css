@@ -1,0 +1,40 @@
+/* ============================================================================
+ * iOS 27 / iPadOS 27 Liquid Glass Design System
+ * Master Bundle for TapBhoj
+ * ========================================================================= */
+
+@import url('./tokens.css');
+@import url('./typography.css');
+@import url('./spacing.css');
+@import url('./materials.css');
+@import url('./animations.css');
+@import url('./icons.css');
+@import url('./legacy-aliases.css');
+@import url('./components.css');
+
+/* Base Root Setup & Viewport Cover */
+:root {
+  color-scheme: light dark;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body.ios27-body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--ios27-font-family-body, -apple-system, BlinkMacSystemFont, "SF Pro", "SF Pro Text", "Helvetica Neue", sans-serif);
+  background-color: var(--ios27-color-bg-grouped-primary, #f2f2f7);
+  color: var(--ios27-color-label-primary, #000000);
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  box-sizing: border-box;
+}
+
+/* Glass scrolling baseline: content scrolls under the glass chrome */
+.ios27-viewport-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}

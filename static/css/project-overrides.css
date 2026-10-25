@@ -1,0 +1,44 @@
+/* ============================================================================
+ * TapBhoj Project Overrides for iOS 27 Design System
+ * (Never modify vendor files in static/ios27/)
+ * ========================================================================= */
+
+:root {
+  /* Food & Dining Specific Tokens */
+  --tapbhoj-diet-veg: #1F8A3B;
+  --tapbhoj-diet-nonveg: #C0392B;
+  --tapbhoj-brand-whatsapp: #25D366;
+  --tapbhoj-brand-whatsapp-dark: #1EBE5D;
+
+  /* Safe Area Variables with fallback */
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
+}
+
+[data-theme="dark"],
+.dark {
+  --tapbhoj-diet-veg: #30D158;
+  --tapbhoj-diet-nonveg: #FF453A;
+  --tapbhoj-brand-whatsapp: #25D366;
+}
+
+/* Ensure Alpine x-cloak prevents layout flash */
+[x-cloak] {
+  display: none !important;
+}
+
+/* Print Sheet Override */
+@media print {
+  .ios-toolbar,
+  .ios-tab-bar,
+  .ios27-sidebar,
+  .no-print {
+    display: none !important;
+  }
+  body.ios27-body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+}

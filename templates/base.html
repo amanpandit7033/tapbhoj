@@ -1,41 +1,96 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="en" class="ios27-html" data-theme="light">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <title>{% block title %}TapBhoj - Digital Menu & WhatsApp Ordering{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <title>{% block title %}TapBhoj - Digital Menu & Table Ordering{% endblock %}</title>
+
+  <!-- iOS Web App & Status Bar Styling -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+
+  <!-- iOS 27 Liquid Glass Design Tokens & Master Stylesheet -->
+  <link rel="stylesheet" href="{% static 'ios27/ios27.css' %}?v={{ STATIC_VERSION }}">
+  <link rel="stylesheet" href="{% static 'css/project-overrides.css' %}?v={{ STATIC_VERSION }}">
   
-  <!-- Preconnect Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
-  
-  <!-- Compiled Tailwind CSS with auto cache-busting in development -->
+  <!-- Keep existing styles during transition phase -->
   <link rel="stylesheet" href="{% static 'css/styles.css' %}?v={{ STATIC_VERSION }}">
-  
+
   <style>
-    /* Prevent Alpine Flash of Unstyled Content (FOUC) */
+    /* Prevent Flash of Unstyled Content for Alpine */
     [x-cloak] { display: none !important; }
   </style>
-  
-  <!-- Alpine.js for lightweight client interactivity -->
+
+  <!-- Alpine.js for Lightweight Interactivity -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
-  
+
+  <!-- Theme Script: Initialize immediately to prevent flash of wrong mode -->
   <script>
-    // Respect system preference or saved theme preference
-    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    (function() {
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = savedTheme ? savedTheme : (prefersDark ? 'dark' : 'light');
+      
+      document.documentElement.setAttribute('data-theme', theme);
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark', 'ios27-dark');
+      } else {
+        document.documentElement.classList.remove('dark', 'ios27-dark');
+      }
+    })();
   </script>
-  
+
   {% block extra_head %}{% endblock %}
 </head>
-<body class="min-h-full flex flex-col bg-tapbhoj-bg text-tapbhoj-ink dark:bg-tapbhoj-bg-dark dark:text-tapbhoj-ink-dark antialiased transition-colors duration-200">
-  {% block content %}{% endblock %}
-  
+<body class="ios27-body" x-data="{
+  theme: document.documentElement.getAttribute('data-theme') || 'light',
+  toggleTheme() {
+    this.theme = this.theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', this.theme);
+    localStorage.setItem('theme', this.theme);
+    if (this.theme === 'dark') {
+      document.documentElement.classList.add('dark', 'ios27-dark');
+    } else {
+      document.documentElement.classList.remove('dark', 'ios27-dark');
+    }
+  }
+}">
+
+  {% if is_impersonating %}
+    <!-- Staff Impersonation Alert Banner (iOS 27 Amber Glass Bar) -->
+    <aside class="ios-impersonation-bar" style="position: sticky; top: 0; z-index: 1000; padding: calc(var(--safe-area-top) + 8px) 16px 8px; background: rgba(255, 149, 0, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); color: #000; display: flex; align-items: center; justify-content: space-between; border-bottom: 0.5px solid rgba(0,0,0,0.15);">
+      <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;">
+        <span style="display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 9999px; background: #000; color: #ff9500; font-size: 11px; font-weight: 800;">!</span>
+        <span>Impersonating <strong>{{ request.user.username }}</strong> for <strong>{{ impersonated_restaurant_name|default:"Store" }}</strong></span>
+      </div>
+      <a href="{% url 'platform:exit_impersonate' %}" style="display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 9999px; background: #000; color: #fff; text-decoration: none; font-size: 12px; font-weight: 700;">
+        Exit Impersonation
+      </a>
+    </aside>
+  {% endif %}
+
+  <!-- Layout Viewport Container -->
+  <div class="ios27-viewport-container">
+    
+    <!-- Top Toolbar Block (Large Title or Inline Navbar) -->
+    {% block toolbar %}{% endblock %}
+
+    <!-- Tablet / Desktop Sidebar Block -->
+    {% block sidebar %}{% endblock %}
+
+    <!-- Main Scrollable Content Block -->
+    <main id="main-content" style="flex: 1; min-width: 0;">
+      {% block content %}{% endblock %}
+    </main>
+
+    <!-- Mobile Bottom Tab Bar Block -->
+    {% block tab_bar %}{% endblock %}
+
+  </div>
+
   {% block extra_js %}{% endblock %}
 </body>
 </html>
