@@ -27,6 +27,29 @@ def restaurant_menu(request, slug):
     # Pre-fill table number from query parameter (Requirement C2)
     table_number = request.GET.get('table', '').strip()
 
+    # If this table already has an order where bill has been requested or payment is pending/paid,
+    # redirect directly to the tracking/payment screen to prevent ordering on a finalized bill!
+    if table_number:
+        import re
+        from orders.models import TableSession
+        clean_table = re.sub(r'[^a-zA-Z0-9_\-]', '', table_number)
+        active_session = TableSession.objects.filter(
+            restaurant=restaurant,
+            table_number=clean_table,
+            is_active=True
+        ).first()
+
+        if active_session:
+            settling_order = active_session.orders.filter(
+                models.Q(payment_requested=True) | models.Q(payment_status__in=['pending', 'paid'])
+            ).exclude(status='cancelled').order_by('-created_at').first()
+
+            if settling_order:
+                if settling_order.payment_status == 'paid':
+                    return redirect('public:receipt', slug=restaurant.slug, order_id=settling_order.id)
+                else:
+                    return redirect('public:order_tracking', slug=restaurant.slug, order_id=settling_order.id)
+
     # Fetch visible categories with pre-fetched menu items ordered by position (Requirement C3, Performance)
     categories = restaurant.categories.filter(is_visible=True).prefetch_related('items')
 
@@ -76,14 +99,24 @@ def log_public_order(request, slug):
     if payment_status not in dict(OrderLog.PAYMENT_STATUS_CHOICES):
         payment_status = 'unpaid'
 
-    # Check if there is already an active, unpaid order for this table/session to append to
+    # Check if a bill has already been requested or paid for this table
     existing_order = OrderLog.objects.filter(
         restaurant=restaurant,
         session=session,
-        payment_status__in=['unpaid', 'pending']
     ).exclude(status__in=['completed', 'cancelled']).order_by('-created_at').first()
 
-    if existing_order:
+    # Rule 1: If bill was already requested (payment_requested=True or payment_status in ['pending', 'paid']),
+    # lock the menu from adding new items and redirect diner back to the tracking/payment screen!
+    if existing_order and (existing_order.payment_requested or existing_order.payment_status in ['pending', 'paid']):
+        tracking_url = reverse('public:order_tracking', kwargs={'slug': restaurant.slug, 'order_id': existing_order.id})
+        return JsonResponse({
+            'status': 'error',
+            'code': 'BILL_ALREADY_REQUESTED',
+            'message': 'The bill for this table is already being finalized or paid. Please settle the current bill with your server before placing new orders.',
+            'tracking_url': tracking_url,
+        }, status=400)
+
+    if existing_order and existing_order.payment_status == 'unpaid':
         # Merge new items into existing order!
         merged_items = list(existing_order.items_json or [])
         for new_item in items:

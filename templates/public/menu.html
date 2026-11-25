@@ -1104,8 +1104,11 @@ document.addEventListener('alpine:init', () => {
 
           // Fallback: Open Order Placed celebratory animation modal
           this.orderSuccessModalOpen = true;
+        } else if (result.code === 'BILL_ALREADY_REQUESTED' && result.tracking_url) {
+          alert(result.message || 'The bill for this table is being settled. Redirecting to payment screen.');
+          window.location.href = result.tracking_url;
         } else {
-          alert('Could not place order. Please try again.');
+          alert(result.message || 'Could not place order. Please try again.');
         }
       } catch (err) {
         console.error('Order submission error:', err);
