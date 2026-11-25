@@ -51,7 +51,7 @@
                  id="order_search" 
                  value="{{ search_query }}"
                  placeholder="Order #, Table, dish name..."
-                 class="w-full !pl-10 pr-4 py-2 text-xs rounded-xl bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-2xs">
+                 class="w-full h-10 !pl-10 pr-4 text-xs rounded-xl bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-600/20 focus:border-primary-600 transition-all shadow-2xs">
         </div>
       </div>
 
@@ -64,7 +64,7 @@
                name="from_date" 
                id="from_date" 
                value="{{ from_date }}"
-               class="w-full bg-white border border-slate-200 text-slate-900 rounded-xl px-3 py-2 text-xs font-medium focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all shadow-2xs">
+               class="w-full h-10 bg-white border border-slate-200 text-slate-900 rounded-xl px-3 text-xs font-medium focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20 transition-all shadow-2xs">
       </div>
 
       <!-- To Date -->
@@ -76,15 +76,15 @@
                name="to_date" 
                id="to_date" 
                value="{{ to_date }}"
-               class="w-full bg-white border border-slate-200 text-slate-900 rounded-xl px-3 py-2 text-xs font-medium focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all shadow-2xs">
+               class="w-full h-10 bg-white border border-slate-200 text-slate-900 rounded-xl px-3 text-xs font-medium focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20 transition-all shadow-2xs">
       </div>
 
       <!-- Status Filter Dropdown -->
-      <div class="w-full md:w-40">
+      <div class="w-full md:w-44">
         <label for="status" class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
           Status
         </label>
-        <select name="status" id="status" class="w-full">
+        <select name="status" id="status" class="w-full !h-10 text-xs rounded-xl bg-white border border-slate-200 text-slate-900 px-3.5 focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20 transition-all shadow-2xs">
           <option value="">All Statuses</option>
           <option value="sent" {% if status_filter == 'sent' %}selected{% endif %}>Sent (New)</option>
           <option value="preparing" {% if status_filter == 'preparing' %}selected{% endif %}>Preparing</option>
@@ -97,7 +97,7 @@
       <div class="flex items-center gap-2 pt-1 md:pt-0 shrink-0">
         <!-- Filter / Search Button -->
         <button type="submit" 
-                class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-700 text-white font-bold text-xs shadow-xs hover:shadow-sm transition-all cursor-pointer">
+                class="inline-flex items-center justify-center gap-2 h-10 px-5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold text-xs shadow-xs hover:shadow-sm transition-all cursor-pointer">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
           <span>Search</span>
         </button>
@@ -105,7 +105,7 @@
         <!-- Clear Filter Link -->
         {% if from_date or to_date or status_filter or date_filter or search_query %}
         <a href="{% url 'dashboard:orders' %}" 
-           class="inline-flex items-center justify-center px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors"
+           class="inline-flex items-center justify-center h-10 px-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors"
            title="Clear all filters">
           Clear
         </a>
