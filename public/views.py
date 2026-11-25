@@ -106,6 +106,60 @@ def log_public_order(request, slug):
         'status': 'ok',
         'order_id': order.id,
         'payment_status': order.payment_status,
+        'tracking_url': reverse('public:order_tracking', kwargs={'slug': restaurant.slug, 'order_id': order.id}),
+    })
+
+
+def order_tracking(request, slug, order_id):
+    """
+    Live order tracking page for customer.
+    Shows real-time preparation progress (Received -> Cooking -> Served -> Completed),
+    order summary, and the Pay / Request Bill prompt when served.
+    """
+    restaurant = get_object_or_404(Restaurant, slug=slug)
+    order = get_object_or_404(restaurant.orders, pk=order_id)
+
+    # If already paid, redirect straight to receipt
+    if order.payment_status == 'paid':
+        return redirect('public:receipt', slug=restaurant.slug, order_id=order.id)
+
+    # Build UPI intent URI
+    upi_url = ''
+    if restaurant.upi_id:
+        import urllib.parse
+        payee = urllib.parse.quote(restaurant.upi_payee_name or restaurant.name)
+        note = urllib.parse.quote(f"Table {order.table_number} {restaurant.name}")
+        upi_url = f"upi://pay?pa={urllib.parse.quote(restaurant.upi_id)}&pn={payee}&am={order.total_amount:.2f}&cu=INR&tn={note}"
+
+    return render(request, 'public/track_order.html', {
+        'restaurant': restaurant,
+        'order': order,
+        'upi_url': upi_url,
+    })
+
+
+@require_GET
+def check_order_status(request, slug, order_id):
+    """
+    Live status polling endpoint for customer tracking page.
+    Returns kitchen preparation status, payment status, payment_requested flag,
+    and receipt URL once cashier marks the order as paid.
+    """
+    restaurant = get_object_or_404(Restaurant, slug=slug)
+    order = get_object_or_404(restaurant.orders, pk=order_id)
+
+    receipt_url = reverse('public:receipt', kwargs={'slug': slug, 'order_id': order.id})
+
+    return JsonResponse({
+        'order_id': order.id,
+        'status': order.status,
+        'status_display': order.get_status_display(),
+        'payment_status': order.payment_status,
+        'payment_status_display': order.get_payment_status_display(),
+        'payment_requested': order.payment_requested,
+        'is_paid': order.payment_status == 'paid',
+        'paid_at': order.paid_at.isoformat() if order.paid_at else None,
+        'receipt_url': receipt_url if order.payment_status == 'paid' else None,
     })
 
 

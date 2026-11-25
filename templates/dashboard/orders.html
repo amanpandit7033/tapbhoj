@@ -86,8 +86,9 @@
         </label>
         <select name="status" id="status" class="w-full !h-10 text-xs rounded-xl bg-white border border-slate-200 text-slate-900 px-3.5 focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20 transition-all shadow-2xs">
           <option value="">All Statuses</option>
-          <option value="sent" {% if status_filter == 'sent' %}selected{% endif %}>Sent (New)</option>
+          <option value="sent" {% if status_filter == 'sent' %}selected{% endif %}>Received (New)</option>
           <option value="preparing" {% if status_filter == 'preparing' %}selected{% endif %}>Preparing</option>
+          <option value="served" {% if status_filter == 'served' %}selected{% endif %}>Served to Table</option>
           <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
           <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled</option>
         </select>
@@ -137,11 +138,15 @@
             <!-- Order Status Badge -->
             {% if order.status == 'sent' %}
               <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
-                New (Sent)
+                New (Received)
               </span>
             {% elif order.status == 'preparing' %}
               <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
                 Preparing
+              </span>
+            {% elif order.status == 'served' %}
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                Served to Table
               </span>
             {% elif order.status == 'completed' %}
               <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -263,6 +268,12 @@
                   <span>Mark Preparing</span>
                 </button>
               {% elif order.status == 'preparing' %}
+                <input type="hidden" name="status" value="served">
+                <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-purple-50 text-purple-800 border border-purple-200 text-xs font-semibold hover:bg-purple-100 transition-colors shadow-2xs cursor-pointer">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                  <span>Mark Served</span>
+                </button>
+              {% elif order.status == 'served' %}
                 <input type="hidden" name="status" value="completed">
                 <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold hover:bg-emerald-100 transition-colors shadow-2xs cursor-pointer">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
@@ -271,13 +282,26 @@
               {% elif order.status == 'completed' %}
                 <span class="inline-flex items-center gap-1 text-xs text-emerald-600 font-bold px-2 py-1 bg-emerald-50/70 rounded-lg">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                  <span>Served</span>
+                  <span>Completed</span>
                 </span>
               {% endif %}
             </form>
 
-            <!-- Prominent Cashier Mark Paid Action Button -->
+            <!-- Request Payment Prompt Button (When served and not paid yet) -->
             {% if order.payment_status != 'paid' %}
+              {% if order.status == 'served' or order.status == 'completed' or order.status == 'preparing' %}
+                <form method="post" action="{% url 'dashboard:order_request_payment' pk=order.pk %}" class="inline">
+                  {% csrf_token %}
+                  <button type="submit"
+                          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl {% if order.payment_requested %}bg-teal-50 text-teal-800 border border-teal-200{% else %}bg-primary-50 text-primary-800 border border-primary-200 hover:bg-primary-100{% endif %} text-xs font-bold shadow-2xs transition-all cursor-pointer"
+                          title="Show payment dialog on customer phone">
+                    <svg class="w-3.5 h-3.5 text-primary-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span>{% if order.payment_requested %}Payment Requested{% else %}Request Payment{% endif %}</span>
+                  </button>
+                </form>
+              {% endif %}
+
+              <!-- Prominent Cashier Mark Paid Action Button -->
               <form method="post" action="{% url 'dashboard:order_payment_status' pk=order.pk %}" class="inline">
                 {% csrf_token %}
                 <input type="hidden" name="payment_status" value="paid">

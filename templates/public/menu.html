@@ -1088,7 +1088,13 @@ document.addEventListener('alpine:init', () => {
           this.orderNote = '';
           this.isOrderSheetOpen = false;
 
-          // Open Order Placed celebratory animation modal
+          // If tracking URL provided, navigate customer straight to their Live Order Tracking page
+          if (result.tracking_url) {
+            window.location.href = result.tracking_url;
+            return;
+          }
+
+          // Fallback: Open Order Placed celebratory animation modal
           this.orderSuccessModalOpen = true;
         } else {
           alert('Could not place order. Please try again.');
@@ -1148,6 +1154,22 @@ document.addEventListener('alpine:init', () => {
         if (resData.order_id) {
           this.activeOrderId = resData.order_id;
           this.isOrderSheetOpen = false;
+
+          // Clean local and shared cart
+          if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+            this.ws.send(JSON.stringify({
+              action: 'clear_cart',
+              diner_name: this.dinerName
+            }));
+          }
+          this.cart = {};
+
+          // If tracking URL returned, navigate to live order tracking page
+          if (resData.tracking_url) {
+            window.location.href = resData.tracking_url;
+            return;
+          }
+
           this.paymentModalOpen = true;
           this.isReturnedFromUpi = false;
           this.upiUtrInput = '';

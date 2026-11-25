@@ -4,8 +4,9 @@ from restaurants.models import Restaurant
 
 class OrderLog(models.Model):
     STATUS_CHOICES = [
-        ('sent', 'Sent to WhatsApp'),
-        ('preparing', 'Preparing'),
+        ('sent', 'Order Received'),
+        ('preparing', 'Preparing in Kitchen'),
+        ('served', 'Served to Table'),
         ('completed', 'Completed'),
         ('cancelled', 'Cancelled'),
     ]
@@ -49,6 +50,10 @@ class OrderLog(models.Model):
         max_length=30,
         blank=True,
         help_text='Customer-submitted UPI reference / UTR number'
+    )
+    payment_requested = models.BooleanField(
+        default=False,
+        help_text='True when admin / waiter clicks Request Payment after serving.'
     )
     paid_at = models.DateTimeField(
         null=True,

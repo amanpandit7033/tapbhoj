@@ -203,3 +203,19 @@ def order_update_payment_status(request, pk):
                 })
 
     return redirect(request.META.get('HTTP_REFERER', 'dashboard:orders'))
+
+
+@owner_required
+def order_request_payment(request, pk):
+    """
+    Triggered by admin/waiter to prompt the customer's live tracking screen
+    for payment after food has been served.
+    """
+    if request.method == 'POST':
+        restaurant = request.restaurant
+        order = get_object_or_404(restaurant.orders, pk=pk)
+        order.payment_requested = True
+        order.save(update_fields=['payment_requested'])
+        messages.success(request, f"Payment requested for Table {order.table_number}. The payment dialog is now shown on the customer's phone.")
+
+    return redirect(request.META.get('HTTP_REFERER', 'dashboard:orders'))

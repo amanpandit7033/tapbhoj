@@ -35,4 +35,5 @@ urlpatterns = [
     path('orders/', orders_views.dashboard_orders, name='orders'),
     path('orders/<int:pk>/status/', orders_views.order_update_status, name='order_status'),
     path('orders/<int:pk>/payment-status/', orders_views.order_update_payment_status, name='order_payment_status'),
+    path('orders/<int:pk>/request-payment/', orders_views.order_request_payment, name='order_request_payment'),
 ]
