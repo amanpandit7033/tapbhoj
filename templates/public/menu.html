@@ -788,6 +788,8 @@ document.addEventListener('alpine:init', () => {
     submitUpiUrl: "{% url 'public:submit_upi_payment' slug=restaurant.slug %}",
     csrfToken: '{{ csrf_token }}',
     isDark: document.documentElement.classList.contains('dark'),
+    hasGeofence: {{ restaurant.latitude|yesno:"true,false" }},
+    clientCoords: null,
 
     activeOrderId: null,
     paymentModalOpen: false,
@@ -1044,6 +1046,25 @@ document.addEventListener('alpine:init', () => {
       return Object.values(this.cart).reduce((sum, item) => sum + (item.quantity * item.price), 0);
     },
 
+    async getDeviceLocation() {
+      if (!this.hasGeofence || !navigator.geolocation) return null;
+      if (this.clientCoords) return this.clientCoords;
+
+      return new Promise((resolve) => {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            this.clientCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            resolve(this.clientCoords);
+          },
+          (err) => {
+            console.warn('Geolocation access error:', err);
+            resolve(null);
+          },
+          { timeout: 8000, enableHighAccuracy: true }
+        );
+      });
+    },
+
     async sendOrder() {
       if (!this.tableNumber.trim()) {
         alert('Please enter your table number before placing the order.');
@@ -1055,8 +1076,14 @@ document.addEventListener('alpine:init', () => {
       }
 
       this.isPlacingOrder = true;
+
+      // Get device GPS coordinates if geofence is enabled
+      const coords = await this.getDeviceLocation();
+
       const orderData = {
         table_number: this.tableNumber.trim(),
+        lat: coords ? coords.lat : null,
+        lng: coords ? coords.lng : null,
         items: Object.values(this.cart).map(i => ({
           id: i.id,
           name: i.name,
@@ -1139,8 +1166,12 @@ document.addEventListener('alpine:init', () => {
         return;
       }
 
+      const coords = await this.getDeviceLocation();
+
       const orderData = {
         table_number: this.tableNumber.trim(),
+        lat: coords ? coords.lat : null,
+        lng: coords ? coords.lng : null,
         items: Object.values(this.cart).map(i => ({
           id: i.id,
           name: i.name,

@@ -14,9 +14,26 @@ class RestaurantProfileForm(forms.ModelForm):
             'address',
             'google_review_url',
             'number_of_tables',
+            'latitude',
+            'longitude',
+            'geofence_radius',
             'description',
         ]
         widgets = {
+            'latitude': forms.NumberInput(attrs={
+                'class': 'w-full text-xs font-mono rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 focus:ring-2 focus:ring-primary-600 focus:outline-none shadow-xs',
+                'placeholder': 'e.g. 28.613939',
+                'step': '0.000001'
+            }),
+            'longitude': forms.NumberInput(attrs={
+                'class': 'w-full text-xs font-mono rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 focus:ring-2 focus:ring-primary-600 focus:outline-none shadow-xs',
+                'placeholder': 'e.g. 77.209021',
+                'step': '0.000001'
+            }),
+            'geofence_radius': forms.NumberInput(attrs={
+                'class': 'w-full text-xs font-mono rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 focus:ring-2 focus:ring-primary-600 focus:outline-none shadow-xs',
+                'placeholder': '200'
+            }),
             'name': forms.TextInput(attrs={
                 'class': 'w-full text-xs rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 focus:ring-2 focus:ring-primary-600 focus:outline-none shadow-xs'
             }),

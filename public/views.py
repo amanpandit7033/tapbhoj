@@ -112,6 +112,40 @@ def log_public_order(request, slug):
     if not table_number:
         return HttpResponseBadRequest("Table number is required.")
 
+    # Geofence Validation: If restaurant has coordinates set, verify device is within allowed radius
+    if restaurant.latitude is not None and restaurant.longitude is not None:
+        client_lat = data.get('lat')
+        client_lng = data.get('lng')
+
+        if client_lat is not None and client_lng is not None:
+            try:
+                import math
+                lat1, lon1 = math.radians(float(restaurant.latitude)), math.radians(float(restaurant.longitude))
+                lat2, lon2 = math.radians(float(client_lat)), math.radians(float(client_lng))
+
+                dlat = lat2 - lat1
+                dlon = lon2 - lon1
+                a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
+                c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+                distance_meters = 6371000 * c  # Earth radius in meters
+
+                allowed_radius = restaurant.geofence_radius or 200
+                if distance_meters > allowed_radius:
+                    return JsonResponse({
+                        'status': 'error',
+                        'code': 'OUT_OF_RANGE',
+                        'message': f"You appear to be {distance_meters:.0f}m away from the restaurant. Ordering is only permitted within {allowed_radius}m of {restaurant.name}.",
+                    }, status=403)
+            except Exception:
+                pass
+        else:
+            # Coordinates missing when required by restaurant geofencing
+            return JsonResponse({
+                'status': 'error',
+                'code': 'LOCATION_REQUIRED',
+                'message': 'Please allow location access on your phone to verify you are seated at the restaurant.',
+            }, status=403)
+
     # Link to or start active dining TableSession
     import re, secrets
     from orders.models import TableSession
