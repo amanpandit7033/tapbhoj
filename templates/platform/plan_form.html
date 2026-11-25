@@ -35,9 +35,6 @@
         if (!this.slug || this.slug === '') {
           this.slug = this.name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
         }
-      },
-      setDuration(days) {
-        document.getElementById('{{ form.duration_days.id_for_label }}').value = days;
       }
     }">
       {% csrf_token %}
@@ -109,14 +106,6 @@
             Billing Cycle (Days) <span class="text-red-500">*</span>
           </label>
           {{ form.duration_days }}
-          
-          <!-- Presets -->
-          <div class="flex items-center gap-1.5 pt-1 text-[11px]">
-            <span class="text-slate-400 font-medium">Quick:</span>
-            <button type="button" @click="setDuration(30)" class="px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold cursor-pointer transition-colors">30d (Monthly)</button>
-            <button type="button" @click="setDuration(90)" class="px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold cursor-pointer transition-colors">90d (Quarterly)</button>
-            <button type="button" @click="setDuration(365)" class="px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold cursor-pointer transition-colors">365d (Annual)</button>
-          </div>
           {% if form.duration_days.errors %}
             <p class="text-xs text-red-500">{{ form.duration_days.errors.0 }}</p>
           {% endif %}
