@@ -1,38 +1,88 @@
 """
-Geofencing utilities for point-in-polygon verification.
+Geofencing utilities for point-in-polygon verification with GPS drift tolerance.
 """
+import math
 
-def is_point_inside_polygon(lat: float, lng: float, polygon: list) -> bool:
+
+def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Distance in meters between two lat/lng coordinates."""
+    r = 6371000  # Earth radius in meters
+    phi1, phi2 = math.radians(lat1), math.radians(lat2)
+    delta_phi = math.radians(lat2 - lat1)
+    delta_lambda = math.radians(lon2 - lon1)
+
+    a = math.sin(delta_phi / 2)**2 + math.cos(phi1) * math.cos(phi2) * math.sin(delta_lambda / 2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return r * c
+
+
+def distance_to_segment(p_lat: float, p_lng: float, a_lat: float, a_lng: float, b_lat: float, b_lng: float) -> float:
+    """Approximate distance in meters from point P to line segment AB."""
+    # Convert lat/lng to approximate local meters projection
+    m_per_deg_lat = 111139.0
+    m_per_deg_lng = 111139.0 * math.cos(math.radians(p_lat))
+
+    px = (p_lng - a_lng) * m_per_deg_lng
+    py = (p_lat - a_lat) * m_per_deg_lat
+    bx = (b_lng - a_lng) * m_per_deg_lng
+    by = (b_lat - a_lat) * m_per_deg_lat
+
+    seg_len_sq = bx * bx + by * by
+    if seg_len_sq == 0:
+        return math.hypot(px, py)
+
+    t = max(0.0, min(1.0, (px * bx + py * by) / seg_len_sq))
+    proj_x = t * bx
+    proj_y = t * by
+    return math.hypot(px - proj_x, py - proj_y)
+
+
+def is_point_inside_polygon(lat: float, lng: float, polygon: list, tolerance_meters: float = 15.0) -> bool:
     """
-    Check if a coordinate (lat, lng) is inside a polygon using the Ray-Casting algorithm.
-    polygon is expected to be a list of dicts with 'lat' and 'lng' keys:
-    [{'lat': ..., 'lng': ...}, {'lat': ..., 'lng': ...}, ...]
+    Check if a coordinate (lat, lng) is inside a polygon, or within a tolerance buffer (default 15m)
+    to handle indoor smartphone GPS drift.
     """
     if not polygon or len(polygon) < 3:
         return True
 
-    inside = False
-    n = len(polygon)
-    p1 = polygon[0]
-
-    for i in range(1, n + 1):
-        p2 = polygon[i % n]
+    clean_poly = []
+    for pt in polygon:
         try:
-            lat1, lng1 = float(p1.get('lat', 0)), float(p1.get('lng', 0))
-            lat2, lng2 = float(p2.get('lat', 0)), float(p2.get('lng', 0))
-
-            if min(lng1, lng2) < lng <= max(lng1, lng2):
-                if lat <= max(lat1, lat2):
-                    if lng1 != lng2:
-                        x_inters = (lng - lng1) * (lat2 - lat1) / (lng2 - lng1) + lat1
-                    else:
-                        x_inters = lat1
-
-                    if lat1 == lat2 or lat <= x_inters:
-                        inside = not inside
-        except (ValueError, TypeError):
+            clean_poly.append((float(pt['lat']), float(pt['lng'])))
+        except (ValueError, TypeError, KeyError):
             pass
 
-        p1 = p2
+    if len(clean_poly) < 3:
+        return True
 
-    return inside
+    # 1. Standard Ray-Casting algorithm check
+    inside = False
+    n = len(clean_poly)
+    p1_lat, p1_lng = clean_poly[0]
+
+    for i in range(1, n + 1):
+        p2_lat, p2_lng = clean_poly[i % n]
+        if min(p1_lng, p2_lng) < lng <= max(p1_lng, p2_lng):
+            if lat <= max(p1_lat, p2_lat):
+                if p1_lng != p2_lng:
+                    x_inters = (lng - p1_lng) * (p2_lat - p1_lat) / (p2_lng - p1_lng) + p1_lat
+                else:
+                    x_inters = p1_lat
+
+                if p1_lat == p2_lat or lat <= x_inters:
+                    inside = not inside
+        p1_lat, p1_lng = p2_lat, p2_lng
+
+    if inside:
+        return True
+
+    # 2. Check if point is within tolerance_meters of any polygon edge (absorbs natural indoor GPS jitter)
+    if tolerance_meters > 0:
+        for i in range(n):
+            a_lat, a_lng = clean_poly[i]
+            b_lat, b_lng = clean_poly[(i + 1) % n]
+            dist = distance_to_segment(lat, lng, a_lat, a_lng, b_lat, b_lng)
+            if dist <= tolerance_meters:
+                return True
+
+    return False
