@@ -454,8 +454,18 @@
 
     if (!container) return;
 
-    // Avoid duplicate cards if already inserted
-    if (document.getElementById(`order-card-${order.id}`)) return;
+    // If card for this order already exists (e.g. extra items added), update existing card!
+    const existingCard = document.getElementById(`order-card-${order.id}`);
+    if (existingCard) {
+      existingCard.classList.add('border-2', 'border-emerald-500', 'animate-pulse');
+      // Update items summary and price
+      const summaryEl = existingCard.querySelector('.text-xs.text-slate-800 p.font-medium');
+      if (summaryEl) summaryEl.textContent = order.items_summary;
+      const priceEl = existingCard.querySelector('.font-mono.text-slate-900, .font-mono.text-emerald-600');
+      if (priceEl) priceEl.textContent = `₹${order.total_amount.toFixed(0)}`;
+      setTimeout(() => existingCard.classList.remove('animate-pulse', 'border-2', 'border-emerald-500'), 4000);
+      return;
+    }
 
     const card = document.createElement('div');
     card.id = `order-card-${order.id}`;

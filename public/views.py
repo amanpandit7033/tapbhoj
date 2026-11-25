@@ -76,17 +76,56 @@ def log_public_order(request, slug):
     if payment_status not in dict(OrderLog.PAYMENT_STATUS_CHOICES):
         payment_status = 'unpaid'
 
-    order = OrderLog.objects.create(
+    # Check if there is already an active, unpaid order for this table/session to append to
+    existing_order = OrderLog.objects.filter(
         restaurant=restaurant,
         session=session,
-        table_number=table_number,
-        items_json=items,
-        total_amount=total_amount,
-        customer_note=customer_note,
-        status='sent',
-        payment_method=payment_method,
-        payment_status=payment_status,
-    )
+        payment_status__in=['unpaid', 'pending']
+    ).exclude(status__in=['completed', 'cancelled']).order_by('-created_at').first()
+
+    if existing_order:
+        # Merge new items into existing order!
+        merged_items = list(existing_order.items_json or [])
+        for new_item in items:
+            # Check if item already exists with same id to increase quantity
+            matched = False
+            for existing_item in merged_items:
+                if str(existing_item.get('id')) == str(new_item.get('id')):
+                    existing_item['quantity'] = int(existing_item.get('quantity', 1)) + int(new_item.get('quantity', 1))
+                    existing_item['item_total'] = float(existing_item['quantity']) * float(existing_item.get('price', 0))
+                    matched = True
+                    break
+            if not matched:
+                merged_items.append(new_item)
+
+        existing_order.items_json = merged_items
+        existing_order.total_amount = Decimal(str(existing_order.total_amount)) + total_amount
+        if customer_note:
+            if existing_order.customer_note:
+                existing_order.customer_note = f"{existing_order.customer_note} | Extra: {customer_note}"
+            else:
+                existing_order.customer_note = customer_note
+
+        # If it was marked served earlier, set back to preparing for the new items
+        if existing_order.status == 'served':
+            existing_order.status = 'preparing'
+
+        existing_order.save(update_fields=['items_json', 'total_amount', 'customer_note', 'status'])
+        order = existing_order
+        is_add_on = True
+    else:
+        order = OrderLog.objects.create(
+            restaurant=restaurant,
+            session=session,
+            table_number=table_number,
+            items_json=items,
+            total_amount=total_amount,
+            customer_note=customer_note,
+            status='sent',
+            payment_method=payment_method,
+            payment_status=payment_status,
+        )
+        is_add_on = False
 
     tracking_url = reverse('public:order_tracking', kwargs={'slug': restaurant.slug, 'order_id': order.id})
 
