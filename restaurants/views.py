@@ -54,22 +54,22 @@ def dashboard_profile(request):
         if form.is_valid():
             rest = form.save(commit=False)
 
-            # Process 4-corner polygon coordinates if submitted
-            import json
-            corners_raw = request.POST.get('corners_json', '').strip()
-            if corners_raw:
-                try:
-                    corners_data = json.loads(corners_raw)
-                    valid_corners = []
-                    for c in corners_data:
-                        if c.get('lat') and c.get('lng'):
-                            valid_corners.append({
-                                'lat': float(c['lat']),
-                                'lng': float(c['lng'])
-                            })
-                    rest.boundary_polygon = valid_corners
-                except Exception:
-                    pass
+            # Process 4-corner polygon coordinates
+            valid_corners = []
+            for i in range(1, 5):
+                c_lat = request.POST.get(f'c{i}_lat', '').strip()
+                c_lng = request.POST.get(f'c{i}_lng', '').strip()
+                if c_lat and c_lng:
+                    try:
+                        valid_corners.append({
+                            'lat': float(c_lat),
+                            'lng': float(c_lng)
+                        })
+                    except (ValueError, TypeError):
+                        pass
+
+            if valid_corners:
+                rest.boundary_polygon = valid_corners
 
             rest.save()
             messages.success(request, 'Restaurant profile and store boundary updated successfully.')

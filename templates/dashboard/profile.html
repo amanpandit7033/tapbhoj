@@ -257,10 +257,13 @@
           this.capturingIdx = idx;
           navigator.geolocation.getCurrentPosition(
             (pos) => {
-              this.corners[idx] = {
-                lat: pos.coords.latitude.toFixed(6),
-                lng: pos.coords.longitude.toFixed(6)
-              };
+              const latVal = pos.coords.latitude.toFixed(6);
+              const lngVal = pos.coords.longitude.toFixed(6);
+              this.corners[idx] = { lat: latVal, lng: lngVal };
+              const latInput = document.getElementById(`c${idx + 1}_lat`);
+              const lngInput = document.getElementById(`c${idx + 1}_lng`);
+              if (latInput) latInput.value = latVal;
+              if (lngInput) lngInput.value = lngVal;
               this.capturingIdx = null;
             },
             (err) => {
@@ -309,91 +312,86 @@
         </div>
 
         <!-- Mode 1: 4-Corner Polygon Boundary -->
-        <template x-if="mode === 'corners'">
-          <div class="space-y-3 bg-slate-50/70 p-4 rounded-2xl border border-slate-200/80">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-slate-800">4 Corner Building Boundary</span>
-              <span class="text-[10px] text-slate-400">Walk to each corner and tap "Capture GPS"</span>
-            </div>
-
-            <input type="hidden" name="corners_json" :value="JSON.stringify(corners)">
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <!-- Corner 1 (Top-Left) -->
-              <div class="p-3 bg-white rounded-xl border border-slate-200 shadow-2xs space-y-2">
-                <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-slate-700">Corner 1 (Top-Left / NW)</span>
-                  <button type="button" @click="captureCorner(0)"
-                          class="px-2 py-0.5 rounded-lg bg-primary-50 text-primary-700 text-[10px] font-bold hover:bg-primary-100 transition-colors">
-                    <span x-text="capturingIdx === 0 ? 'Capturing...' : 'Capture GPS'"></span>
-                  </button>
-                </div>
-                <div class="grid grid-cols-2 gap-2 text-[11px]">
-                  <input type="number" step="0.000001" placeholder="Lat (e.g. 26.4581)" x-model="corners[0].lat"
-                         class="w-full text-xs font-mono rounded-lg px-2.5 py-1.5 bg-slate-50 border border-slate-200">
-                  <input type="number" step="0.000001" placeholder="Lng (e.g. 84.4421)" x-model="corners[0].lng"
-                         class="w-full text-xs font-mono rounded-lg px-2.5 py-1.5 bg-slate-50 border border-slate-200">
-                </div>
-              </div>
-
-              <!-- Corner 2 (Top-Right) -->
-              <div class="p-3 bg-white rounded-xl border border-slate-200 shadow-2xs space-y-2">
-                <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-slate-700">Corner 2 (Top-Right / NE)</span>
-                  <button type="button" @click="captureCorner(1)"
-                          class="px-2 py-0.5 rounded-lg bg-primary-50 text-primary-700 text-[10px] font-bold hover:bg-primary-100 transition-colors">
-                    <span x-text="capturingIdx === 1 ? 'Capturing...' : 'Capture GPS'"></span>
-                  </button>
-                </div>
-                <div class="grid grid-cols-2 gap-2 text-[11px]">
-                  <input type="number" step="0.000001" placeholder="Lat" x-model="corners[1].lat"
-                         class="w-full text-xs font-mono rounded-lg px-2.5 py-1.5 bg-slate-50 border border-slate-200">
-                  <input type="number" step="0.000001" placeholder="Lng" x-model="corners[1].lng"
-                         class="w-full text-xs font-mono rounded-lg px-2.5 py-1.5 bg-slate-50 border border-slate-200">
-                </div>
-              </div>
-
-              <!-- Corner 3 (Bottom-Right) -->
-              <div class="p-3 bg-white rounded-xl border border-slate-200 shadow-2xs space-y-2">
-                <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-slate-700">Corner 3 (Bottom-Right / SE)</span>
-                  <button type="button" @click="captureCorner(2)"
-                          class="px-2 py-0.5 rounded-lg bg-primary-50 text-primary-700 text-[10px] font-bold hover:bg-primary-100 transition-colors">
-                    <span x-text="capturingIdx === 2 ? 'Capturing...' : 'Capture GPS'"></span>
-                  </button>
-                </div>
-                <div class="grid grid-cols-2 gap-2 text-[11px]">
-                  <input type="number" step="0.000001" placeholder="Lat" x-model="corners[2].lat"
-                         class="w-full text-xs font-mono rounded-lg px-2.5 py-1.5 bg-slate-50 border border-slate-200">
-                  <input type="number" step="0.000001" placeholder="Lng" x-model="corners[2].lng"
-                         class="w-full text-xs font-mono rounded-lg px-2.5 py-1.5 bg-slate-50 border border-slate-200">
-                </div>
-              </div>
-
-              <!-- Corner 4 (Bottom-Left) -->
-              <div class="p-3 bg-white rounded-xl border border-slate-200 shadow-2xs space-y-2">
-                <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-slate-700">Corner 4 (Bottom-Left / SW)</span>
-                  <button type="button" @click="captureCorner(3)"
-                          class="px-2 py-0.5 rounded-lg bg-primary-50 text-primary-700 text-[10px] font-bold hover:bg-primary-100 transition-colors">
-                    <span x-text="capturingIdx === 3 ? 'Capturing...' : 'Capture GPS'"></span>
-                  </button>
-                </div>
-                <div class="grid grid-cols-2 gap-2 text-[11px]">
-                  <input type="number" step="0.000001" placeholder="Lat" x-model="corners[3].lat"
-                         class="w-full text-xs font-mono rounded-lg px-2.5 py-1.5 bg-slate-50 border border-slate-200">
-                  <input type="number" step="0.000001" placeholder="Lng" x-model="corners[3].lng"
-                         class="w-full text-xs font-mono rounded-lg px-2.5 py-1.5 bg-slate-50 border border-slate-200">
-                </div>
-              </div>
-            </div>
-            <p class="text-[11px] text-slate-500">Only diners whose phones are physically inside these 4 walls can place orders.</p>
+        <div x-show="mode === 'corners'" class="space-y-3 bg-slate-50/70 p-4 rounded-2xl border border-slate-200/80">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-800">4 Corner Building Boundary</span>
+            <span class="text-[10px] text-slate-400">Walk to each corner and tap "Capture GPS"</span>
           </div>
-        </template>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <!-- Corner 1 (Top-Left) -->
+            <div class="p-3 bg-white rounded-xl border border-slate-200 shadow-2xs space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-700">Corner 1 (Top-Left / NW)</span>
+                <button type="button" @click="captureCorner(0)"
+                        class="px-2 py-0.5 rounded-lg bg-primary-50 text-primary-700 text-[10px] font-bold hover:bg-primary-100 transition-colors cursor-pointer">
+                  <span x-text="capturingIdx === 0 ? 'Capturing...' : 'Capture GPS'"></span>
+                </button>
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-[11px]">
+                <input type="number" step="0.000001" name="c1_lat" id="c1_lat" placeholder="Latitude" x-model="corners[0].lat"
+                       class="w-full text-xs font-mono rounded-lg px-2.5 py-1.5 bg-slate-50 border border-slate-200">
+                <input type="number" step="0.000001" name="c1_lng" id="c1_lng" placeholder="Longitude" x-model="corners[0].lng"
+                       class="w-full text-xs font-mono rounded-lg px-2.5 py-1.5 bg-slate-50 border border-slate-200">
+              </div>
+            </div>
+
+            <!-- Corner 2 (Top-Right) -->
+            <div class="p-3 bg-white rounded-xl border border-slate-200 shadow-2xs space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-700">Corner 2 (Top-Right / NE)</span>
+                <button type="button" @click="captureCorner(1)"
+                        class="px-2 py-0.5 rounded-lg bg-primary-50 text-primary-700 text-[10px] font-bold hover:bg-primary-100 transition-colors cursor-pointer">
+                  <span x-text="capturingIdx === 1 ? 'Capturing...' : 'Capture GPS'"></span>
+                </button>
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-[11px]">
+                <input type="number" step="0.000001" name="c2_lat" id="c2_lat" placeholder="Latitude" x-model="corners[1].lat"
+                       class="w-full text-xs font-mono rounded-lg px-2.5 py-1.5 bg-slate-50 border border-slate-200">
+                <input type="number" step="0.000001" name="c2_lng" id="c2_lng" placeholder="Longitude" x-model="corners[1].lng"
+                       class="w-full text-xs font-mono rounded-lg px-2.5 py-1.5 bg-slate-50 border border-slate-200">
+              </div>
+            </div>
+
+            <!-- Corner 3 (Bottom-Right) -->
+            <div class="p-3 bg-white rounded-xl border border-slate-200 shadow-2xs space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-700">Corner 3 (Bottom-Right / SE)</span>
+                <button type="button" @click="captureCorner(2)"
+                        class="px-2 py-0.5 rounded-lg bg-primary-50 text-primary-700 text-[10px] font-bold hover:bg-primary-100 transition-colors cursor-pointer">
+                  <span x-text="capturingIdx === 2 ? 'Capturing...' : 'Capture GPS'"></span>
+                </button>
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-[11px]">
+                <input type="number" step="0.000001" name="c3_lat" id="c3_lat" placeholder="Latitude" x-model="corners[2].lat"
+                       class="w-full text-xs font-mono rounded-lg px-2.5 py-1.5 bg-slate-50 border border-slate-200">
+                <input type="number" step="0.000001" name="c3_lng" id="c3_lng" placeholder="Longitude" x-model="corners[2].lng"
+                       class="w-full text-xs font-mono rounded-lg px-2.5 py-1.5 bg-slate-50 border border-slate-200">
+              </div>
+            </div>
+
+            <!-- Corner 4 (Bottom-Left) -->
+            <div class="p-3 bg-white rounded-xl border border-slate-200 shadow-2xs space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-700">Corner 4 (Bottom-Left / SW)</span>
+                <button type="button" @click="captureCorner(3)"
+                        class="px-2 py-0.5 rounded-lg bg-primary-50 text-primary-700 text-[10px] font-bold hover:bg-primary-100 transition-colors cursor-pointer">
+                  <span x-text="capturingIdx === 3 ? 'Capturing...' : 'Capture GPS'"></span>
+                </button>
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-[11px]">
+                <input type="number" step="0.000001" name="c4_lat" id="c4_lat" placeholder="Latitude" x-model="corners[3].lat"
+                       class="w-full text-xs font-mono rounded-lg px-2.5 py-1.5 bg-slate-50 border border-slate-200">
+                <input type="number" step="0.000001" name="c4_lng" id="c4_lng" placeholder="Longitude" x-model="corners[3].lng"
+                       class="w-full text-xs font-mono rounded-lg px-2.5 py-1.5 bg-slate-50 border border-slate-200">
+              </div>
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-500">Only diners whose phones are physically inside these 4 walls can place orders.</p>
+        </div>
 
         <!-- Mode 2: Circular Radius -->
-        <template x-if="mode === 'circle'">
-          <div class="space-y-3 bg-slate-50/70 p-4 rounded-2xl border border-slate-200/80">
+        <div x-show="mode === 'circle'" class="space-y-3 bg-slate-50/70 p-4 rounded-2xl border border-slate-200/80">
             <div class="flex items-center justify-between">
               <span class="text-xs font-bold text-slate-800">Store Center &amp; Radius</span>
               <button type="button" @click="detectCenter()"
@@ -423,7 +421,6 @@
               </div>
             </div>
           </div>
-        </template>
       </div>
     </div>
 
