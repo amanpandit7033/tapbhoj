@@ -15,6 +15,16 @@ def validate_whatsapp_number(value):
         )
 
 
+def validate_upi_id(value):
+    """
+    Validate Indian UPI ID / VPA format: e.g. merchant@bank, 9876543210@paytm.
+    """
+    if value and not re.match(r'^[\w\.\-]+@[\w\-]+$', value.strip()):
+        raise ValidationError(
+            'Enter a valid UPI ID (e.g. restaurant@icici or 9876543210@paytm).'
+        )
+
+
 class Restaurant(models.Model):
     STATUS_CHOICES = [
         ('trial', 'Trial'),
@@ -33,6 +43,17 @@ class Restaurant(models.Model):
         help_text='WhatsApp number with country code without + or spaces (e.g. 919876543210).'
     )
     address = models.CharField(max_length=255, blank=True)
+    upi_id = models.CharField(
+        max_length=100,
+        blank=True,
+        validators=[validate_upi_id],
+        help_text='UPI VPA for zero-fee direct table payments (e.g. restaurant@icici or 9876543210@paytm).'
+    )
+    upi_payee_name = models.CharField(
+        max_length=150,
+        blank=True,
+        help_text='Payee name registered on UPI / bank (e.g. Dilli Rasoi).'
+    )
     google_review_url = models.URLField(blank=True, help_text='Direct link for customers to leave a Google review.')
     number_of_tables = models.PositiveIntegerField(default=10, help_text='Number of physical tables.')
     currency = models.CharField(max_length=10, default='INR')
@@ -58,3 +79,5 @@ class Restaurant(models.Model):
         if self.whatsapp_number:
             # Normalize WhatsApp number (remove +, spaces, hyphens)
             self.whatsapp_number = re.sub(r'[\s\+\-\(\)]', '', self.whatsapp_number)
+        if self.upi_id:
+            self.upi_id = self.upi_id.strip()

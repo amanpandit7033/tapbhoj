@@ -61,11 +61,19 @@ class PlatformAdminAndBillingTests(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_staff_can_view_platform_dashboard(self):
-        """Staff user can access /platform/ and view metrics."""
+        """Staff user can access /platform/ and view operations dashboard."""
         self.client.login(username='staff', password='Password@123')
         response = self.client.get(reverse('platform:dashboard'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'platform/dashboard.html')
+        self.assertContains(response, "Operations Pulse")
+
+    def test_staff_can_view_stores_directory(self):
+        """Staff user can access /platform/stores/ and view stores list."""
+        self.client.login(username='staff', password='Password@123')
+        response = self.client.get(reverse('platform:stores'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'platform/stores.html')
         self.assertContains(response, 'Test Bistro')
         self.assertContains(response, 'Restaurant Management')
 
@@ -128,17 +136,34 @@ class PlatformAdminAndBillingTests(TestCase):
         self.assertEqual(self.restaurant.status, 'active')
 
     def test_platform_assist_impersonation(self):
-        """Requirement A6: Staff can assist owner and gets switched to owner dashboard."""
+        """Requirement A6: Staff can impersonate owner and exit impersonation back to staff account."""
         self.client.login(username='staff', password='Password@123')
-        url = reverse('platform:restaurant_assist', kwargs={'pk': self.restaurant.pk})
+        url = reverse('platform:restaurant_impersonate', kwargs={'pk': self.restaurant.pk})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('dashboard:home'))
 
-        # Verify current user in session is now bistro_owner
+        # Verify current user in session is now bistro_owner and impersonation session state is present
+        session = self.client.session
+        self.assertEqual(session.get('impersonator_id'), self.staff_user.id)
+        self.assertEqual(session.get('impersonated_restaurant_name'), self.restaurant.name)
+
         dashboard_res = self.client.get(reverse('dashboard:home'))
         self.assertEqual(dashboard_res.status_code, 200)
         self.assertContains(dashboard_res, 'Test Bistro')
+        self.assertContains(dashboard_res, 'Exit Impersonation')
+
+        # Test exit impersonation flow
+        exit_url = reverse('platform:exit_impersonate')
+        exit_res = self.client.get(exit_url)
+        self.assertEqual(exit_res.status_code, 302)
+        self.assertEqual(exit_res.url, reverse('platform:restaurant_detail', kwargs={'pk': self.restaurant.pk}))
+
+        # Verify session has returned to staff and cleaned up impersonator keys
+        session_after = self.client.session
+        self.assertNotIn('impersonator_id', session_after)
+        staff_detail_res = self.client.get(reverse('platform:restaurant_detail', kwargs={'pk': self.restaurant.pk}))
+        self.assertEqual(staff_detail_res.status_code, 200)
 
     def test_owner_subscription_renewal(self):
         """Requirement A5: Owner can renew subscription and extend validity."""

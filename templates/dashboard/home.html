@@ -1,114 +1,222 @@
 {% extends 'dashboard/base_dashboard.html' %}
+{% load static %}
 
 {% block title %}Dashboard - {{ restaurant.name }}{% endblock %}
 
 {% block dashboard_content %}
 <div class="space-y-6">
 
-  <!-- Status & Quick Action Hero -->
-  <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-5 sm:p-6 border border-black/5 dark:border-white/10 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-    <div class="space-y-1">
-      <div class="flex items-center space-x-2">
-        <h1 class="text-xl sm:text-2xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
-          {{ restaurant.name }}
+  <!-- Top Greeting & Action Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <div class="flex items-center gap-3">
+        <h1 class="text-2xl font-bold text-slate-900 tracking-tight">
+          Welcome, {{ restaurant.name }}!
         </h1>
+        {% if restaurant.status == 'active' %}
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/70">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            Menu Active
+          </span>
+        {% else %}
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200/70">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+            Menu Paused
+          </span>
+        {% endif %}
       </div>
-      <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
-        WhatsApp orders will be directed to: <span class="font-bold text-tapbhoj-ink dark:text-tapbhoj-ink-dark">+{{ restaurant.whatsapp_number }}</span>
+      <p class="text-xs sm:text-sm text-slate-500 mt-1">
+        Real-time restaurant operations, active table ordering, and digital menu controls.
       </p>
     </div>
 
-    <!-- Toggle Status Button -->
-    <form method="post" action="{% url 'dashboard:toggle_status' %}">
-      {% csrf_token %}
-      {% if restaurant.status == 'active' %}
-        <button 
-          type="submit" 
-          class="min-h-[44px] w-full sm:w-auto px-4 py-2.5 rounded-xl border border-amber-300 dark:border-amber-700/60 bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-200 text-xs font-semibold hover:bg-amber-100 transition-colors"
-        >
-          ⏸ Pause Digital Menu
-        </button>
-      {% else %}
-        <button 
-          type="submit" 
-          class="min-h-[44px] w-full sm:w-auto px-4 py-2.5 rounded-xl bg-tapbhoj-brand dark:bg-tapbhoj-brand-dark text-tapbhoj-surface dark:text-tapbhoj-bg-dark text-xs font-bold font-heading shadow-md hover:opacity-95 transition-opacity"
-        >
-          ▶ Activate Menu
-        </button>
-      {% endif %}
-    </form>
-  </div>
+    <!-- Header Actions -->
+    <div class="flex items-center gap-3">
+      <!-- Toggle Menu Status -->
+      <form method="post" action="{% url 'dashboard:toggle_status' %}">
+        {% csrf_token %}
+        {% if restaurant.status == 'active' %}
+          <button type="submit" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 transition-colors shadow-2xs cursor-pointer">
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+            <span>Pause Menu</span>
+          </button>
+        {% else %}
+          <button type="submit" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 transition-colors shadow-2xs cursor-pointer">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span>Activate Menu</span>
+          </button>
+        {% endif %}
+      </form>
 
-  <!-- Key Metrics Grid -->
-  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
-      <p class="text-[11px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Today's Orders</p>
-      <div class="flex items-baseline space-x-2">
-        <p class="text-2xl font-bold font-heading text-emerald-600 dark:text-emerald-400">{{ today_orders_count }}</p>
-        <span class="text-xs text-tapbhoj-muted">₹{{ today_sales|floatformat:0 }}</span>
-      </div>
-    </div>
-
-    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
-      <p class="text-[11px] font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Total Dishes</p>
-      <p class="text-2xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">{{ total_items }}</p>
-    </div>
-
-    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
-      <p class="text-[11px] font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Sold Out</p>
-      <p class="text-2xl font-bold font-heading {% if sold_out_items > 0 %}text-amber-600 dark:text-amber-400{% else %}text-tapbhoj-ink dark:text-tapbhoj-ink-dark{% endif %}">
-        {{ sold_out_items }}
-      </p>
-    </div>
-
-    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
-      <p class="text-[11px] font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Tables</p>
-      <p class="text-2xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">{{ number_of_tables }}</p>
+      <!-- Add Dish CTA -->
+      <a href="{% url 'dashboard:item_create' %}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-primary-600 hover:bg-primary-700 transition-all shadow-xs cursor-pointer">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        <span>Add Dish</span>
+      </a>
     </div>
   </div>
 
-  <!-- Primary Navigation Actions -->
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-    
-    <!-- Orders & Insights Card -->
-    <a href="{% url 'dashboard:orders' %}" class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-5 border border-black/5 dark:border-white/10 shadow-sm hover:border-tapbhoj-brand/30 dark:hover:border-tapbhoj-accent/30 transition-all flex items-start space-x-4">
-      <div class="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 flex items-center justify-center flex-shrink-0">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+  <!-- Row 1: Core Metric KPI Cards (4 Cards) -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- 1. Today's Orders -->
+    <div class="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs flex flex-col justify-between hover:border-slate-300 transition-colors">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-semibold text-slate-500">Today's Orders</span>
+        <div class="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+          </svg>
+        </div>
       </div>
-      <div class="space-y-1">
-        <h3 class="font-bold font-heading text-sm text-tapbhoj-ink dark:text-tapbhoj-ink-dark">Orders & Insights</h3>
-        <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark leading-relaxed">
-          View today's live orders, top popular dishes, and table activity.
-        </p>
+      <div class="mt-3">
+        <div class="flex items-baseline gap-2">
+          <span class="text-2xl font-extrabold text-slate-900 tracking-tight font-mono block">
+            {{ today_orders_count|default:0 }}
+          </span>
+          <span class="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60 font-mono">
+            ₹{{ today_sales|floatformat:0 }}
+          </span>
+        </div>
+        <span class="text-[11px] text-slate-400 mt-1 block">Live table orders placed</span>
       </div>
-    </a>
+    </div>
 
-    <!-- Manage Menu Card -->
-    <a href="{% url 'dashboard:menu' %}" class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-5 border border-black/5 dark:border-white/10 shadow-sm hover:border-tapbhoj-brand/30 dark:hover:border-tapbhoj-accent/30 transition-all flex items-start space-x-4">
-      <div class="w-12 h-12 rounded-xl bg-tapbhoj-brand/10 dark:bg-tapbhoj-accent/20 flex items-center justify-center text-tapbhoj-brand dark:text-tapbhoj-accent flex-shrink-0">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+    <!-- 2. Total Dishes -->
+    <div class="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs flex flex-col justify-between hover:border-slate-300 transition-colors">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-semibold text-slate-500">Total Dishes</span>
+        <div class="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+          </svg>
+        </div>
       </div>
-      <div class="space-y-1">
-        <h3 class="font-bold font-heading text-sm text-tapbhoj-ink dark:text-tapbhoj-ink-dark">Manage Menu Items</h3>
-        <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark leading-relaxed">
-          Add new dishes, update prices, and mark sold-out items with one tap.
-        </p>
+      <div class="mt-3">
+        <span class="text-2xl font-extrabold text-slate-900 tracking-tight font-mono block">
+          {{ total_items|default:0 }}
+        </span>
+        <span class="text-[11px] text-slate-400 mt-1 block">Across {{ total_categories }} categories</span>
       </div>
-    </a>
+    </div>
 
-    <!-- Table QR Codes Card -->
-    <a href="{% url 'dashboard:tables' %}" class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-5 border border-black/5 dark:border-white/10 shadow-sm hover:border-tapbhoj-brand/30 dark:hover:border-tapbhoj-accent/30 transition-all flex items-start space-x-4">
-      <div class="w-12 h-12 rounded-xl bg-tapbhoj-accent/15 flex items-center justify-center text-tapbhoj-ink dark:text-tapbhoj-accent flex-shrink-0">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
+    <!-- 3. Sold Out -->
+    <div class="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs flex flex-col justify-between hover:border-slate-300 transition-colors">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-semibold text-slate-500">Sold Out Dishes</span>
+        <div class="w-9 h-9 rounded-xl {% if sold_out_items > 0 %}bg-amber-50 border border-amber-100 text-amber-600{% else %}bg-slate-50 border border-slate-200 text-slate-400{% endif %} flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+        </div>
       </div>
-      <div class="space-y-1">
-        <h3 class="font-bold font-heading text-sm text-tapbhoj-ink dark:text-tapbhoj-ink-dark">Table Links & QR Codes</h3>
-        <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark leading-relaxed">
-          Download high-resolution QR codes for each table and print table tent cards.
-        </p>
+      <div class="mt-3">
+        <div class="flex items-baseline gap-2">
+          <span class="text-2xl font-extrabold {% if sold_out_items > 0 %}text-amber-600{% else %}text-slate-900{% endif %} tracking-tight font-mono">
+            {{ sold_out_items|default:0 }}
+          </span>
+          {% if sold_out_items > 0 %}
+          <span class="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200/60">
+            Restock
+          </span>
+          {% endif %}
+        </div>
+        <span class="text-[11px] text-slate-400 mt-1 block">{% if sold_out_items > 0 %}Requires attention{% else %}All dishes available{% endif %}</span>
       </div>
-    </a>
+    </div>
 
+    <!-- 4. Tables & QR -->
+    <div class="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs flex flex-col justify-between hover:border-slate-300 transition-colors">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-semibold text-slate-500">Active Tables</span>
+        <div class="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+          </svg>
+        </div>
+      </div>
+      <div class="mt-3">
+        <span class="text-2xl font-extrabold text-slate-900 tracking-tight font-mono block">
+          {{ number_of_tables|default:0 }}
+        </span>
+        <span class="text-[11px] text-slate-400 mt-1 block">Ready for QR stand scans</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Table Activity Table -->
+  <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden">
+    <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <h3 class="text-sm font-bold text-slate-900">Recent Table Activity</h3>
+      </div>
+      <a href="{% url 'dashboard:orders' %}" class="text-xs font-semibold text-primary-600 hover:text-primary-800 flex items-center gap-1 cursor-pointer">
+        <span>View all orders</span>
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+
+    {% if recent_orders %}
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs">
+        <thead class="bg-slate-50/70 border-b border-slate-100 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+          <tr>
+            <th class="px-5 py-3">Order ID</th>
+            <th class="px-5 py-3">Table</th>
+            <th class="px-5 py-3">Customer / Items</th>
+            <th class="px-5 py-3">Amount</th>
+            <th class="px-5 py-3">Payment</th>
+            <th class="px-5 py-3">Status</th>
+            <th class="px-5 py-3 text-right">Time</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-slate-700">
+          {% for order in recent_orders %}
+          <tr class="hover:bg-slate-50/60 transition-colors">
+            <td class="px-5 py-3.5 font-mono font-bold text-slate-900">#{{ order.id }}</td>
+            <td class="px-5 py-3.5">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold bg-primary-50 text-primary-800 border border-primary-100 font-mono">
+                Table {{ order.table_number }}
+              </span>
+            </td>
+            <td class="px-5 py-3.5 font-medium">
+              <span class="text-slate-900 font-semibold">{{ order.guest_name|default:"Diner" }}</span>
+              <span class="text-slate-400 ml-1">({{ order.items.count }} item{% if order.items.count != 1 %}s{% endif %})</span>
+            </td>
+            <td class="px-5 py-3.5 font-mono font-bold text-slate-900">₹{{ order.total_amount }}</td>
+            <td class="px-5 py-3.5">
+              {% if order.payment_status == 'paid' %}
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                  Paid
+                </span>
+              {% else %}
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200/60">
+                  Unpaid
+                </span>
+              {% endif %}
+            </td>
+            <td class="px-5 py-3.5">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700">
+                {{ order.status }}
+              </span>
+            </td>
+            <td class="px-5 py-3.5 text-right font-mono text-slate-400 text-[11px]">
+              {{ order.created_at|date:"H:i" }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="p-8 text-center space-y-2">
+      <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor"><use href="#i-chart"/></svg>
+      </div>
+      <p class="text-xs font-semibold text-slate-600">No table orders recorded yet today.</p>
+      <p class="text-[11px] text-slate-400">When customers scan table QR codes and submit their orders, they will appear here in real-time.</p>
+    </div>
+    {% endif %}
   </div>
 
 </div>

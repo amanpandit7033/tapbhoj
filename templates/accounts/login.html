@@ -1,84 +1,190 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Owner Login - TapBhoj{% endblock %}
+{% block title %}Sign In | TapBhoj Restaurant Portal{% endblock %}
 
 {% block content %}
-<main class="min-h-screen flex flex-col justify-center items-center p-4">
-  <div class="w-full max-w-sm bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl shadow-sm border border-black/5 dark:border-white/10 p-6 sm:p-8 space-y-6">
+<style>
+  .fld {
+    width: 100%;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #0f172a;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: border-color .15s, box-shadow .15s, background .15s;
+  }
+  .fld::placeholder { color: #94a3b8; }
+  .fld:focus {
+    outline: 0;
+    background: #ffffff;
+    border-color: #283891;
+    box-shadow: 0 0 0 4px #dce2f5;
+  }
+</style>
+
+<div class="min-h-screen w-full flex flex-col lg:grid lg:grid-cols-12 bg-slate-900 selection:bg-[#283891] selection:text-white">
+
+  <!-- LEFT: Brand Story & Live Dining Experience Mockup -->
+  <section class="order-2 lg:order-1 lg:col-span-7 relative overflow-hidden bg-slate-950 text-white px-6 py-10 sm:p-10 lg:py-8 xl:px-14 xl:py-10 hidden lg:flex flex-col justify-between lg:h-screen">
     
-    <!-- Header with TapBhoj Logo -->
-    <div class="text-center space-y-2">
-      <img src="{% static 'images/tapbhoj-icon.svg' %}" alt="TapBhoj" class="w-12 h-12 mx-auto rounded-xl shadow-sm">
-      <h1 class="text-2xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">Owner Sign In</h1>
-      <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Manage your restaurant menu and tables</p>
+    <!-- Background Gradient Accents -->
+    <div class="absolute inset-0 pointer-events-none z-0">
+      <div class="absolute -top-32 -left-32 w-96 h-96 bg-[#283891]/30 rounded-full blur-3xl"></div>
+      <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-[#1ac9bf]/20 rounded-full blur-3xl"></div>
     </div>
 
-    <!-- Error Alert -->
-    {% if form.errors %}
-      <div class="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-300 text-xs font-medium space-y-1">
-        <p class="font-bold">Invalid username or password.</p>
-        <p>Please check your credentials and try again.</p>
+    <!-- Brand Header -->
+    <div class="relative z-10 flex items-center gap-3">
+      <div class="w-11 h-11 rounded-2xl bg-white p-2 shadow-lg shadow-blue-500/20 shrink-0 flex items-center justify-center">
+        <img src="{% static 'images/tapbhoj-icon.svg' %}" alt="TapBhoj" class="w-full h-full object-contain">
       </div>
-    {% endif %}
+      <div class="leading-tight">
+        <span class="block font-extrabold text-xl text-white tracking-tight">TapBhoj</span>
+        <span class="block text-xs font-semibold text-[#1ac9bf]">Tabletop Digital Dining</span>
+      </div>
+    </div>
 
-    <!-- Login Form -->
-    <form method="post" action="" class="space-y-4">
-      {% csrf_token %}
-      {% if next %}
-        <input type="hidden" name="next" value="{{ next }}">
-      {% endif %}
-      
-      <div class="space-y-1.5">
-        <label for="id_username" class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
-          Username or Email
-        </label>
-        <input 
-          type="text" 
-          name="username" 
-          id="id_username" 
-          required 
-          autocomplete="username"
-          class="w-full text-sm rounded-xl px-3.5 py-2.5 bg-tapbhoj-bg dark:bg-tapbhoj-bg-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark focus:ring-2 focus:ring-tapbhoj-brand dark:focus:ring-tapbhoj-accent focus:outline-none"
-        >
+    <!-- Hero Showcase Grid -->
+    <div class="relative z-10 my-auto min-h-0 grid gap-8 xl:grid-cols-[1fr_auto] xl:items-center">
+      <div class="max-w-lg">
+        <h1 class="text-3xl sm:text-4xl xl:text-[2.6rem] font-black text-white tracking-tight leading-[1.15]">
+          Menus that feel like magic, right at the diner's fingertips.
+        </h1>
+        <p class="mt-4 text-sm sm:text-base text-slate-300 font-normal leading-relaxed">
+          TapBhoj empowers restaurant owners to take zero-commission UPI orders, deploy instant QR stands, and boost table turns.
+        </p>
+
+        <ul class="mt-7 space-y-4 text-left">
+          <li class="flex items-start gap-3.5">
+            <div class="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center shrink-0 text-cyan-300 shadow-2xs mt-0.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor"><use href="#i-shield"/></svg>
+            </div>
+            <div>
+              <span class="text-sm font-bold text-white block">100% Free Direct UPI Payments</span>
+              <p class="text-xs text-slate-300 leading-snug mt-0.5">Diners pay directly into your bank VPA with 0% gateway commission.</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-3.5">
+            <div class="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center shrink-0 text-cyan-300 shadow-2xs mt-0.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor"><use href="#i-chart"/></svg>
+            </div>
+            <div>
+              <span class="text-sm font-bold text-white block">Real-Time Kitchen Orders</span>
+              <p class="text-xs text-slate-300 leading-snug mt-0.5">Instant WebSocket push notifications with audio chime on your admin screen.</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-3.5">
+            <div class="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center shrink-0 text-cyan-300 shadow-2xs mt-0.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor"><use href="#i-grid"/></svg>
+            </div>
+            <div>
+              <span class="text-sm font-bold text-white block">Instant QR &amp; Table Generation</span>
+              <p class="text-xs text-slate-300 leading-snug mt-0.5">Print high-resolution acrylic QR stand sheets in 1-click for every table.</p>
+            </div>
+          </li>
+        </ul>
       </div>
 
-      <div class="space-y-1.5">
-        <div class="flex items-center justify-between">
-          <label for="id_password" class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
-            Password
-          </label>
-          <a href="{% url 'password_reset' %}" class="text-xs font-medium text-tapbhoj-brand dark:text-tapbhoj-accent hover:underline">
-            Forgot password?
-          </a>
+      <!-- Compact Phone Dining Preview -->
+      <div class="hidden xl:block shrink-0">
+        <div class="w-64 rounded-3xl bg-slate-900 border-4 border-slate-700/80 p-3 shadow-2xl text-slate-800 space-y-2.5">
+          <div class="flex items-center justify-between px-2 pt-1 pb-1">
+            <span class="text-[10px] font-bold text-slate-400 font-mono">Table 4</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          </div>
+          <div class="bg-white rounded-2xl p-3 shadow-sm space-y-2">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-xs font-bold text-slate-900 leading-tight">Butter Chicken</p>
+                <p class="text-[10px] text-slate-400 font-mono">₹390</p>
+              </div>
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700">1x</span>
+            </div>
+            <div class="flex items-center justify-between pt-1 border-t border-slate-100">
+              <div>
+                <p class="text-xs font-bold text-slate-900 leading-tight">Garlic Naan</p>
+                <p class="text-[10px] text-slate-400 font-mono">₹60</p>
+              </div>
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700">2x</span>
+            </div>
+            <div class="pt-2 border-t border-slate-100 flex justify-between items-center text-xs font-bold">
+              <span>Total Bill</span>
+              <span class="font-mono text-primary-700">₹510</span>
+            </div>
+          </div>
+          <div class="py-2 px-3 rounded-xl bg-primary-600 text-white text-center text-xs font-semibold shadow-xs">
+            Pay ₹510 via UPI (0% Fee)
+          </div>
         </div>
-        <input 
-          type="password" 
-          name="password" 
-          id="id_password" 
-          required 
-          autocomplete="current-password"
-          class="w-full text-sm rounded-xl px-3.5 py-2.5 bg-tapbhoj-bg dark:bg-tapbhoj-bg-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark focus:ring-2 focus:ring-tapbhoj-brand dark:focus:ring-tapbhoj-accent focus:outline-none"
-        >
-      </div>
-
-      <button 
-        type="submit" 
-        class="w-full min-h-[44px] py-3 px-4 rounded-xl bg-tapbhoj-brand dark:bg-tapbhoj-brand-dark text-tapbhoj-surface dark:text-tapbhoj-bg-dark font-bold font-heading text-sm shadow-md hover:opacity-95 active:scale-95 transition-all mt-2"
-      >
-        Sign In
-      </button>
-    </form>
-
-    <!-- Quick Credentials Reference -->
-    <div class="p-3 rounded-xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 text-[11px] space-y-1">
-      <p class="font-bold text-tapbhoj-ink dark:text-tapbhoj-ink-dark">Sign-In Credentials:</p>
-      <div class="space-y-0.5 text-tapbhoj-muted dark:text-tapbhoj-muted-dark font-mono text-[10px]">
-        <p>• Staff Admin: <strong class="text-tapbhoj-ink dark:text-tapbhoj-ink-dark">admin</strong> / <strong class="text-tapbhoj-ink dark:text-tapbhoj-ink-dark">Admin@123</strong></p>
-        <p>• Restaurant Owner: <strong class="text-tapbhoj-ink dark:text-tapbhoj-ink-dark">owner</strong> / <strong class="text-tapbhoj-ink dark:text-tapbhoj-ink-dark">Password@123</strong></p>
       </div>
     </div>
 
-  </div>
-</main>
+    <!-- Bottom Metrics Strip -->
+    <dl class="relative z-10 shrink-0 grid grid-cols-4 gap-4 pt-6 border-t border-white/10">
+      <div><dt class="text-[11px] font-bold text-[#1ac9bf] uppercase tracking-wider">Gateway Fee</dt><dd class="text-2xl font-black text-white tracking-tight leading-none mt-1 font-mono">0%</dd></div>
+      <div><dt class="text-[11px] font-bold text-[#1ac9bf] uppercase tracking-wider">Order Latency</dt><dd class="text-2xl font-black text-white tracking-tight leading-none mt-1 font-mono">&lt; 1s</dd></div>
+      <div><dt class="text-[11px] font-bold text-[#1ac9bf] uppercase tracking-wider">Setup Time</dt><dd class="text-2xl font-black text-white tracking-tight leading-none mt-1 font-mono">2 min</dd></div>
+      <div><dt class="text-[11px] font-bold text-[#1ac9bf] uppercase tracking-wider">Table QR</dt><dd class="text-2xl font-black text-white tracking-tight leading-none mt-1 font-mono">100%</dd></div>
+    </dl>
+  </section>
+
+  <!-- RIGHT: Modern Sign-In Card -->
+  <main class="order-1 lg:order-2 lg:col-span-5 bg-white text-slate-900 p-6 sm:p-10 xl:p-14 flex flex-col justify-center min-h-screen">
+    <div class="w-full max-w-sm mx-auto py-6 space-y-6">
+      
+      <!-- Logo & Heading -->
+      <div>
+        <div class="w-12 h-12 rounded-2xl bg-primary-50 border border-primary-100 p-2 shrink-0 flex items-center justify-center mb-5 shadow-2xs">
+          <img src="{% static 'images/tapbhoj-icon.svg' %}" alt="TapBhoj" class="w-full h-full object-contain">
+        </div>
+        <h2 class="text-3xl font-extrabold text-slate-950 tracking-tight">Sign in</h2>
+        <p class="text-sm text-slate-500 mt-1">Manage your menu, orders, tables, and staff settings.</p>
+      </div>
+
+      <!-- Error Alert -->
+      {% if form.errors %}
+        <div class="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium space-y-1">
+          <p class="font-bold">Invalid username or password.</p>
+          <p>Please verify your credentials and try again.</p>
+        </div>
+      {% endif %}
+
+      <!-- Sign In Form -->
+      <form method="post" action="" class="space-y-4">
+        {% csrf_token %}
+        {% if next %}
+          <input type="hidden" name="next" value="{{ next }}">
+        {% endif %}
+
+        <div class="space-y-1.5">
+          <label for="id_username" class="block text-xs font-semibold uppercase tracking-wider text-slate-500">
+            Username or Email
+          </label>
+          <input type="text" name="username" id="id_username" required autocomplete="username" class="fld" placeholder="owner or admin">
+        </div>
+
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label for="id_password" class="block text-xs font-semibold uppercase tracking-wider text-slate-500">
+              Password
+            </label>
+            <a href="{% url 'password_reset' %}" class="text-xs font-medium text-primary-600 hover:underline">
+              Forgot password?
+            </a>
+          </div>
+          <input type="password" name="password" id="id_password" required autocomplete="current-password" class="fld" placeholder="••••••••">
+        </div>
+
+        <button type="submit" class="w-full min-h-[44px] py-2.5 px-4 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold text-sm shadow-sm transition-all active:scale-[0.99] cursor-pointer mt-2">
+          Sign In to Dashboard &rarr;
+        </button>
+      </form>
+      <p class="text-center text-xs text-slate-400">&copy; 2026 TapBhoj &bull; All rights reserved</p>
+
+    </div>
+  </main>
+</div>
 {% endblock %}

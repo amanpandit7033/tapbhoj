@@ -140,3 +140,63 @@ class OrdersAndInsightsTests(TestCase):
         self.assertIn('Dal Makhani', dish_names)
         self.assertEqual(popular[0]['name'], 'Butter Naan')
         self.assertEqual(popular[0]['count'], 3)
+
+    def test_free_direct_upi_flow_and_cashier_verification(self):
+        """End-to-end Free Direct UPI payment flow, UTR submission, cashier verification, and receipt."""
+        # 1. Diner creates order with UPI pending
+        url_log = reverse('public:log_order', kwargs={'slug': 'rasoi-a'})
+        log_res = self.client.post(
+            url_log,
+            data=json.dumps({
+                'table_number': '4',
+                'items': [{'id': 1, 'name': 'Dal Makhani', 'price': 280.0, 'quantity': 1, 'item_total': 280.0}],
+                'total_amount': '280.00',
+                'payment_method': 'upi',
+                'payment_status': 'pending'
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(log_res.status_code, 200)
+        order_id = log_res.json()['order_id']
+
+        # 2. Diner submits UTR
+        url_utr = reverse('public:submit_upi_payment', kwargs={'slug': 'rasoi-a'})
+        utr_res = self.client.post(
+            url_utr,
+            data=json.dumps({'order_id': order_id, 'upi_utr': '987654321012'}),
+            content_type='application/json'
+        )
+        self.assertEqual(utr_res.status_code, 200)
+
+        # 3. Diner client polls status -> still pending
+        url_status = reverse('public:payment_status', kwargs={'slug': 'rasoi-a', 'order_id': order_id})
+        status_res = self.client.get(url_status)
+        self.assertFalse(status_res.json()['is_paid'])
+        self.assertEqual(status_res.json()['payment_status'], 'pending')
+
+        # 4. Cashier logs in and confirms payment
+        self.client.login(username='owner_a', password='Password@123')
+        url_confirm = reverse('dashboard:order_payment_status', kwargs={'pk': order_id})
+        confirm_res = self.client.post(url_confirm, {'payment_status': 'paid'})
+        self.assertEqual(confirm_res.status_code, 302)
+
+        # 5. Diner client polls status again -> now paid with receipt URL
+        status_res2 = self.client.get(url_status)
+        self.assertTrue(status_res2.json()['is_paid'])
+        self.assertEqual(status_res2.json()['payment_status'], 'paid')
+        receipt_url = status_res2.json()['receipt_url']
+
+        # 6. Verify digital e-receipt page renders cleanly
+        receipt_page = self.client.get(receipt_url)
+        self.assertEqual(receipt_page.status_code, 200)
+        self.assertContains(receipt_page, 'Rasoi A')
+        self.assertContains(receipt_page, 'Table 4')
+        self.assertContains(receipt_page, '280')
+
+    def test_owner_cannot_verify_other_restaurant_payment(self):
+        """Owner A cannot approve or modify payment status for Restaurant B's order."""
+        self.client.login(username='owner_a', password='Password@123')
+        url = reverse('dashboard:order_payment_status', kwargs={'pk': self.order_b.pk})
+        response = self.client.post(url, {'payment_status': 'paid'})
+        self.assertEqual(response.status_code, 404)
+

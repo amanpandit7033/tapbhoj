@@ -4,26 +4,26 @@
 
 {% block dashboard_content %}
 <div class="max-w-md mx-auto space-y-6 pt-4">
-  <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-6 sm:p-8 border border-red-200 dark:border-red-900/50 shadow-sm text-center space-y-4">
-    <div class="w-12 h-12 mx-auto rounded-full bg-red-100 dark:bg-red-950/60 flex items-center justify-center text-red-600 dark:text-red-400">
+  <div class="bg-white rounded-2xl p-6 sm:p-8 border border-red-200 shadow-xs text-center space-y-4">
+    <div class="w-12 h-12 mx-auto rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center text-red-600 shadow-2xs">
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
     </div>
 
     <div class="space-y-1">
-      <h1 class="text-xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">Delete {{ object_type }}?</h1>
-      <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark leading-relaxed">
-        Are you sure you want to permanently delete <strong class="text-tapbhoj-ink dark:text-tapbhoj-ink-dark">"{{ object_name }}"</strong>? This action cannot be undone.
+      <h1 class="text-xl font-bold text-slate-900 tracking-tight">Delete {{ object_type }}?</h1>
+      <p class="text-xs text-slate-500 leading-relaxed">
+        Are you sure you want to permanently delete <strong class="text-slate-800">"{{ object_name }}"</strong>? This action cannot be undone.
       </p>
     </div>
 
     <form method="post" class="pt-2 flex items-center justify-center space-x-3">
       {% csrf_token %}
-      <a href="{% url cancel_url %}" class="min-h-[44px] px-5 py-2.5 rounded-xl border border-black/10 dark:border-white/10 text-xs font-semibold text-tapbhoj-muted hover:text-tapbhoj-ink dark:hover:text-tapbhoj-ink-dark flex items-center">
+      <a href="{% url cancel_url %}" class="min-h-[40px] px-5 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors flex items-center shadow-xs">
         Cancel
       </a>
       <button 
         type="submit" 
-        class="min-h-[44px] px-6 py-2.5 rounded-xl bg-red-600 text-white font-bold font-heading text-xs shadow-md hover:bg-red-700 active:scale-95 transition-all"
+        class="min-h-[40px] px-5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs shadow-xs active:scale-95 transition-all cursor-pointer"
       >
         Yes, Delete
       </button>

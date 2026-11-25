@@ -1,6 +1,7 @@
 from collections import defaultdict
-from datetime import timedelta
+from datetime import datetime, time, timedelta
 from django.contrib import messages
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Sum, Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -11,45 +12,74 @@ from .models import OrderLog
 @owner_required
 def dashboard_orders(request):
     """
-    Phase 4: Owner view for order history, popular dishes, and orders per table.
-    Strictly scoped to the logged-in owner's restaurant.
+    Owner view for order records, status transitions, and cashier UPI confirmations.
+    Strictly scoped to the logged-in owner's restaurant with date-range filters and pagination.
     """
     restaurant = request.restaurant
     orders_qs = restaurant.orders.all()
 
-    # Date Range Filter
-    date_filter = request.GET.get('range', 'today').strip()
-    now = timezone.now()
-    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    # Filters: from_date, to_date, status, range, and search query
+    search_q = request.GET.get('q', '').strip()
+    from_date_str = request.GET.get('from_date', '').strip()
+    to_date_str = request.GET.get('to_date', '').strip()
+    date_filter = request.GET.get('range', '').strip()
+    status_filter = request.GET.get('status', '').strip()
 
-    if date_filter == 'today':
-        orders_qs = orders_qs.filter(created_at__gte=today_start)
-    elif date_filter == 'yesterday':
-        yesterday_start = today_start - timedelta(days=1)
-        orders_qs = orders_qs.filter(created_at__gte=yesterday_start, created_at__lt=today_start)
-    elif date_filter == '7days':
-        seven_days_ago = now - timedelta(days=7)
-        orders_qs = orders_qs.filter(created_at__gte=seven_days_ago)
-    elif date_filter == '30days':
-        thirty_days_ago = now - timedelta(days=30)
-        orders_qs = orders_qs.filter(created_at__gte=thirty_days_ago)
-    # 'all' does not filter by date
+    now = timezone.now()
+    local_now = timezone.localtime(now)
+    today_start = local_now.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    # Date filtering
+    if from_date_str or to_date_str:
+        if from_date_str:
+            try:
+                from_d = datetime.strptime(from_date_str, '%Y-%m-%d').date()
+                from_dt = timezone.make_aware(datetime.combine(from_d, time.min))
+                orders_qs = orders_qs.filter(created_at__gte=from_dt)
+            except ValueError:
+                from_date_str = ''
+        if to_date_str:
+            try:
+                to_d = datetime.strptime(to_date_str, '%Y-%m-%d').date()
+                to_dt = timezone.make_aware(datetime.combine(to_d, time.max))
+                orders_qs = orders_qs.filter(created_at__lte=to_dt)
+            except ValueError:
+                to_date_str = ''
+    elif date_filter:
+        if date_filter == 'today':
+            orders_qs = orders_qs.filter(created_at__gte=today_start)
+        elif date_filter == 'yesterday':
+            yesterday_start = today_start - timedelta(days=1)
+            orders_qs = orders_qs.filter(created_at__gte=yesterday_start, created_at__lt=today_start)
+        elif date_filter == '7days':
+            seven_days_ago = now - timedelta(days=7)
+            orders_qs = orders_qs.filter(created_at__gte=seven_days_ago)
+        elif date_filter == '30days':
+            thirty_days_ago = now - timedelta(days=30)
+            orders_qs = orders_qs.filter(created_at__gte=thirty_days_ago)
+        # 'all' does not filter by date
 
     # Status Filter
-    status_filter = request.GET.get('status', '').strip()
     if status_filter:
         orders_qs = orders_qs.filter(status=status_filter)
 
-    # 1. Today's Key Metrics
-    today_orders = restaurant.orders.filter(created_at__gte=today_start)
-    today_count = today_orders.count()
-    today_sales = today_orders.filter(~Q(status='cancelled')).aggregate(s=Sum('total_amount'))['s'] or 0
+    # Search Query: Order ID, Table number, customer note, UTR, or dish names
+    if search_q:
+        q_filter = (
+            Q(table_number__icontains=search_q) |
+            Q(customer_note__icontains=search_q) |
+            Q(upi_utr__icontains=search_q) |
+            Q(items_json__icontains=search_q)
+        )
+        clean_id = search_q.lstrip('#').strip()
+        if clean_id.isdigit():
+            q_filter |= Q(id=int(clean_id))
+        orders_qs = orders_qs.filter(q_filter)
 
-    # 2. Filtered Range Metrics
-    filtered_count = orders_qs.count()
-    filtered_sales = orders_qs.filter(~Q(status='cancelled')).aggregate(s=Sum('total_amount'))['s'] or 0
+    # Order by newest first
+    orders_qs = orders_qs.order_by('-created_at')
 
-    # 3. Analytics: Popular Dishes (aggregated from items_json)
+    # Popular dishes aggregation (needed for tests and analytics context)
     dish_stats = defaultdict(lambda: {'count': 0, 'revenue': 0.0, 'is_veg': True})
     table_stats = defaultdict(lambda: {'count': 0, 'revenue': 0.0})
 
@@ -67,34 +97,53 @@ def dashboard_orders(request):
             dish_stats[name]['revenue'] += (qty * price)
             dish_stats[name]['is_veg'] = is_veg
 
-    # Sort popular dishes by quantity sold descending
     popular_dishes = sorted(
         [{'name': k, **v} for k, v in dish_stats.items()],
         key=lambda x: x['count'],
         reverse=True
     )[:6]
 
-    # Sort tables by order volume descending
     orders_by_table = sorted(
         [{'table': k, **v} for k, v in table_stats.items()],
         key=lambda x: x['count'],
         reverse=True
     )
-
     most_active_table = orders_by_table[0]['table'] if orders_by_table else None
+
+    # Key Metrics
+    today_orders = restaurant.orders.filter(created_at__gte=today_start)
+    today_count = today_orders.count()
+    today_sales = today_orders.filter(~Q(status='cancelled')).aggregate(s=Sum('total_amount'))['s'] or 0
+
+    total_orders_count = orders_qs.count()
+    pending_payments_count = restaurant.orders.filter(payment_status='pending').count()
+
+    # Pagination: 15 orders per page
+    paginator = Paginator(orders_qs, 15)
+    page_number = request.GET.get('page', 1)
+    try:
+        page_obj = paginator.page(page_number)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
 
     context = {
         'restaurant': restaurant,
-        'orders': orders_qs[:100],  # Latest 100 orders in range
+        'orders': page_obj,
+        'page_obj': page_obj,
+        'total_orders_count': total_orders_count,
+        'search_query': search_q,
+        'from_date': from_date_str,
+        'to_date': to_date_str,
+        'status_filter': status_filter,
+        'date_filter': date_filter,
         'today_count': today_count,
         'today_sales': today_sales,
-        'filtered_count': filtered_count,
-        'filtered_sales': filtered_sales,
-        'date_filter': date_filter,
-        'status_filter': status_filter,
         'popular_dishes': popular_dishes,
         'orders_by_table': orders_by_table,
         'most_active_table': most_active_table,
+        'pending_payments_count': pending_payments_count,
     }
     return render(request, 'dashboard/orders.html', context)
 
@@ -111,5 +160,46 @@ def order_update_status(request, pk):
             order.status = new_status
             order.save(update_fields=['status'])
             messages.success(request, f"Order from Table {order.table_number} marked as {order.get_status_display()}.")
+
+    return redirect(request.META.get('HTTP_REFERER', 'dashboard:orders'))
+
+
+@owner_required
+def order_update_payment_status(request, pk):
+    """
+    Cashier confirmation for zero-fee direct UPI / cash payments.
+    Marks payment as 'paid' or 'rejected'. Supports both AJAX and form POST.
+    """
+    if request.method == 'POST':
+        restaurant = request.restaurant
+        order = get_object_or_404(restaurant.orders, pk=pk)
+        new_payment_status = request.POST.get('payment_status', '').strip()
+
+        if new_payment_status in dict(OrderLog.PAYMENT_STATUS_CHOICES):
+            order.payment_status = new_payment_status
+            if new_payment_status == 'paid':
+                order.paid_at = timezone.now()
+            elif new_payment_status == 'unpaid':
+                order.paid_at = None
+
+            new_payment_method = request.POST.get('payment_method', '').strip()
+            update_fields = ['payment_status', 'paid_at']
+            if new_payment_method:
+                order.payment_method = new_payment_method
+                update_fields.append('payment_method')
+
+            order.save(update_fields=update_fields)
+
+            msg = f"Table {order.table_number} payment verified as {order.get_payment_status_display()}."
+            messages.success(request, msg)
+
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.content_type == 'application/json':
+                from django.http import JsonResponse
+                return JsonResponse({
+                    'status': 'ok',
+                    'order_id': order.id,
+                    'payment_status': order.payment_status,
+                    'paid_at': order.paid_at.isoformat() if order.paid_at else None,
+                })
 
     return redirect(request.META.get('HTTP_REFERER', 'dashboard:orders'))

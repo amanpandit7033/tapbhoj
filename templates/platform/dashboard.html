@@ -1,229 +1,437 @@
 {% extends 'platform/base_platform.html' %}
+{% load static %}
 
-{% block title %}Restaurants - TapBhoj Platform Admin{% endblock %}
+{% block title %}Operations Dashboard - Today Counts | TapBhoj Platform{% endblock %}
 
 {% block platform_content %}
 <div class="space-y-6">
 
-  <!-- Header with Onboarding CTA -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/5 dark:border-white/10 pb-4">
-    <div>
-      <h1 class="text-2xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
-        Restaurant Management
-      </h1>
-      <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
-        View, onboard, and manage all restaurants and subscription lifecycles.
-      </p>
+    <!-- Top Header & Live Pulse Toolbar -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-primary-50 text-primary-700 border border-primary-200">
+                    Operations Pulse
+                </span>
+                <span class="text-xs text-slate-400 font-mono">{{ today_date|date:"l, d M Y" }}</span>
+            </div>
+            <h1 class="text-2xl font-black text-slate-900 tracking-tight">Today's Operations Dashboard</h1>
+            <p class="text-sm text-slate-500 mt-0.5">Real-time today operational counts, order volume, dining activity, and store performance.</p>
+        </div>
+
+        <div class="flex items-center flex-wrap gap-2.5">
+            <!-- Real-time Live Badge -->
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-slate-200/90 text-xs font-semibold text-slate-700 shadow-2xs">
+                <span class="relative flex h-2.5 w-2.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                </span>
+                <span>Live Data</span>
+            </div>
+
+            <!-- Refresh Button -->
+            <button onclick="window.location.reload()" 
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200/90 text-xs font-bold text-slate-700 shadow-2xs transition-all cursor-pointer"
+                    title="Reload latest counts">
+                <svg class="ic text-slate-500" style="width:.9rem;height:.9rem" fill="none" stroke="currentColor"><use href="#i-cog"/></svg>
+                <span>Refresh</span>
+            </button>
+
+            <!-- Onboard Store Quick Button -->
+            <a href="{% url 'platform:restaurant_create' %}" 
+               class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary-700 text-white font-bold text-xs shadow-xs hover:shadow-sm transition-all">
+                <svg class="ic" style="width:1rem;height:1rem" fill="none" stroke="currentColor"><use href="#i-plus"/></svg>
+                <span>Onboard Store</span>
+            </a>
+        </div>
     </div>
 
-    <!-- Onboard New Restaurant Button (Requirement A1) -->
-    <a 
-      href="{% url 'platform:restaurant_create' %}" 
-      class="min-h-[44px] px-5 py-2.5 rounded-xl bg-tapbhoj-brand dark:bg-tapbhoj-brand-dark text-tapbhoj-surface dark:text-tapbhoj-bg-dark font-bold font-heading text-xs shadow-md hover:opacity-95 flex items-center justify-center space-x-2"
-    >
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-      <span>Onboard Restaurant (1-Step)</span>
-    </a>
-  </div>
-
-  <!-- Key Metrics Row -->
-  <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
-    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
-      <p class="text-[10px] font-bold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Total</p>
-      <p class="text-2xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">{{ total_count }}</p>
-    </div>
-
-    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
-      <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Active</p>
-      <p class="text-2xl font-bold font-heading text-emerald-600 dark:text-emerald-400">{{ active_count }}</p>
-    </div>
-
-    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
-      <p class="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">In Trial</p>
-      <p class="text-2xl font-bold font-heading text-blue-600 dark:text-blue-400">{{ trial_count }}</p>
-    </div>
-
-    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1">
-      <p class="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">Expiring &lt;7d</p>
-      <p class="text-2xl font-bold font-heading text-amber-600 dark:text-amber-400">{{ expiring_soon_count }}</p>
-    </div>
-
-    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-4 border border-black/5 dark:border-white/10 shadow-sm space-y-1 col-span-2 sm:col-span-1">
-      <p class="text-[10px] font-bold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Paused</p>
-      <p class="text-2xl font-bold font-heading text-tapbhoj-muted dark:text-tapbhoj-muted-dark">{{ paused_count }}</p>
-    </div>
-  </div>
-
-  <!-- Search & Filters Toolbar -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-    <!-- Filter Pills -->
-    <div class="flex items-center space-x-1.5 overflow-x-auto py-1">
-      <a 
-        href="{% url 'platform:dashboard' %}" 
-        class="px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap {% if not status_filter %}bg-slate-900 text-white dark:bg-white dark:text-slate-900{% else %}bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark text-tapbhoj-muted dark:text-tapbhoj-muted-dark border border-black/5 dark:border-white/10{% endif %}"
-      >
-        All
-      </a>
-      <a 
-        href="{% url 'platform:dashboard' %}?status=active" 
-        class="px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap {% if status_filter == 'active' %}bg-emerald-600 text-white{% else %}bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark text-tapbhoj-muted dark:text-tapbhoj-muted-dark border border-black/5 dark:border-white/10{% endif %}"
-      >
-        Active
-      </a>
-      <a 
-        href="{% url 'platform:dashboard' %}?status=paused" 
-        class="px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap {% if status_filter == 'paused' %}bg-amber-600 text-white{% else %}bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark text-tapbhoj-muted dark:text-tapbhoj-muted-dark border border-black/5 dark:border-white/10{% endif %}"
-      >
-        Paused
-      </a>
-    </div>
-
-    <!-- Search Box -->
-    <form method="get" class="flex items-center space-x-2">
-      {% if status_filter %}
-        <input type="hidden" name="status" value="{{ status_filter }}">
-      {% endif %}
-      <input 
-        type="text" 
-        name="q" 
-        value="{{ search_query }}" 
-        placeholder="Search restaurant or WhatsApp..." 
-        class="text-xs rounded-xl px-3.5 py-2 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark focus:outline-none focus:ring-2 focus:ring-tapbhoj-brand w-60"
-      >
-      <button type="submit" class="px-3 py-2 rounded-xl bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-xs font-semibold">
-        Search
-      </button>
-    </form>
-  </div>
-
-  <!-- Restaurants Table (Requirement A3) -->
-  <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl border border-black/5 dark:border-white/10 shadow-sm overflow-hidden">
-    <div class="overflow-x-auto">
-      <table class="w-full text-left text-xs">
-        <thead class="bg-tapbhoj-bg dark:bg-tapbhoj-bg-dark border-b border-black/5 dark:border-white/10 text-[10px] uppercase font-bold text-tapbhoj-muted dark:text-tapbhoj-muted-dark tracking-wider">
-          <tr>
-            <th class="py-3 px-4">Restaurant</th>
-            <th class="py-3 px-4">Owner Contact</th>
-            <th class="py-3 px-4">Status</th>
-            <th class="py-3 px-4">Subscription & Expiry</th>
-            <th class="py-3 px-4 text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-black/5 dark:divide-white/5">
-          {% for r in restaurants %}
-            <tr class="hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors">
-              
-              <!-- Restaurant Name & Slug -->
-              <td class="py-3.5 px-4">
-                <a href="{% url 'platform:restaurant_detail' pk=r.pk %}" class="font-bold text-sm text-tapbhoj-ink dark:text-tapbhoj-ink-dark hover:underline block leading-snug">
-                  {{ r.name }}
-                </a>
-                <div class="flex items-center space-x-2 text-[11px] text-tapbhoj-muted dark:text-tapbhoj-muted-dark mt-0.5">
-                  <span>/r/{{ r.slug }}/</span>
-                  <span>•</span>
-                  <span>{{ r.number_of_tables }} Tables</span>
+    <!-- 5 Primary Metric KPI Cards for TODAY -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        
+        <!-- Card 1: Today's Total Orders -->
+        <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-2xs flex flex-col justify-between relative overflow-hidden group hover:border-primary-200 transition-all">
+            <div class="flex items-center justify-between gap-3 mb-2">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Today's Orders</span>
+                <span class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
+                    <svg class="ic" style="width:1.1rem;height:1.1rem" fill="none" stroke="currentColor"><use href="#i-grid"/></svg>
+                </span>
+            </div>
+            <div>
+                <p class="text-3xl font-black text-slate-900 tracking-tight font-mono">{{ today_order_count }}</p>
+                <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 text-xs">
+                    <span class="text-slate-500">Gross GMV</span>
+                    <span class="font-bold text-slate-800 font-mono">₹{{ today_volume|floatformat:0 }}</span>
                 </div>
-              </td>
+                <div class="flex items-center justify-between mt-1 text-[11px] text-slate-400">
+                    <span>Avg Order Value</span>
+                    <span class="font-semibold text-slate-600 font-mono">₹{{ today_aov|floatformat:0 }}</span>
+                </div>
+            </div>
+        </div>
 
-              <!-- Owner Contact -->
-              <td class="py-3.5 px-4 space-y-0.5">
-                <p class="font-semibold text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
-                  +{{ r.whatsapp_number }}
-                </p>
-                {% with owner_profile=r.owners.first %}
-                  {% if owner_profile %}
-                    <p class="text-[11px] text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
-                      {{ owner_profile.user.email }} ({{ owner_profile.user.username }})
-                    </p>
-                  {% endif %}
-                {% endwith %}
-              </td>
+        <!-- Card 2: Verified UPI Collections -->
+        <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-2xs flex flex-col justify-between relative overflow-hidden group hover:border-emerald-200 transition-all">
+            <div class="flex items-center justify-between gap-3 mb-2">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Today's Revenue</span>
+                <span class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100">
+                    <svg class="ic" style="width:1.1rem;height:1.1rem" fill="none" stroke="currentColor"><use href="#i-coin"/></svg>
+                </span>
+            </div>
+            <div>
+                <p class="text-3xl font-black text-emerald-700 tracking-tight font-mono">₹{{ today_paid_volume|floatformat:0 }}</p>
+                <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 text-xs">
+                    <span class="text-slate-500">Verified Paid Orders</span>
+                    <span class="font-bold text-emerald-700 font-mono">{{ today_paid_count }}</span>
+                </div>
+                <div class="flex items-center justify-between mt-1 text-[11px] text-slate-400">
+                    <span>Direct Merchant UPI</span>
+                    <span class="font-semibold text-emerald-600">0% Commission</span>
+                </div>
+            </div>
+        </div>
 
-              <!-- Status Badge (Requirement A2) -->
-              <td class="py-3.5 px-4">
-                {% if r.status == 'active' %}
-                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
-                    Active
-                  </span>
-                {% elif r.status == 'paused' %}
-                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
-                    Paused
-                  </span>
-                {% else %}
-                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                    {{ r.get_status_display }}
-                  </span>
-                {% endif %}
-              </td>
-
-              <!-- Subscription Info -->
-              <td class="py-3.5 px-4 space-y-0.5">
-                {% if r.subscription %}
-                  <div class="flex items-center space-x-1.5">
-                    <span class="font-bold text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
-                      {% if r.subscription.plan %}{{ r.subscription.plan.name }}{% else %}{{ r.subscription.get_status_display }}{% endif %}
+        <!-- Card 3: Active Dining Tables -->
+        <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-2xs flex flex-col justify-between relative overflow-hidden group hover:border-indigo-200 transition-all">
+            <div class="flex items-center justify-between gap-3 mb-2">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Live Active Tables</span>
+                <span class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100">
+                    <svg class="ic" style="width:1.1rem;height:1.1rem" fill="none" stroke="currentColor"><use href="#i-users"/></svg>
+                </span>
+            </div>
+            <div>
+                <p class="text-3xl font-black text-indigo-700 tracking-tight font-mono">{{ active_tables_count }}</p>
+                <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 text-xs">
+                    <span class="text-slate-500">Live Customer Carts</span>
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                        Real-time
                     </span>
-                    {% if r.subscription.status == 'trialing' %}
-                      <span class="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 text-[10px] font-semibold">
-                        Trial
-                      </span>
-                    {% endif %}
-                  </div>
-                  <p class="text-[11px] text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
-                    {% if r.subscription.expiry_date %}
-                      Expires: {{ r.subscription.expiry_date|date:"d M Y" }} 
-                      ({{ r.subscription.days_remaining }} days left)
-                    {% else %}
-                      No expiry set
-                    {% endif %}
-                  </p>
-                {% else %}
-                  <span class="text-tapbhoj-muted">No subscription</span>
-                {% endif %}
-              </td>
+                </div>
+                <div class="flex items-center justify-between mt-1 text-[11px] text-slate-400">
+                    <span>Across all active restaurants</span>
+                </div>
+            </div>
+        </div>
 
-              <!-- Actions (Requirement A2, A3, A6) -->
-              <td class="py-3.5 px-4 text-right space-x-2">
-                
-                <!-- Assist/Impersonate (Requirement A6) -->
-                <a 
-                  href="{% url 'platform:restaurant_assist' pk=r.pk %}" 
-                  class="inline-block px-2.5 py-1.5 rounded-lg border border-black/10 dark:border-white/10 hover:bg-tapbhoj-bg dark:hover:bg-tapbhoj-bg-dark font-semibold text-tapbhoj-ink dark:text-tapbhoj-ink-dark"
-                  title="Assist this owner"
-                >
-                  Assist ↗
-                </a>
+        <!-- Card 4: Stores Active Today -->
+        <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-2xs flex flex-col justify-between relative overflow-hidden group hover:border-amber-200 transition-all">
+            <div class="flex items-center justify-between gap-3 mb-2">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Stores Today</span>
+                <span class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-100">
+                    <svg class="ic" style="width:1.1rem;height:1.1rem" fill="none" stroke="currentColor"><use href="#i-book"/></svg>
+                </span>
+            </div>
+            <div>
+                <div class="flex items-baseline gap-1.5 font-mono">
+                    <p class="text-3xl font-black text-slate-900 tracking-tight">{{ stores_active_today_count }}</p>
+                    <span class="text-xs text-slate-400 font-semibold font-sans">/ {{ active_stores_count }} active</span>
+                </div>
+                <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 text-xs">
+                    <span class="text-slate-500">Total Registered</span>
+                    <span class="font-bold text-slate-800 font-mono">{{ total_stores_count }}</span>
+                </div>
+                <div class="flex items-center justify-between mt-1 text-[11px] text-slate-400">
+                    <span>Receiving orders today</span>
+                </div>
+            </div>
+        </div>
 
-                <!-- 1-Click Activate/Pause Toggle (Requirement A2) -->
-                <a 
-                  href="{% url 'platform:restaurant_toggle' pk=r.pk %}" 
-                  class="inline-block px-2.5 py-1.5 rounded-lg font-semibold {% if r.status == 'active' %}text-amber-700 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 dark:text-amber-300{% else %}text-emerald-700 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300{% endif %}"
-                >
-                  {% if r.status == 'active' %}Pause{% else %}Activate{% endif %}
-                </a>
+        <!-- Card 5: New Stores Today -->
+        <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-2xs flex flex-col justify-between relative overflow-hidden group hover:border-purple-200 transition-all">
+            <div class="flex items-center justify-between gap-3 mb-2">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">New Stores Today</span>
+                <span class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 border border-purple-100">
+                    <svg class="ic" style="width:1.1rem;height:1.1rem" fill="none" stroke="currentColor"><use href="#i-plus"/></svg>
+                </span>
+            </div>
+            <div>
+                <p class="text-3xl font-black text-purple-700 tracking-tight font-mono">{{ new_stores_today_count }}</p>
+                <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 text-xs">
+                    <span class="text-slate-500">Signups in 24h</span>
+                    <span class="font-bold text-purple-700 font-mono">+{{ new_stores_today_count }}</span>
+                </div>
+                <div class="flex items-center justify-between mt-1 text-[11px] text-slate-400">
+                    <span>Onboarded today</span>
+                </div>
+            </div>
+        </div>
 
-                <!-- Detail / Edit -->
-                <a 
-                  href="{% url 'platform:restaurant_detail' pk=r.pk %}" 
-                  class="inline-block px-2.5 py-1.5 rounded-lg bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-semibold"
-                >
-                  Manage
-                </a>
-              </td>
-
-            </tr>
-          {% empty %}
-            <tr>
-              <td colspan="5" class="py-8 text-center text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
-                No restaurants found matching your criteria.
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
     </div>
-  </div>
+
+    <!-- Operational Status Bar for Today's Orders -->
+    <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-2xs">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 mb-3 border-b border-slate-100">
+            <div>
+                <h3 class="text-sm font-bold text-slate-900">Today's Order Status Breakdown</h3>
+                <p class="text-xs text-slate-500">Real-time distribution of today's {{ today_order_count }} order{% if today_order_count != 1 %}s{% endif %}</p>
+            </div>
+            <a href="{% url 'platform:live_orders' %}" class="inline-flex items-center gap-1 text-xs font-bold text-primary hover:text-primary-700">
+                <span>View Full Live Orders Monitor</span>
+                <span>&rarr;</span>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            <!-- Sent to WhatsApp / Kitchen -->
+            <div class="bg-slate-50 rounded-xl p-3 border border-slate-200/70">
+                <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Sent to Kitchen</p>
+                <p class="text-xl font-black text-slate-900 font-mono mt-1">{{ status_counts.sent }}</p>
+                <span class="inline-block mt-1 text-[10px] font-semibold text-slate-500">Awaiting prep</span>
+            </div>
+
+            <!-- Preparing -->
+            <div class="bg-amber-50/60 rounded-xl p-3 border border-amber-200/60">
+                <p class="text-[11px] font-bold text-amber-700 uppercase tracking-wide">Preparing</p>
+                <p class="text-xl font-black text-amber-800 font-mono mt-1">{{ status_counts.preparing }}</p>
+                <span class="inline-block mt-1 text-[10px] font-semibold text-amber-700">In the kitchen</span>
+            </div>
+
+            <!-- Completed / Served -->
+            <div class="bg-emerald-50/60 rounded-xl p-3 border border-emerald-200/60">
+                <p class="text-[11px] font-bold text-emerald-700 uppercase tracking-wide">Completed</p>
+                <p class="text-xl font-black text-emerald-800 font-mono mt-1">{{ status_counts.completed }}</p>
+                <span class="inline-block mt-1 text-[10px] font-semibold text-emerald-700">Served &amp; done</span>
+            </div>
+
+            <!-- Cancelled -->
+            <div class="bg-rose-50/60 rounded-xl p-3 border border-rose-200/60">
+                <p class="text-[11px] font-bold text-rose-700 uppercase tracking-wide">Cancelled</p>
+                <p class="text-xl font-black text-rose-800 font-mono mt-1">{{ status_counts.cancelled }}</p>
+                <span class="inline-block mt-1 text-[10px] font-semibold text-rose-700">Voided orders</span>
+            </div>
+
+            <!-- Verified Paid (UPI) -->
+            <div class="bg-emerald-50/60 rounded-xl p-3 border border-emerald-200/60">
+                <p class="text-[11px] font-bold text-emerald-700 uppercase tracking-wide">Paid (UPI)</p>
+                <p class="text-xl font-black text-emerald-800 font-mono mt-1">{{ today_paid_count }}</p>
+                <span class="inline-block mt-1 text-[10px] font-semibold text-emerald-700">₹{{ today_paid_volume|floatformat:0 }} verified</span>
+            </div>
+
+            <!-- Pending / Unpaid -->
+            <div class="bg-blue-50/60 rounded-xl p-3 border border-blue-200/60">
+                <p class="text-[11px] font-bold text-blue-700 uppercase tracking-wide">Pending / Cash</p>
+                <p class="text-xl font-black text-blue-800 font-mono mt-1">{{ today_pending_payment_count|add:today_unpaid_count }}</p>
+                <span class="inline-block mt-1 text-[10px] font-semibold text-blue-700">{{ today_pending_payment_count }} pending UTR</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Workspace Grid: 2 Columns -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Left Column: Today's Real-Time Order Stream (8 cols) -->
+        <div class="lg:col-span-8 bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden flex flex-col">
+            <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between gap-3">
+                <div>
+                    <h2 class="text-base font-bold text-slate-900">Today's Live Order Stream</h2>
+                    <p class="text-xs text-slate-500">Feed of the latest customer orders received today across all stores</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700">
+                        {{ today_order_count }} Today
+                    </span>
+                    <a href="{% url 'platform:live_orders' %}" class="text-xs font-bold text-primary hover:text-primary-700 hidden sm:inline">
+                        Full Stream &rarr;
+                    </a>
+                </div>
+            </div>
+
+            {% if recent_orders_today %}
+            <div class="overflow-x-auto flex-1">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50/80 border-b border-slate-200/70 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                            <th class="py-3 px-4">Restaurant</th>
+                            <th class="py-3 px-3">Table</th>
+                            <th class="py-3 px-4">Items Ordered</th>
+                            <th class="py-3 px-3 text-right">Amount</th>
+                            <th class="py-3 px-3 text-center">Order Status</th>
+                            <th class="py-3 px-3 text-center">Payment</th>
+                            <th class="py-3 px-4 text-right">Time</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {% for order in recent_orders_today %}
+                        <tr class="hover:bg-slate-50/70 transition-colors">
+                            <td class="py-3.5 px-4 font-semibold text-slate-900">
+                                <a href="{% url 'platform:restaurant_detail' order.restaurant.pk %}" class="hover:text-primary transition-colors">
+                                    {{ order.restaurant.name }}
+                                </a>
+                            </td>
+                            <td class="py-3.5 px-3">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold font-mono bg-slate-100 text-slate-700">
+                                    T-{{ order.table_number }}
+                                </span>
+                            </td>
+                            <td class="py-3.5 px-4 max-w-xs text-slate-600 truncate" title="{{ order.items_summary }}">
+                                {{ order.items_summary }}
+                            </td>
+                            <td class="py-3.5 px-3 text-right font-bold text-slate-900 font-mono">
+                                ₹{{ order.total_amount|floatformat:0 }}
+                            </td>
+                            <td class="py-3.5 px-3 text-center">
+                                {% if order.status == 'sent' %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                                        Sent
+                                    </span>
+                                {% elif order.status == 'preparing' %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                        Preparing
+                                    </span>
+                                {% elif order.status == 'completed' %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                        Completed
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                        {{ order.get_status_display }}
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="py-3.5 px-3 text-center">
+                                {% if order.payment_status == 'paid' %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" title="UPI Verified: {{ order.upi_utr }}">
+                                        Paid (UPI)
+                                    </span>
+                                {% elif order.payment_status == 'pending' %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200" title="UTR submitted: {{ order.upi_utr }}">
+                                        Verify UTR
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                                        Unpaid
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="py-3.5 px-4 text-right font-mono text-[11px] text-slate-500 whitespace-nowrap">
+                                {{ order.created_at|date:"h:i A" }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <!-- Friendly Empty State for Today -->
+            <div class="p-12 text-center flex-1 flex flex-col items-center justify-center">
+                <div class="w-16 h-16 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
+                    <svg class="ic" style="width:2rem;height:2rem" fill="none" stroke="currentColor"><use href="#i-grid"/></svg>
+                </div>
+                <h3 class="text-base font-bold text-slate-900 mb-1">No Orders Placed Yet Today</h3>
+                <p class="text-xs text-slate-500 max-w-sm mb-4">
+                    Orders will appear here in real-time as customers scan table QR codes at your restaurants and submit orders.
+                </p>
+                <div class="flex items-center gap-3">
+                    <a href="{% url 'platform:stores' %}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all">
+                        <span>View All Stores</span>
+                    </a>
+                    <a href="{% url 'platform:live_orders' %}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary hover:bg-primary-700 text-white text-xs font-bold transition-all">
+                        <span>Open Live Monitor</span>
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Right Column: Top Stores Today & Quick Platform Actions (4 cols) -->
+        <div class="lg:col-span-4 space-y-6">
+
+            <!-- Today's Top Performing Stores Leaderboard -->
+            <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-4 sm:p-5">
+                <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900">Today's Top Stores</h3>
+                        <p class="text-xs text-slate-500">Ranked by today's order count &amp; revenue</p>
+                    </div>
+                    <span class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xs border border-amber-100">
+                        ★
+                    </span>
+                </div>
+
+                {% if top_restaurants_today %}
+                <div class="space-y-3">
+                    {% for r in top_restaurants_today %}
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50/70 border border-slate-200/60 hover:bg-slate-100/70 transition-all">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <span class="w-6 h-6 rounded-lg bg-white text-slate-700 font-bold text-xs flex items-center justify-center shrink-0 border border-slate-200 font-mono shadow-2xs">
+                                {{ forloop.counter }}
+                            </span>
+                            <div class="min-w-0">
+                                <a href="{% url 'platform:restaurant_detail' r.pk %}" class="text-xs font-bold text-slate-900 hover:text-primary truncate block">
+                                    {{ r.name }}
+                                </a>
+                                <p class="text-[11px] text-slate-500 font-mono">
+                                    {{ r.today_orders }} order{% if r.today_orders != 1 %}s{% endif %} today
+                                </p>
+                            </div>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <p class="text-xs font-bold text-slate-900 font-mono">₹{{ r.today_revenue|default:0|floatformat:0 }}</p>
+                            <a href="{% url 'platform:restaurant_detail' r.pk %}" class="text-[10px] font-semibold text-primary hover:text-primary-700">
+                                Manage &rarr;
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="py-6 text-center text-xs text-slate-400">
+                    <p class="font-semibold text-slate-600 mb-1">No store activity yet today</p>
+                    <p class="text-[11px]">Stores will rank here once today's orders start flowing.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Operations Quick Shortcuts -->
+            <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-4 sm:p-5">
+                <h3 class="text-sm font-bold text-slate-900 mb-3">Platform Operations</h3>
+                <div class="space-y-2 text-xs">
+                    <a href="{% url 'platform:restaurant_create' %}" class="flex items-center justify-between p-2.5 rounded-xl bg-primary-50/70 hover:bg-primary-100/70 text-primary-900 font-semibold transition-colors">
+                        <span class="flex items-center gap-2">
+                            <svg class="ic text-primary-700" style="width:.95rem;height:.95rem" fill="none" stroke="currentColor"><use href="#i-plus"/></svg>
+                            <span>Onboard New Restaurant</span>
+                        </span>
+                        <span class="text-primary-600 font-mono">&rarr;</span>
+                    </a>
+
+                    <a href="{% url 'platform:stores' %}" class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-800 font-medium transition-colors">
+                        <span class="flex items-center gap-2">
+                            <svg class="ic text-slate-500" style="width:.95rem;height:.95rem" fill="none" stroke="currentColor"><use href="#i-book"/></svg>
+                            <span>Manage All Stores ({{ total_stores_count }})</span>
+                        </span>
+                        <span class="text-slate-400 font-mono">&rarr;</span>
+                    </a>
+
+                    <a href="{% url 'platform:live_orders' %}" class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-800 font-medium transition-colors">
+                        <span class="flex items-center gap-2">
+                            <svg class="ic text-slate-500" style="width:.95rem;height:.95rem" fill="none" stroke="currentColor"><use href="#i-orders"/></svg>
+                            <span>Live Kitchen / Table Orders</span>
+                        </span>
+                        <span class="text-slate-400 font-mono">&rarr;</span>
+                    </a>
+
+                    <a href="{% url 'platform:analytics' %}" class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-800 font-medium transition-colors">
+                        <span class="flex items-center gap-2">
+                            <svg class="ic text-slate-500" style="width:.95rem;height:.95rem" fill="none" stroke="currentColor"><use href="#i-chart"/></svg>
+                            <span>Platform Analytics &amp; Dishes</span>
+                        </span>
+                        <span class="text-slate-400 font-mono">&rarr;</span>
+                    </a>
+
+                    <a href="{% url 'platform:billing_overview' %}" class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-800 font-medium transition-colors">
+                        <span class="flex items-center gap-2">
+                            <svg class="ic text-slate-500" style="width:.95rem;height:.95rem" fill="none" stroke="currentColor"><use href="#i-coin"/></svg>
+                            <span>Billing &amp; Subscriptions</span>
+                        </span>
+                        <span class="text-slate-400 font-mono">&rarr;</span>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
 {% endblock %}
+

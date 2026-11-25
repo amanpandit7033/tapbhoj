@@ -1,0 +1,198 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}{% if is_edit %}Edit Dish{% else %}Add Dish{% endif %} - {{ restaurant.name }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-xl mx-auto space-y-6">
+  
+  <div class="border-b border-slate-200/80 pb-4 flex items-center justify-between">
+    <div>
+      <h1 class="text-xl font-bold text-slate-900 tracking-tight">
+        {% if is_edit %}Edit Dish{% else %}Add Dish to Menu{% endif %}
+      </h1>
+      <p class="text-xs text-slate-500 mt-0.5">Enter dish details, pricing, and diet type.</p>
+    </div>
+    <a href="{% url 'dashboard:menu' %}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+      <span>Back to Menu</span>
+    </a>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="bg-white rounded-2xl p-6 sm:p-7 border border-slate-200/90 shadow-xs space-y-5">
+    {% csrf_token %}
+
+    <!-- Category Selection (Custom Dropdown) -->
+    <div class="space-y-1.5" x-data="{
+        open: false,
+        selectedVal: '{{ form.category.value|default:'' }}',
+        selectedLabel: '{% for choice in form.category.field.choices %}{% if choice.0|stringformat:'s' == form.category.value|stringformat:'s' %}{{ choice.1|escapejs }}{% endif %}{% endfor %}' || '- Select Category -'
+    }">
+      <label for="{{ form.category.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-500">
+        Category <span class="text-red-500">*</span>
+      </label>
+      <div class="relative">
+        <input type="hidden" name="category" :value="selectedVal">
+        <button type="button" 
+                @click="open = !open" 
+                @keydown.escape.window="open = false"
+                class="w-full min-h-[42px] px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-900 flex items-center justify-between hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 shadow-xs transition-all cursor-pointer">
+          <span class="truncate" x-text="selectedLabel"></span>
+          <svg class="w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0 ml-2" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+
+        <div x-show="open" 
+             @click.outside="open = false" 
+             x-cloak 
+             x-transition:enter="transition ease-out duration-100" 
+             x-transition:enter-start="opacity-0 translate-y-1 scale-98" 
+             x-transition:enter-end="opacity-100 translate-y-0 scale-100" 
+             x-transition:leave="transition ease-in duration-75" 
+             x-transition:leave-start="opacity-100 translate-y-0 scale-100" 
+             x-transition:leave-end="opacity-0 translate-y-1 scale-98" 
+             class="absolute left-0 right-0 z-50 mt-1.5 bg-white rounded-xl border border-slate-200/90 shadow-xl py-1 max-h-60 overflow-y-auto">
+          {% for choice in form.category.field.choices %}
+          <div @click="selectedVal = '{{ choice.0 }}'; selectedLabel = '{{ choice.1|escapejs }}'; open = false"
+               class="px-3.5 py-2.5 text-xs flex items-center justify-between cursor-pointer transition-colors"
+               :class="selectedVal == '{{ choice.0 }}' ? 'bg-primary-50 text-primary-700 font-bold' : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'">
+            <span>{{ choice.1 }}</span>
+            <template x-if="selectedVal == '{{ choice.0 }}'">
+              <svg class="w-3.5 h-3.5 text-primary-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+            </template>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% if form.category.errors %}
+        <p class="text-xs text-red-500">{{ form.category.errors.0 }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Dish Name -->
+    <div class="space-y-1.5">
+      <label for="{{ form.name.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-500">
+        Dish Name <span class="text-red-500">*</span>
+      </label>
+      {{ form.name }}
+      {% if form.name.errors %}
+        <p class="text-xs text-red-500">{{ form.name.errors.0 }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Price (INR) -->
+    <div class="space-y-1.5">
+      <label for="{{ form.price.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-500">
+        Price in Rupees (₹) <span class="text-red-500">*</span>
+      </label>
+      <div class="relative flex items-center">
+        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400 pointer-events-none select-none">₹</span>
+        {{ form.price }}
+      </div>
+      {% if form.price.errors %}
+        <p class="text-xs text-red-500">{{ form.price.errors.0 }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Veg / Non-Veg Checkbox -->
+    <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+      <div>
+        <label for="{{ form.is_veg.id_for_label }}" class="text-xs font-bold text-slate-900 cursor-pointer">
+          Vegetarian Dish
+        </label>
+        <p class="text-[11px] text-slate-500">Checked = Veg (Green dot), Unchecked = Non-Veg (Red dot)</p>
+      </div>
+      {{ form.is_veg }}
+    </div>
+
+    <!-- Description -->
+    <div class="space-y-1.5">
+      <label for="{{ form.description.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-500">
+        Description
+      </label>
+      {{ form.description }}
+      {% if form.description.errors %}
+        <p class="text-xs text-red-500">{{ form.description.errors.0 }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Tags (Bestseller, Spicy, etc.) -->
+    <div class="space-y-1.5">
+      <label for="{{ form.tags.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-500">
+        Highlight Tags
+      </label>
+      {{ form.tags }}
+      <p class="text-[11px] text-slate-400">Comma-separated, e.g. Bestseller, Chef's Pick, Jain Option</p>
+      {% if form.tags.errors %}
+        <p class="text-xs text-red-500">{{ form.tags.errors.0 }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Availability & Position Row -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="space-y-1.5">
+        <label for="{{ form.position.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-500">
+          Display Position
+        </label>
+        {{ form.position }}
+      </div>
+
+      <div class="flex items-center space-x-2 pt-6">
+        {{ form.is_available }}
+        <label for="{{ form.is_available.id_for_label }}" class="text-xs font-semibold text-slate-800 cursor-pointer">
+          Available for ordering
+        </label>
+      </div>
+    </div>
+
+    <!-- Photo Upload with Instant Live Preview -->
+    <div class="space-y-1.5" x-data="{ previewUrl: null }">
+      <label for="{{ form.photo.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-500">
+        Dish Photo (Optional)
+      </label>
+      
+      <!-- New Selected Preview (via file chooser) -->
+      <template x-if="previewUrl">
+        <div class="flex items-center space-x-3 mb-2 p-2 bg-slate-50 rounded-xl border border-slate-200">
+          <img :src="previewUrl" alt="Selected dish preview" class="w-14 h-14 rounded-xl object-cover border border-slate-200">
+          <div>
+            <span class="text-xs font-bold text-slate-900 block">New photo selected</span>
+            <span class="text-[11px] text-slate-500">Will be saved upon submitting the form</span>
+          </div>
+        </div>
+      </template>
+
+      <!-- Existing Photo (if editing and not replaced yet) -->
+      {% if item.photo %}
+        <template x-if="!previewUrl">
+          <div class="flex items-center space-x-3 mb-2 p-2 bg-slate-50 rounded-xl border border-slate-200">
+            <img src="{{ item.photo.url }}" alt="{{ item.name }}" class="w-14 h-14 rounded-xl object-cover border border-slate-200">
+            <div>
+              <span class="text-xs font-bold text-slate-900 block">Current dish photo</span>
+              <span class="text-[11px] text-slate-500">Choose another file below to replace it</span>
+            </div>
+          </div>
+        </template>
+      {% endif %}
+
+      <div @change="if ($event.target.files && $event.target.files[0]) previewUrl = URL.createObjectURL($event.target.files[0])">
+        {{ form.photo }}
+      </div>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="pt-4 border-t border-slate-100 flex items-center justify-end space-x-3">
+      <a href="{% url 'dashboard:menu' %}" class="min-h-[40px] px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors flex items-center shadow-xs">
+        Cancel
+      </a>
+      <button 
+        type="submit" 
+        class="min-h-[40px] px-5 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold text-xs shadow-xs active:scale-95 transition-all cursor-pointer"
+      >
+        {% if is_edit %}Save Changes{% else %}Add Dish to Menu{% endif %}
+      </button>
+    </div>
+
+  </form>
+</div>
+{% endblock %}

@@ -3,69 +3,101 @@
 {% block title %}Onboard New Restaurant - TapBhoj Platform Admin{% endblock %}
 
 {% block platform_content %}
-<div class="max-w-2xl mx-auto space-y-6">
+<div class="max-w-3xl mx-auto space-y-6">
 
-  <div class="border-b border-black/5 dark:border-white/10 pb-3 flex items-center justify-between">
+  <!-- Breadcrumbs & Quick Back Link -->
+  <div class="flex items-center space-x-2 text-xs">
+    <a href="{% url 'platform:stores' %}" 
+       class="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 transition-colors shadow-2xs">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+      <span class="font-semibold">Stores</span>
+    </a>
+    <span class="text-slate-300">/</span>
+    <span class="font-bold text-slate-900">Onboard Restaurant</span>
+  </div>
+
+  <!-- Header -->
+  <div class="border-b border-slate-200/80 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
     <div>
-      <h1 class="text-xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
+      <h1 class="text-2xl font-bold text-slate-900 tracking-tight">
         Onboard Restaurant (1-Step Setup)
       </h1>
-      <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
-        Creates the restaurant, owner account, trial subscription, and sends welcome email in one step.
+      <p class="text-xs text-slate-500 mt-0.5">
+        Provisions restaurant record, owner login account, trial subscription, and menu QR routing in a single transaction.
       </p>
     </div>
-    <a href="{% url 'platform:dashboard' %}" class="text-xs font-semibold text-tapbhoj-muted hover:text-tapbhoj-ink dark:hover:text-tapbhoj-ink-dark">
-      ← Back to List
-    </a>
   </div>
 
   <form method="post" class="space-y-6">
     {% csrf_token %}
 
-    <!-- 1. Restaurant Details -->
-    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-5 sm:p-6 border border-black/5 dark:border-white/10 shadow-sm space-y-4">
-      <h2 class="text-xs uppercase font-bold tracking-wider text-tapbhoj-brand dark:text-tapbhoj-accent">
-        1. Restaurant Information
-      </h2>
+    <!-- 1. Restaurant Information -->
+    <div class="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-xs space-y-5">
+      <div class="flex items-center space-x-3 border-b border-slate-100 pb-3">
+        <div class="w-9 h-9 rounded-xl bg-primary-50 text-primary-700 flex items-center justify-center shrink-0 shadow-2xs">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor"><use href="#i-grid"/></svg>
+        </div>
+        <div>
+          <h2 class="text-sm font-bold text-slate-900">
+            1. Restaurant Profile &amp; Operations
+          </h2>
+          <p class="text-[11px] text-slate-400">
+            Public store name, digital menu slug, and order routing.
+          </p>
+        </div>
+      </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Restaurant Name -->
         <div class="space-y-1.5 sm:col-span-2">
-          <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
-            Restaurant Name <span class="text-red-500">*</span>
+          <label class="block text-xs font-semibold text-slate-600">
+            Restaurant Name <span class="text-rose-500">*</span>
           </label>
           {{ form.restaurant_name }}
-          {% if form.restaurant_name.errors %}<p class="text-xs text-red-500">{{ form.restaurant_name.errors.0 }}</p>{% endif %}
+          {% if form.restaurant_name.errors %}
+            <p class="text-xs text-rose-500 mt-1">{{ form.restaurant_name.errors.0 }}</p>
+          {% endif %}
         </div>
 
+        <!-- URL Slug -->
         <div class="space-y-1.5">
-          <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
-            URL Slug <span class="text-red-500">*</span>
+          <label class="block text-xs font-semibold text-slate-600">
+            URL Slug <span class="text-rose-500">*</span>
           </label>
           {{ form.slug }}
-          <p class="text-[11px] text-tapbhoj-muted dark:text-tapbhoj-muted-dark">{{ form.slug.help_text }}</p>
-          {% if form.slug.errors %}<p class="text-xs text-red-500">{{ form.slug.errors.0 }}</p>{% endif %}
+          <p class="text-[11px] text-slate-400">tapbhoj.in/r/&lt;slug&gt;/</p>
+          {% if form.slug.errors %}
+            <p class="text-xs text-rose-500 mt-1">{{ form.slug.errors.0 }}</p>
+          {% endif %}
         </div>
 
+        <!-- WhatsApp Number -->
         <div class="space-y-1.5">
-          <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
-            WhatsApp Order Number <span class="text-red-500">*</span>
+          <label class="block text-xs font-semibold text-slate-600">
+            WhatsApp Order Number <span class="text-rose-500">*</span>
           </label>
           {{ form.whatsapp_number }}
-          <p class="text-[11px] text-tapbhoj-muted dark:text-tapbhoj-muted-dark">{{ form.whatsapp_number.help_text }}</p>
-          {% if form.whatsapp_number.errors %}<p class="text-xs text-red-500">{{ form.whatsapp_number.errors.0 }}</p>{% endif %}
+          <p class="text-[11px] text-slate-400">Country code without + (e.g. 919876543210)</p>
+          {% if form.whatsapp_number.errors %}
+            <p class="text-xs text-rose-500 mt-1">{{ form.whatsapp_number.errors.0 }}</p>
+          {% endif %}
         </div>
 
+        <!-- Physical Tables -->
         <div class="space-y-1.5">
-          <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
-            Physical Tables <span class="text-red-500">*</span>
+          <label class="block text-xs font-semibold text-slate-600">
+            Physical Tables <span class="text-rose-500">*</span>
           </label>
           {{ form.number_of_tables }}
-          {% if form.number_of_tables.errors %}<p class="text-xs text-red-500">{{ form.number_of_tables.errors.0 }}</p>{% endif %}
+          {% if form.number_of_tables.errors %}
+            <p class="text-xs text-rose-500 mt-1">{{ form.number_of_tables.errors.0 }}</p>
+          {% endif %}
         </div>
 
+        <!-- Address -->
         <div class="space-y-1.5">
-          <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
-            Address (Optional)
+          <label class="block text-xs font-semibold text-slate-600">
+            Physical Address (Optional)
           </label>
           {{ form.address }}
         </div>
@@ -73,73 +105,141 @@
     </div>
 
     <!-- 2. Owner User Account Details -->
-    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-5 sm:p-6 border border-black/5 dark:border-white/10 shadow-sm space-y-4">
-      <h2 class="text-xs uppercase font-bold tracking-wider text-tapbhoj-brand dark:text-tapbhoj-accent">
-        2. Owner Credentials & Contact
-      </h2>
+    <div class="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-xs space-y-5">
+      <div class="flex items-center space-x-3 border-b border-slate-100 pb-3">
+        <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 shadow-2xs">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor"><use href="#i-user"/></svg>
+        </div>
+        <div>
+          <h2 class="text-sm font-bold text-slate-900">
+            2. Owner Account &amp; Security
+          </h2>
+          <p class="text-[11px] text-slate-400">
+            Manager credentials for accessing the restaurant dashboard.
+          </p>
+        </div>
+      </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Username -->
         <div class="space-y-1.5">
-          <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
-            Owner Username <span class="text-red-500">*</span>
+          <label class="block text-xs font-semibold text-slate-600">
+            Owner Username <span class="text-rose-500">*</span>
           </label>
           {{ form.owner_username }}
-          {% if form.owner_username.errors %}<p class="text-xs text-red-500">{{ form.owner_username.errors.0 }}</p>{% endif %}
+          {% if form.owner_username.errors %}
+            <p class="text-xs text-rose-500 mt-1">{{ form.owner_username.errors.0 }}</p>
+          {% endif %}
         </div>
 
+        <!-- Email -->
         <div class="space-y-1.5">
-          <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
-            Owner Email <span class="text-red-500">*</span>
+          <label class="block text-xs font-semibold text-slate-600">
+            Owner Email <span class="text-rose-500">*</span>
           </label>
           {{ form.owner_email }}
-          <p class="text-[11px] text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Login credentials and order reports will be sent here.</p>
-          {% if form.owner_email.errors %}<p class="text-xs text-red-500">{{ form.owner_email.errors.0 }}</p>{% endif %}
+          <p class="text-[11px] text-slate-400">Login credentials and daily reports will be sent here.</p>
+          {% if form.owner_email.errors %}
+            <p class="text-xs text-rose-500 mt-1">{{ form.owner_email.errors.0 }}</p>
+          {% endif %}
         </div>
 
+        <!-- Initial Password -->
         <div class="space-y-1.5 sm:col-span-2">
-          <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
-            Initial Password <span class="text-red-500">*</span>
+          <label class="block text-xs font-semibold text-slate-600">
+            Initial Password <span class="text-rose-500">*</span>
           </label>
           {{ form.owner_password }}
-          {% if form.owner_password.errors %}<p class="text-xs text-red-500">{{ form.owner_password.errors.0 }}</p>{% endif %}
+          {% if form.owner_password.errors %}
+            <p class="text-xs text-rose-500 mt-1">{{ form.owner_password.errors.0 }}</p>
+          {% endif %}
         </div>
       </div>
     </div>
 
     <!-- 3. Subscription & Trial Plan -->
-    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-5 sm:p-6 border border-black/5 dark:border-white/10 shadow-sm space-y-4">
-      <h2 class="text-xs uppercase font-bold tracking-wider text-tapbhoj-brand dark:text-tapbhoj-accent">
-        3. Trial & Subscription Plan
-      </h2>
+    <div class="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-xs space-y-5">
+      <div class="flex items-center space-x-3 border-b border-slate-100 pb-3">
+        <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0 shadow-2xs">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor"><use href="#i-coin"/></svg>
+        </div>
+        <div>
+          <h2 class="text-sm font-bold text-slate-900">
+            3. Subscription &amp; Trial Setup
+          </h2>
+          <p class="text-[11px] text-slate-400">
+            Initial trial period and target plan assignment.
+          </p>
+        </div>
+      </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Trial Days -->
         <div class="space-y-1.5">
-          <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+          <label class="block text-xs font-semibold text-slate-600">
             Free Trial Days
           </label>
           {{ form.trial_days }}
-          <p class="text-[11px] text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Default is 14 days free trial.</p>
+          <p class="text-[11px] text-slate-400">Standard trial period is 14 days</p>
         </div>
 
-        <div class="space-y-1.5">
-          <label class="block text-xs font-semibold uppercase tracking-wider text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+        <!-- Target Plan (Custom Dropdown) -->
+        <div class="space-y-1.5" x-data="{
+            open: false,
+            selectedVal: '{{ form.initial_plan.value|default:'' }}',
+            selectedLabel: '{% for choice in form.initial_plan.field.choices %}{% if choice.0|stringformat:'s' == form.initial_plan.value|stringformat:'s' %}{{ choice.1|escapejs }}{% endif %}{% endfor %}' || '- Select Plan (Optional) -'
+        }">
+          <label class="block text-xs font-semibold text-slate-600">
             Target Plan (Optional)
           </label>
-          {{ form.initial_plan }}
+          <div class="relative">
+            <input type="hidden" name="initial_plan" :value="selectedVal">
+            <button type="button" 
+                    @click="open = !open" 
+                    @keydown.escape.window="open = false"
+                    class="w-full min-h-[42px] px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-900 flex items-center justify-between hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 shadow-xs transition-all cursor-pointer">
+              <span class="truncate" x-text="selectedLabel"></span>
+              <svg class="w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0 ml-2" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+
+            <div x-show="open" 
+                 @click.outside="open = false" 
+                 x-cloak 
+                 x-transition:enter="transition ease-out duration-100" 
+                 x-transition:enter-start="opacity-0 translate-y-1 scale-98" 
+                 x-transition:enter-end="opacity-100 translate-y-0 scale-100" 
+                 x-transition:leave="transition ease-in duration-75" 
+                 x-transition:leave-start="opacity-100 translate-y-0 scale-100" 
+                 x-transition:leave-end="opacity-0 translate-y-1 scale-98" 
+                 class="absolute left-0 right-0 z-50 mt-1.5 bg-white rounded-xl border border-slate-200/90 shadow-xl py-1 max-h-60 overflow-y-auto">
+              {% for choice in form.initial_plan.field.choices %}
+              <div @click="selectedVal = '{{ choice.0 }}'; selectedLabel = '{{ choice.1|escapejs }}'; open = false"
+                   class="px-3.5 py-2.5 text-xs flex items-center justify-between cursor-pointer transition-colors"
+                   :class="selectedVal == '{{ choice.0 }}' ? 'bg-primary-50 text-primary-700 font-bold' : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'">
+                <span>{{ choice.1 }}</span>
+                <template x-if="selectedVal == '{{ choice.0 }}'">
+                  <svg class="w-3.5 h-3.5 text-primary-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                </template>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Submit Action -->
     <div class="pt-2 flex items-center justify-end space-x-3">
-      <a href="{% url 'platform:dashboard' %}" class="min-h-[44px] px-5 py-2.5 rounded-xl border border-black/10 dark:border-white/10 text-xs font-semibold text-tapbhoj-muted hover:text-tapbhoj-ink dark:hover:text-tapbhoj-ink-dark flex items-center">
+      <a href="{% url 'platform:stores' %}"
+         class="min-h-[42px] px-5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer">
         Cancel
       </a>
-      <button 
-        type="submit" 
-        class="min-h-[44px] px-7 py-2.5 rounded-xl bg-tapbhoj-brand dark:bg-tapbhoj-brand-dark text-tapbhoj-surface dark:text-tapbhoj-bg-dark font-bold font-heading text-sm shadow-md hover:opacity-95 active:scale-95 transition-all"
-      >
-        Complete Onboarding & Send Credentials
+      <button type="submit"
+              class="min-h-[42px] px-6 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold text-xs shadow-xs flex items-center space-x-2 transition-all cursor-pointer">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        <span>Complete Onboarding &amp; Provision</span>
       </button>
     </div>
 

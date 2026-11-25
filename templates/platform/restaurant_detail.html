@@ -6,97 +6,134 @@
 <div class="space-y-6" x-data="{ activeTab: '{{ active_tab|default:"overview" }}' }">
 
   <!-- Breadcrumbs & Quick Back Link -->
-  <div class="flex items-center space-x-2 text-xs text-slate-500">
-    <a href="{% url 'platform:dashboard' %}" class="flex items-center space-x-1 hover:text-slate-900 dark:hover:text-white font-medium">
-      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-      <span>Stores</span>
+  <div class="flex items-center space-x-2 text-xs">
+    <a 
+      href="{% url 'platform:stores' %}" 
+      class="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-white  border border-slate-200/80  text-slate-600  hover:text-slate-900 :text-white transition-colors shadow-xs"
+    >
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+      <span class="font-semibold">Stores</span>
     </a>
-    <span>/</span>
-    <span class="font-semibold text-slate-900 dark:text-white">{{ restaurant.name }}</span>
+    <span class="text-slate-300 ">/</span>
+    <span class="font-bold text-slate-900  truncate max-w-xs">{{ restaurant.name }}</span>
   </div>
 
   <!-- Top Hero Header -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800 pb-5">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80  pb-5">
     <div>
       <div class="flex items-center space-x-3">
-        <h1 class="text-2xl font-extrabold font-heading text-slate-900 dark:text-white tracking-tight">
+        <h1 class="text-2xl font-black font-heading text-slate-900  tracking-tight">
           {{ restaurant.name }}
         </h1>
         {% if restaurant.status == 'active' %}
-          <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700   border border-emerald-200/80 ">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
             Active
           </span>
         {% else %}
-          <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700   border border-amber-200/80 ">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span>
             Paused
           </span>
         {% endif %}
       </div>
-      <p class="text-xs text-slate-500 mt-1 flex items-center space-x-2">
-        <span>Created: {{ restaurant.created_at|date:"d M, Y" }}</span>
+      
+      <div class="text-xs text-slate-500  mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+        <span class="inline-flex items-center space-x-1">
+          <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          <span>Created {{ restaurant.created_at|date:"d M, Y" }}</span>
+        </span>
         <span>•</span>
-        <a href="{% url 'public:menu' slug=restaurant.slug %}" target="_blank" class="font-mono text-slate-700 dark:text-slate-300 hover:underline">
-          tapbhoj.in/r/{{ restaurant.slug }}/ ↗
+        <a 
+          href="{% url 'public:menu' slug=restaurant.slug %}" 
+          target="_blank" 
+          class="font-mono text-slate-700  hover:text-blue-600 :text-blue-400 transition-colors inline-flex items-center space-x-1"
+        >
+          <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+          <span>tapbhoj.in/r/{{ restaurant.slug }}/</span>
+          <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
         </a>
-      </p>
+      </div>
     </div>
 
     <!-- Header Actions -->
     <div class="flex flex-wrap items-center gap-2.5">
+      
+      <!-- Impersonate Button -->
       <a 
-        href="{% url 'platform:restaurant_assist' pk=restaurant.pk %}" 
-        class="min-h-[40px] px-4 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold font-heading shadow-sm hover:opacity-95 flex items-center space-x-1.5 transition-all"
+        href="{% url 'platform:restaurant_impersonate' pk=restaurant.pk %}" 
+        class="min-h-[40px] px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800  :bg-slate-100 text-white  text-xs font-bold font-heading shadow-sm flex items-center space-x-2 transition-all active:scale-98"
       >
-        <span>Assist Owner ↗</span>
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        <span>Impersonate Owner</span>
       </a>
 
+      <!-- Pause/Activate Button -->
       <a 
         href="{% url 'platform:restaurant_toggle' pk=restaurant.pk %}" 
-        class="min-h-[40px] px-4 py-2 rounded-xl text-xs font-bold font-heading border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center transition-colors"
+        class="min-h-[40px] px-4 py-2 rounded-xl text-xs font-bold font-heading border border-slate-200/80  bg-white  hover:bg-slate-50 :bg-slate-800 text-slate-700  flex items-center space-x-1.5 transition-all shadow-xs"
       >
-        {% if restaurant.status == 'active' %}Pause Store{% else %}Activate Store{% endif %}
+        {% if restaurant.status == 'active' %}
+          <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span>Pause Store</span>
+        {% else %}
+          <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span>Activate Store</span>
+        {% endif %}
       </a>
 
+      <!-- Delete Button -->
       <a 
         href="{% url 'platform:restaurant_delete' pk=restaurant.pk %}" 
-        class="min-h-[40px] px-3.5 py-2 rounded-xl text-xs font-bold font-heading text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 border border-red-200 dark:border-red-900/40 flex items-center transition-colors"
+        class="min-h-[40px] px-3.5 py-2 rounded-xl text-xs font-bold font-heading text-red-600 hover:bg-red-50 :bg-red-950/30 border border-red-200/80  flex items-center space-x-1.5 transition-colors shadow-xs"
       >
-        Delete
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        <span>Delete</span>
       </a>
     </div>
   </div>
 
-  <!-- Main 3-Column Split Layout (Matching Design Reference) -->
+  <!-- Main 3-Column Split Layout -->
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
     <!-- LEFT PROFILE CARD (4 cols on lg) -->
     <div class="lg:col-span-4 space-y-5">
       
       <!-- Store Summary Card -->
-      <div class="bg-white dark:bg-[#1e293b] rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm text-center space-y-4">
+      <div class="bg-white  rounded-2xl p-6 border border-slate-200/80  shadow-sm space-y-5">
         
-        <!-- Large Centered Avatar -->
-        <div class="relative w-20 h-20 mx-auto">
-          {% if restaurant.logo %}
-            <img src="{{ restaurant.logo.url }}" alt="{{ restaurant.name }}" class="w-full h-full rounded-2xl object-cover border border-slate-200 dark:border-slate-700 shadow-sm">
-          {% else %}
-            <div class="w-full h-full rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 flex items-center justify-center font-heading font-extrabold text-2xl shadow-sm">
-              {{ restaurant.name|slice:":1" }}
-            </div>
-          {% endif %}
-        </div>
+        <!-- Large Avatar & Basic Info -->
+        <div class="text-center space-y-3">
+          <div class="relative w-20 h-20 mx-auto">
+            {% if restaurant.logo %}
+              <img src="{{ restaurant.logo.url }}" alt="{{ restaurant.name }}" class="w-full h-full rounded-2xl object-cover border border-slate-200/80  shadow-sm">
+            {% else %}
+              <div class="w-full h-full rounded-2xl bg-gradient-to-tr from-slate-900 to-slate-700   text-white  flex items-center justify-center font-heading font-black text-2xl shadow-md border border-slate-200/60 ">
+                {{ restaurant.name|slice:":1"|upper }}
+              </div>
+            {% endif %}
+          </div>
 
-        <div>
-          <h2 class="text-base font-bold font-heading text-slate-900 dark:text-white">{{ restaurant.name }}</h2>
-          <p class="text-xs text-slate-400 font-mono mt-0.5">Store ID: #{{ restaurant.id }} • {{ restaurant.slug }}</p>
+          <div>
+            <h2 class="text-lg font-extrabold font-heading text-slate-900  leading-tight">
+              {{ restaurant.name }}
+            </h2>
+            <div class="flex items-center justify-center space-x-1.5 mt-1 text-xs text-slate-400">
+              <span class="px-2 py-0.5 rounded-md bg-slate-100  text-[11px] font-mono font-bold text-slate-600 ">
+                ID #{{ restaurant.id }}
+              </span>
+              <span>•</span>
+              <span class="font-mono text-[11px]">{{ restaurant.slug }}</span>
+            </div>
+          </div>
         </div>
 
         <!-- Quick Action Buttons Row -->
-        <div class="flex items-center justify-center space-x-2 pt-1">
+        <div class="grid grid-cols-3 gap-2 pt-1">
           <a 
             href="https://wa.me/{{ restaurant.whatsapp_number }}" 
             target="_blank"
-            class="flex flex-col items-center justify-center w-16 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 transition-colors"
+            class="flex flex-col items-center justify-center py-2.5 rounded-xl bg-emerald-50/80 hover:bg-emerald-100 text-emerald-700   border border-emerald-200/60  transition-all shadow-xs"
             title="Chat on WhatsApp"
           >
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
@@ -104,54 +141,86 @@
           </a>
 
           <a 
-            href="{% url 'platform:restaurant_assist' pk=restaurant.pk %}" 
-            class="flex flex-col items-center justify-center w-16 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200 transition-colors"
-            title="Login as Owner"
+            href="{% url 'platform:restaurant_impersonate' pk=restaurant.pk %}" 
+            class="flex flex-col items-center justify-center py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800   border border-slate-200/80  transition-all shadow-xs"
+            title="Impersonate Owner"
           >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-            <span class="text-[10px] font-bold mt-1">Assist</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            <span class="text-[10px] font-bold mt-1">Impersonate</span>
           </a>
 
           <a 
             href="{% url 'public:menu' slug=restaurant.slug %}" 
             target="_blank"
-            class="flex flex-col items-center justify-center w-16 py-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 transition-colors"
+            class="flex flex-col items-center justify-center py-2.5 rounded-xl bg-blue-50/80 hover:bg-blue-100 text-blue-700   border border-blue-200/60  transition-all shadow-xs"
             title="Open Public Menu"
           >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-            <span class="text-[10px] font-bold mt-1">Menu</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+            <span class="text-[10px] font-bold mt-1">Live Menu</span>
           </a>
         </div>
 
-        <!-- Store Activity Status -->
-        <p class="text-[11px] text-slate-400 font-medium">
-          • Last updated {{ restaurant.updated_at|date:"d M Y at H:i" }}
-        </p>
+        <!-- Store Essentials Structured List -->
+        <div class="border-t border-slate-100  pt-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Store Essentials</p>
+            <span class="text-[10px] text-slate-400 flex items-center space-x-1">
+              <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <span>{{ restaurant.updated_at|date:"d M, H:i" }}</span>
+            </span>
+          </div>
 
-        <!-- Store Info / Activity Timeline -->
-        <div class="border-t border-slate-100 dark:border-slate-800 pt-4 text-left space-y-3 text-xs">
-          <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Store Essentials</p>
-          <div class="space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="text-slate-500">Owner User:</span>
-              <strong class="text-slate-900 dark:text-white">{{ owner.username|default:"Unassigned" }}</strong>
+          <div class="divide-y divide-slate-100  text-xs">
+            
+            <!-- Owner User -->
+            <div class="py-2.5 flex items-center justify-between">
+              <span class="text-slate-500  inline-flex items-center space-x-1.5">
+                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                <span>Owner User</span>
+              </span>
+              <span class="font-bold font-mono text-slate-900 ">{{ owner.username|default:"Unassigned" }}</span>
             </div>
-            <div class="flex items-center justify-between">
-              <span class="text-slate-500">Owner Email:</span>
-              <strong class="text-slate-900 dark:text-white truncate max-w-[150px]">{{ owner.email|default:"None" }}</strong>
+
+            <!-- Owner Email -->
+            <div class="py-2.5 flex items-center justify-between">
+              <span class="text-slate-500  inline-flex items-center space-x-1.5">
+                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                <span>Email</span>
+              </span>
+              <a href="mailto:{{ owner.email }}" class="font-medium text-slate-900  hover:underline truncate max-w-[160px]">
+                {{ owner.email|default:"None" }}
+              </a>
             </div>
-            <div class="flex items-center justify-between">
-              <span class="text-slate-500">Phone:</span>
-              <strong class="text-slate-900 dark:text-white">+{{ restaurant.whatsapp_number }}</strong>
+
+            <!-- Phone -->
+            <div class="py-2.5 flex items-center justify-between">
+              <span class="text-slate-500  inline-flex items-center space-x-1.5">
+                <svg class="w-3.5 h-3.5 text-emerald-600 " fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+                <span>WhatsApp</span>
+              </span>
+              <a href="https://wa.me/{{ restaurant.whatsapp_number }}" target="_blank" class="font-bold text-slate-900  hover:text-emerald-600 transition-colors">
+                +{{ restaurant.whatsapp_number }}
+              </a>
             </div>
-            <div class="flex items-center justify-between">
-              <span class="text-slate-500">Tables:</span>
-              <strong class="text-slate-900 dark:text-white">{{ restaurant.number_of_tables }}</strong>
+
+            <!-- Tables -->
+            <div class="py-2.5 flex items-center justify-between">
+              <span class="text-slate-500  inline-flex items-center space-x-1.5">
+                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                <span>Tables Configured</span>
+              </span>
+              <span class="font-extrabold text-slate-900 ">{{ restaurant.number_of_tables }}</span>
             </div>
-            <div class="flex items-center justify-between">
-              <span class="text-slate-500">Active Plan:</span>
-              <strong class="text-slate-900 dark:text-white">{{ subscription.plan.name|default:"Free Trial" }}</strong>
+
+            <!-- Active Plan -->
+            <div class="py-2.5 flex items-center justify-between">
+              <span class="text-slate-500  inline-flex items-center space-x-1.5">
+                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                <span>Subscription Plan</span>
+              </span>
+              <span class="font-bold text-slate-900 ">{{ subscription.plan.name|default:"Free Trial" }}</span>
             </div>
+
           </div>
         </div>
 
@@ -162,104 +231,172 @@
     <!-- RIGHT WORKSPACE (8 cols on lg) -->
     <div class="lg:col-span-8 space-y-6">
 
-      <!-- Navigation Tabs (Matching Design Reference) -->
-      <div class="flex items-center space-x-6 border-b border-slate-200/80 dark:border-slate-800 text-xs font-semibold overflow-x-auto pb-0.5">
+      <!-- Navigation Tabs (Sleek Underlined Tabs with SVG Icons) -->
+      <div class="flex items-center space-x-6 border-b border-slate-200/80  text-xs font-semibold overflow-x-auto pb-0.5">
+        
         <button 
           type="button" 
           @click="activeTab = 'overview'" 
-          :class="activeTab === 'overview' ? 'border-b-2 border-slate-900 dark:border-white text-slate-900 dark:text-white font-bold' : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
-          class="pb-3 transition-colors whitespace-nowrap"
+          :class="activeTab === 'overview' ? 'border-b-2 border-slate-900  text-slate-900  font-bold' : 'border-transparent text-slate-500 hover:text-slate-800 :text-slate-200'"
+          class="pb-3 transition-colors whitespace-nowrap inline-flex items-center space-x-1.5"
         >
-          Overview
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          <span>Overview</span>
         </button>
+
         <button 
           type="button" 
           @click="activeTab = 'settings'" 
-          :class="activeTab === 'settings' ? 'border-b-2 border-slate-900 dark:border-white text-slate-900 dark:text-white font-bold' : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
-          class="pb-3 transition-colors whitespace-nowrap"
+          :class="activeTab === 'settings' ? 'border-b-2 border-slate-900  text-slate-900  font-bold' : 'border-transparent text-slate-500 hover:text-slate-800 :text-slate-200'"
+          class="pb-3 transition-colors whitespace-nowrap inline-flex items-center space-x-1.5"
         >
-          Store & Accounts
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span>Store & Accounts</span>
         </button>
+
         <button 
           type="button" 
           @click="activeTab = 'menu'" 
-          :class="activeTab === 'menu' ? 'border-b-2 border-slate-900 dark:border-white text-slate-900 dark:text-white font-bold' : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
+          :class="activeTab === 'menu' ? 'border-b-2 border-slate-900  text-slate-900  font-bold' : 'border-transparent text-slate-500 hover:text-slate-800 :text-slate-200'"
           class="pb-3 transition-colors whitespace-nowrap flex items-center space-x-1.5"
         >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
           <span>Menu Inspector</span>
-          <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">{{ total_items_count }}</span>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100  text-slate-700 ">{{ total_items_count }}</span>
         </button>
+
         <button 
           type="button" 
           @click="activeTab = 'orders'" 
-          :class="activeTab === 'orders' ? 'border-b-2 border-slate-900 dark:border-white text-slate-900 dark:text-white font-bold' : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
+          :class="activeTab === 'orders' ? 'border-b-2 border-slate-900  text-slate-900  font-bold' : 'border-transparent text-slate-500 hover:text-slate-800 :text-slate-200'"
           class="pb-3 transition-colors whitespace-nowrap flex items-center space-x-1.5"
         >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
           <span>Recent Orders</span>
-          <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">{{ orders_count }}</span>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100  text-slate-700 ">{{ orders_count }}</span>
         </button>
+
         <button 
           type="button" 
           @click="activeTab = 'subscription'" 
-          :class="activeTab === 'subscription' ? 'border-b-2 border-slate-900 dark:border-white text-slate-900 dark:text-white font-bold' : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
-          class="pb-3 transition-colors whitespace-nowrap"
+          :class="activeTab === 'subscription' ? 'border-b-2 border-slate-900  text-slate-900  font-bold' : 'border-transparent text-slate-500 hover:text-slate-800 :text-slate-200'"
+          class="pb-3 transition-colors whitespace-nowrap inline-flex items-center space-x-1.5"
         >
-          Subscription
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+          <span>Subscription</span>
         </button>
+
       </div>
 
       <!-- TAB 1: OVERVIEW -->
       <div x-show="activeTab === 'overview'" x-cloak class="space-y-6">
         
-        <!-- KPI Metric Cards (Matching Screenshot) -->
-        <div class="grid grid-cols-3 gap-4">
-          <div class="bg-white dark:bg-[#1e293b] rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1">
-            <p class="text-[11px] font-medium text-slate-400">Total Recorded Orders</p>
-            <p class="text-3xl font-extrabold font-heading text-slate-900 dark:text-white">{{ orders_count }}</p>
-            <p class="text-[10px] text-slate-400">WhatsApp orders logged</p>
+        <!-- KPI Metric Cards (Modern SaaS with SVG Badges) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          
+          <!-- Orders -->
+          <div class="bg-white  rounded-2xl p-5 border border-slate-200/80  shadow-sm flex items-center justify-between">
+            <div class="space-y-1">
+              <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Recorded Orders</p>
+              <p class="text-3xl font-black font-heading text-slate-900 ">{{ orders_count }}</p>
+              <p class="text-[10px] text-slate-400 font-medium">WhatsApp orders logged</p>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-slate-100  text-slate-700  flex items-center justify-center flex-shrink-0 shadow-xs">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+            </div>
           </div>
 
-          <div class="bg-white dark:bg-[#1e293b] rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1">
-            <p class="text-[11px] font-medium text-slate-400">Recorded Revenue</p>
-            <p class="text-3xl font-extrabold font-heading text-slate-900 dark:text-white">₹{{ orders_total|floatformat:0 }}</p>
-            <p class="text-[10px] text-emerald-600 font-medium">Gross table order value</p>
+          <!-- Revenue -->
+          <div class="bg-white  rounded-2xl p-5 border border-slate-200/80  shadow-sm flex items-center justify-between">
+            <div class="space-y-1">
+              <p class="text-[11px] font-bold uppercase tracking-wider text-emerald-600 ">Gross Revenue</p>
+              <p class="text-3xl font-black font-heading text-slate-900 ">₹{{ orders_total|floatformat:0 }}</p>
+              <p class="text-[10px] text-emerald-600  font-medium">Gross table order value</p>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-emerald-50  text-emerald-600  flex items-center justify-center flex-shrink-0 shadow-xs">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
           </div>
 
-          <div class="bg-white dark:bg-[#1e293b] rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-1">
-            <p class="text-[11px] font-medium text-slate-400">Active Days Left</p>
-            <p class="text-3xl font-extrabold font-heading text-slate-900 dark:text-white">{{ subscription.days_remaining }}</p>
-            <p class="text-[10px] text-blue-600 font-medium">{{ subscription.get_status_display }}</p>
+          <!-- Active Days -->
+          <div class="bg-white  rounded-2xl p-5 border border-slate-200/80  shadow-sm flex items-center justify-between">
+            <div class="space-y-1">
+              <p class="text-[11px] font-bold uppercase tracking-wider text-blue-600 ">Subscription</p>
+              <p class="text-3xl font-black font-heading text-slate-900 ">{{ subscription.days_remaining }}<span class="text-sm font-semibold text-slate-400 ml-1">days</span></p>
+              <p class="text-[10px] text-blue-600  font-medium">{{ subscription.get_status_display }}</p>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-blue-50  text-blue-600  flex items-center justify-center flex-shrink-0 shadow-xs">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            </div>
           </div>
+
         </div>
 
-        <!-- Quick Summary List -->
-        <div class="bg-white dark:bg-[#1e293b] rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
-          <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-            <h3 class="text-sm font-bold font-heading text-slate-900 dark:text-white">
-              Menu & Table Configuration
-            </h3>
-            <a href="{% url 'public:menu' slug=restaurant.slug %}" target="_blank" class="text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
-              Preview Digital Menu ↗
+        <!-- Menu & Table Configuration Card -->
+        <div class="bg-white  rounded-2xl p-6 border border-slate-200/80  shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100  pb-3">
+            <div class="flex items-center space-x-2">
+              <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+              <h3 class="text-sm font-bold font-heading text-slate-900 ">
+                Menu & Table Configuration
+              </h3>
+            </div>
+            <a 
+              href="{% url 'public:menu' slug=restaurant.slug %}" 
+              target="_blank" 
+              class="text-xs font-semibold text-slate-600 hover:text-slate-900  :text-white inline-flex items-center space-x-1"
+            >
+              <span>Preview Digital Menu</span>
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
             </a>
           </div>
 
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-              <span class="text-slate-400">Tables Set</span>
-              <p class="text-lg font-bold mt-0.5">{{ restaurant.number_of_tables }}</p>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            
+            <!-- Tables Set -->
+            <div class="p-4 rounded-xl bg-slate-50  border border-slate-100  flex items-center justify-between">
+              <div>
+                <span class="text-slate-400 font-medium">Tables</span>
+                <p class="text-xl font-black font-heading mt-0.5 text-slate-900 ">{{ restaurant.number_of_tables }}</p>
+              </div>
+              <div class="w-8 h-8 rounded-lg bg-slate-200/60  text-slate-600  flex items-center justify-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+              </div>
             </div>
-            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-              <span class="text-slate-400">Categories</span>
-              <p class="text-lg font-bold mt-0.5">{{ categories.count }}</p>
+
+            <!-- Categories -->
+            <div class="p-4 rounded-xl bg-slate-50  border border-slate-100  flex items-center justify-between">
+              <div>
+                <span class="text-slate-400 font-medium">Categories</span>
+                <p class="text-xl font-black font-heading mt-0.5 text-slate-900 ">{{ categories.count }}</p>
+              </div>
+              <div class="w-8 h-8 rounded-lg bg-slate-200/60  text-slate-600  flex items-center justify-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+              </div>
             </div>
-            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-              <span class="text-slate-400">Dishes</span>
-              <p class="text-lg font-bold mt-0.5">{{ total_items_count }}</p>
+
+            <!-- Dishes -->
+            <div class="p-4 rounded-xl bg-slate-50  border border-slate-100  flex items-center justify-between">
+              <div>
+                <span class="text-slate-400 font-medium">Dishes</span>
+                <p class="text-xl font-black font-heading mt-0.5 text-slate-900 ">{{ total_items_count }}</p>
+              </div>
+              <div class="w-8 h-8 rounded-lg bg-slate-200/60  text-slate-600  flex items-center justify-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+              </div>
             </div>
-            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-              <span class="text-slate-400">NFC / QR Link</span>
-              <p class="text-xs font-mono font-bold mt-1 truncate">/r/{{ restaurant.slug }}/</p>
+
+            <!-- QR / Public Link -->
+            <div class="p-4 rounded-xl bg-slate-50  border border-slate-100  flex items-center justify-between">
+              <div class="truncate">
+                <span class="text-slate-400 font-medium">Public Slug</span>
+                <p class="text-xs font-mono font-bold mt-1 text-slate-900  truncate">/r/{{ restaurant.slug }}/</p>
+              </div>
+              <div class="w-8 h-8 rounded-lg bg-slate-200/60  text-slate-600  flex items-center justify-center flex-shrink-0 ml-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+              </div>
             </div>
+
           </div>
         </div>
 
@@ -270,54 +407,105 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
           <!-- Edit Store Profile -->
-          <div class="bg-white dark:bg-[#1e293b] rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
-            <h3 class="text-sm font-bold font-heading text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2">
-              Edit Store Profile
-            </h3>
+          <div class="bg-white  rounded-2xl p-6 border border-slate-200/80  shadow-sm space-y-4">
+            <div class="flex items-center space-x-2 border-b border-slate-100  pb-3">
+              <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+              <h3 class="text-sm font-bold font-heading text-slate-900 ">
+                Edit Store Profile
+              </h3>
+            </div>
 
-            <form method="post" class="space-y-3">
+            <form method="post" class="space-y-3 text-xs">
               {% csrf_token %}
               <input type="hidden" name="action" value="update_restaurant">
 
               <div class="space-y-1">
-                <label class="block text-xs font-semibold text-slate-500">Restaurant Name</label>
+                <label class="block font-semibold text-slate-500">Restaurant Name</label>
                 {{ restaurant_form.name }}
               </div>
 
               <div class="grid grid-cols-2 gap-3">
                 <div class="space-y-1">
-                  <label class="block text-xs font-semibold text-slate-500">URL Slug</label>
+                  <label class="block font-semibold text-slate-500">URL Slug</label>
                   {{ restaurant_form.slug }}
                 </div>
                 <div class="space-y-1">
-                  <label class="block text-xs font-semibold text-slate-500">WhatsApp (no +)</label>
+                  <label class="block font-semibold text-slate-500">WhatsApp (no +)</label>
                   {{ restaurant_form.whatsapp_number }}
                 </div>
               </div>
 
               <div class="grid grid-cols-2 gap-3">
                 <div class="space-y-1">
-                  <label class="block text-xs font-semibold text-slate-500">Tables</label>
+                  <label class="block font-semibold text-slate-500">Tables Count</label>
                   {{ restaurant_form.number_of_tables }}
                 </div>
-                <div class="space-y-1">
-                  <label class="block text-xs font-semibold text-slate-500">Status</label>
-                  {{ restaurant_form.status }}
+                <div class="space-y-1" x-data="{
+                    open: false,
+                    selectedVal: '{{ restaurant_form.status.value|default:restaurant.status }}',
+                    selectedLabel: '{% for choice in restaurant_form.status.field.choices %}{% if choice.0|stringformat:'s' == restaurant_form.status.value|stringformat:'s' %}{{ choice.1|escapejs }}{% endif %}{% endfor %}' || '{{ restaurant.get_status_display }}'
+                }">
+                  <label class="block font-semibold text-slate-500">Status</label>
+                  <div class="relative">
+                    <input type="hidden" name="status" :value="selectedVal">
+                    <button type="button" 
+                            @click="open = !open" 
+                            @keydown.escape.window="open = false"
+                            class="w-full min-h-[38px] px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-900 flex items-center justify-between hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 shadow-xs transition-all cursor-pointer">
+                      <div class="flex items-center space-x-2 truncate">
+                        <span class="w-2 h-2 rounded-full" :class="{
+                          'bg-emerald-500': selectedVal === 'active',
+                          'bg-blue-500': selectedVal === 'trial',
+                          'bg-amber-500': selectedVal === 'paused',
+                          'bg-rose-500': selectedVal === 'expired'
+                        }"></span>
+                        <span class="truncate" x-text="selectedLabel"></span>
+                      </div>
+                      <svg class="w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0 ml-2" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                      </svg>
+                    </button>
+
+                    <div x-show="open" 
+                         @click.outside="open = false" 
+                         x-cloak 
+                         x-transition:enter="transition ease-out duration-100" 
+                         x-transition:enter-start="opacity-0 translate-y-1 scale-98" 
+                         x-transition:enter-end="opacity-100 translate-y-0 scale-100" 
+                         x-transition:leave="transition ease-in duration-75" 
+                         x-transition:leave-start="opacity-100 translate-y-0 scale-100" 
+                         x-transition:leave-end="opacity-0 translate-y-1 scale-98" 
+                         class="absolute left-0 right-0 z-50 mt-1.5 bg-white rounded-xl border border-slate-200/90 shadow-xl py-1 max-h-60 overflow-y-auto">
+                      {% for choice in restaurant_form.status.field.choices %}
+                      <div @click="selectedVal = '{{ choice.0 }}'; selectedLabel = '{{ choice.1|escapejs }}'; open = false"
+                           class="px-3.5 py-2 text-xs flex items-center justify-between cursor-pointer transition-colors"
+                           :class="selectedVal == '{{ choice.0 }}' ? 'bg-primary-50 text-primary-700 font-bold' : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'">
+                        <div class="flex items-center space-x-2">
+                          <span class="w-2 h-2 rounded-full {% if choice.0 == 'active' %}bg-emerald-500{% elif choice.0 == 'trial' %}bg-blue-500{% elif choice.0 == 'paused' %}bg-amber-500{% else %}bg-rose-500{% endif %}"></span>
+                          <span>{{ choice.1 }}</span>
+                        </div>
+                        <template x-if="selectedVal == '{{ choice.0 }}'">
+                          <svg class="w-3.5 h-3.5 text-primary-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                        </template>
+                      </div>
+                      {% endfor %}
+                    </div>
+                  </div>
                 </div>
               </div>
 
               <div class="space-y-1">
-                <label class="block text-xs font-semibold text-slate-500">Address</label>
+                <label class="block font-semibold text-slate-500">Physical Address</label>
                 {{ restaurant_form.address }}
               </div>
 
               <div class="space-y-1">
-                <label class="block text-xs font-semibold text-slate-500">Google Review URL</label>
+                <label class="block font-semibold text-slate-500">Google Review URL</label>
                 {{ restaurant_form.google_review_url }}
               </div>
 
               <div class="pt-2 flex justify-end">
-                <button type="submit" class="min-h-[40px] px-5 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold font-heading shadow-sm hover:opacity-95">
+                <button type="submit" class="min-h-[40px] px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800  :bg-slate-100 text-white  text-xs font-bold font-heading shadow-sm transition-all">
                   Save Store Details
                 </button>
               </div>
@@ -326,34 +514,37 @@
 
           <!-- Edit Owner Account & Password -->
           <div class="space-y-6">
-            <div class="bg-white dark:bg-[#1e293b] rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
-              <h3 class="text-sm font-bold font-heading text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2">
-                Owner Account & Password Reset
-              </h3>
+            <div class="bg-white  rounded-2xl p-6 border border-slate-200/80  shadow-sm space-y-4">
+              <div class="flex items-center space-x-2 border-b border-slate-100  pb-3">
+                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                <h3 class="text-sm font-bold font-heading text-slate-900 ">
+                  Owner Account & Security
+                </h3>
+              </div>
 
               {% if owner %}
-                <form method="post" class="space-y-3">
+                <form method="post" class="space-y-3 text-xs">
                   {% csrf_token %}
                   <input type="hidden" name="action" value="update_owner">
 
                   <div class="space-y-1">
-                    <label class="block text-xs font-semibold text-slate-500">Username (Fixed)</label>
-                    <input type="text" value="{{ owner.username }}" disabled class="w-full text-sm rounded-xl px-3.5 py-2 bg-slate-100 dark:bg-slate-800 border-none text-slate-400 cursor-not-allowed">
+                    <label class="block font-semibold text-slate-500">Username (Fixed)</label>
+                    <input type="text" value="{{ owner.username }}" disabled class="w-full text-xs rounded-xl px-3.5 py-2 bg-slate-100  border-none text-slate-400 cursor-not-allowed font-mono">
                   </div>
 
                   <div class="space-y-1">
-                    <label class="block text-xs font-semibold text-slate-500">Owner Email</label>
+                    <label class="block font-semibold text-slate-500">Owner Email</label>
                     {{ owner_form.email }}
                   </div>
 
                   <div class="space-y-1">
-                    <label class="block text-xs font-semibold text-slate-500">Reset Password</label>
+                    <label class="block font-semibold text-slate-500">Reset Password</label>
                     {{ owner_form.new_password }}
                     <p class="text-[10px] text-slate-400">Leave blank to keep existing password.</p>
                   </div>
 
                   <div class="pt-2 flex justify-end">
-                    <button type="submit" class="min-h-[40px] px-5 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold font-heading shadow-sm hover:opacity-95">
+                    <button type="submit" class="min-h-[40px] px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800  :bg-slate-100 text-white  text-xs font-bold font-heading shadow-sm transition-all">
                       Save Owner Account
                     </button>
                   </div>
@@ -364,18 +555,21 @@
             </div>
 
             <!-- Danger Zone -->
-            <div class="bg-red-50/40 dark:bg-red-950/20 rounded-2xl p-6 border border-red-200/80 dark:border-red-900/40 space-y-3">
-              <h3 class="text-sm font-bold font-heading text-red-600 dark:text-red-400 border-b border-red-200/60 pb-2">
-                Danger Zone
-              </h3>
+            <div class="bg-red-50/50  rounded-2xl p-6 border border-red-200/80  space-y-3">
+              <div class="flex items-center space-x-2 text-red-600  border-b border-red-200/60  pb-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                <h3 class="text-sm font-bold font-heading">
+                  Danger Zone
+                </h3>
+              </div>
               <div class="flex items-center justify-between text-xs pt-1">
                 <div>
-                  <p class="font-bold text-slate-900 dark:text-white">Purge Test Orders</p>
-                  <p class="text-[10px] text-slate-400">Clear all recorded orders for this store.</p>
+                  <p class="font-bold text-slate-900 ">Purge Test Orders</p>
+                  <p class="text-[11px] text-slate-500">Delete all recorded orders for this restaurant.</p>
                 </div>
                 <form method="post" action="{% url 'platform:restaurant_clear_orders' pk=restaurant.pk %}" onsubmit="return confirm('Purge test orders?');">
                   {% csrf_token %}
-                  <button type="submit" class="px-3 py-1.5 rounded-xl border border-red-300 dark:border-red-800 text-red-600 font-semibold hover:bg-red-100">
+                  <button type="submit" class="px-3.5 py-1.5 rounded-xl border border-red-300  text-red-600 font-bold hover:bg-red-100 :bg-red-950/50 transition-colors">
                     Purge
                   </button>
                 </form>
@@ -391,29 +585,30 @@
         
         <div class="flex items-center justify-between">
           <div>
-            <h3 class="text-base font-bold font-heading text-slate-900 dark:text-white">Categories & Dishes</h3>
-            <p class="text-xs text-slate-400">Manage dish availability directly or assist owner to edit items.</p>
+            <h3 class="text-base font-bold font-heading text-slate-900 ">Categories & Dishes</h3>
+            <p class="text-xs text-slate-400">Manage dish availability directly or impersonate owner to edit items.</p>
           </div>
           <a 
-            href="{% url 'platform:restaurant_assist' pk=restaurant.pk %}" 
-            class="text-xs font-bold text-slate-900 dark:text-white hover:underline flex items-center space-x-1"
+            href="{% url 'platform:restaurant_impersonate' pk=restaurant.pk %}" 
+            class="text-xs font-bold text-slate-900  hover:underline inline-flex items-center space-x-1"
           >
-            <span>Open Menu Manager ↗</span>
+            <span>Open Menu Manager</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
           </a>
         </div>
 
         {% for category in categories %}
-          <div class="bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
+          <div class="bg-white  rounded-2xl border border-slate-200/80  shadow-sm overflow-hidden">
             
-            <div class="p-4 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-              <h4 class="font-bold text-xs font-heading text-slate-900 dark:text-white">{{ category.name }}</h4>
-              <span class="text-[11px] text-slate-400">{{ category.items.count }} items</span>
+            <div class="p-4 bg-slate-50/80  border-b border-slate-100  flex items-center justify-between">
+              <h4 class="font-bold text-xs font-heading text-slate-900 ">{{ category.name }}</h4>
+              <span class="text-[11px] text-slate-400 font-medium">{{ category.items.count }} items</span>
             </div>
 
-            <!-- Dish Rows (Document List Style from Reference) -->
-            <div class="divide-y divide-slate-100 dark:divide-slate-800">
+            <!-- Dish Rows -->
+            <div class="divide-y divide-slate-100 ">
               {% for item in category.items.all %}
-                <div class="p-3.5 flex items-center justify-between text-xs hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                <div class="p-3.5 flex items-center justify-between text-xs hover:bg-slate-50/50 :bg-slate-800/30 transition-colors">
                   
                   <div class="flex items-center space-x-3">
                     {% if item.is_veg %}
@@ -427,9 +622,9 @@
                     {% endif %}
 
                     <div>
-                      <span class="font-bold text-slate-900 dark:text-white">{{ item.name }}</span>
+                      <span class="font-bold text-slate-900 ">{{ item.name }}</span>
                       {% if item.tags %}
-                        <span class="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 font-semibold">{{ item.tags }}</span>
+                        <span class="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-slate-100  text-slate-500 font-semibold">{{ item.tags }}</span>
                       {% endif %}
                       {% if item.description %}
                         <p class="text-[11px] text-slate-400 truncate max-w-sm">{{ item.description }}</p>
@@ -438,10 +633,10 @@
                   </div>
 
                   <div class="flex items-center space-x-4">
-                    <span class="font-bold font-mono text-slate-900 dark:text-white">₹{{ item.price|floatformat:0 }}</span>
+                    <span class="font-bold font-mono text-slate-900 ">₹{{ item.price|floatformat:0 }}</span>
                     <a 
                       href="{% url 'platform:item_toggle' pk=item.pk %}" 
-                      class="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-colors {% if item.is_available %}bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 hover:bg-emerald-200{% else %}bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 hover:bg-amber-200{% endif %}"
+                      class="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-colors {% if item.is_available %}bg-emerald-100 text-emerald-800   hover:bg-emerald-200{% else %}bg-amber-100 text-amber-800   hover:bg-amber-200{% endif %}"
                     >
                       {% if item.is_available %}Available{% else %}Sold Out{% endif %}
                     </a>
@@ -455,7 +650,8 @@
 
           </div>
         {% empty %}
-          <div class="p-12 text-center bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200/80 dark:border-slate-800">
+          <div class="p-12 text-center bg-white  rounded-2xl border border-slate-200/80 ">
+            <svg class="w-8 h-8 text-slate-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
             <p class="text-sm font-semibold">No menu categories yet.</p>
           </div>
         {% endfor %}
@@ -466,22 +662,22 @@
       <div x-show="activeTab === 'orders'" x-cloak class="space-y-4">
         
         <div class="flex items-center justify-between">
-          <h3 class="text-base font-bold font-heading text-slate-900 dark:text-white">Orders Logged</h3>
+          <h3 class="text-base font-bold font-heading text-slate-900 ">Orders Logged</h3>
           {% if orders %}
             <form method="post" action="{% url 'platform:restaurant_clear_orders' pk=restaurant.pk %}" onsubmit="return confirm('Purge orders?');">
               {% csrf_token %}
               <button type="submit" class="px-3 py-1.5 rounded-xl border border-red-300 text-red-600 text-xs font-semibold hover:bg-red-50">
-                Purge
+                Purge Orders
               </button>
             </form>
           {% endif %}
         </div>
 
-        <div class="bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="bg-white  rounded-2xl border border-slate-200/80  shadow-sm overflow-hidden">
           {% if orders %}
             <div class="overflow-x-auto">
               <table class="w-full text-left text-xs">
-                <thead class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                <thead class="bg-slate-50/80  border-b border-slate-100  text-[10px] uppercase font-bold text-slate-400 tracking-wider">
                   <tr>
                     <th class="py-3 px-4">Time</th>
                     <th class="py-3 px-4">Table</th>
@@ -490,9 +686,9 @@
                     <th class="py-3 px-4 text-center">Status</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                <tbody class="divide-y divide-slate-100 ">
                   {% for order in orders %}
-                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
+                    <tr class="hover:bg-slate-50/50 :bg-slate-800/30">
                       <td class="py-3 px-4 whitespace-nowrap text-slate-400 font-mono text-[11px]">{{ order.created_at|date:"d M, H:i" }}</td>
                       <td class="py-3 px-4 whitespace-nowrap font-bold">Table {{ order.table_number }}</td>
                       <td class="py-3 px-4 max-w-xs truncate">{{ order.items_summary }}</td>
@@ -506,7 +702,10 @@
               </table>
             </div>
           {% else %}
-            <div class="p-12 text-center text-xs text-slate-400">No orders logged yet.</div>
+            <div class="p-12 text-center text-xs text-slate-400">
+              <svg class="w-8 h-8 text-slate-300  mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+              No orders logged yet.
+            </div>
           {% endif %}
         </div>
 
@@ -514,39 +713,130 @@
 
       <!-- TAB 5: SUBSCRIPTION -->
       <div x-show="activeTab === 'subscription'" x-cloak class="space-y-6">
-        <div class="bg-white dark:bg-[#1e293b] rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
-          <h3 class="text-sm font-bold font-heading text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2">
-            Subscription Lifecycle Settings
-          </h3>
+        <div class="bg-white  rounded-2xl p-6 border border-slate-200/80  shadow-sm space-y-4">
+          <div class="flex items-center space-x-2 border-b border-slate-100  pb-3">
+            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+            <h3 class="text-sm font-bold font-heading text-slate-900 ">
+              Subscription Lifecycle Settings
+            </h3>
+          </div>
 
-          <form method="post" class="space-y-4">
+          <form method="post" class="space-y-4 text-xs">
             {% csrf_token %}
             <input type="hidden" name="action" value="update_subscription">
 
             <div class="grid grid-cols-2 gap-4">
-              <div class="space-y-1.5">
-                <label class="block text-xs font-semibold text-slate-500">Plan</label>
-                {{ sub_form.plan }}
+              <!-- Custom Plan Dropdown -->
+              <div class="space-y-1.5" x-data="{
+                  open: false,
+                  selectedVal: '{{ sub_form.plan.value|default:'' }}',
+                  selectedLabel: '{% for choice in sub_form.plan.field.choices %}{% if choice.0|stringformat:'s' == sub_form.plan.value|stringformat:'s' %}{{ choice.1|escapejs }}{% endif %}{% endfor %}' || '- Select Plan -'
+              }">
+                <label class="block font-semibold text-slate-500">Plan</label>
+                <div class="relative">
+                  <input type="hidden" name="plan" :value="selectedVal">
+                  <button type="button" 
+                          @click="open = !open" 
+                          @keydown.escape.window="open = false"
+                          class="w-full min-h-[42px] px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-900 flex items-center justify-between hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 shadow-xs transition-all cursor-pointer">
+                    <span class="truncate" x-text="selectedLabel"></span>
+                    <svg class="w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0 ml-2" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                  </button>
+
+                  <div x-show="open" 
+                       @click.outside="open = false" 
+                       x-cloak 
+                       x-transition:enter="transition ease-out duration-100" 
+                       x-transition:enter-start="opacity-0 translate-y-1 scale-98" 
+                       x-transition:enter-end="opacity-100 translate-y-0 scale-100" 
+                       x-transition:leave="transition ease-in duration-75" 
+                       x-transition:leave-start="opacity-100 translate-y-0 scale-100" 
+                       x-transition:leave-end="opacity-0 translate-y-1 scale-98" 
+                       class="absolute left-0 right-0 z-50 mt-1.5 bg-white rounded-xl border border-slate-200/90 shadow-xl py-1 max-h-60 overflow-y-auto">
+                    {% for choice in sub_form.plan.field.choices %}
+                    <div @click="selectedVal = '{{ choice.0 }}'; selectedLabel = '{{ choice.1|escapejs }}'; open = false"
+                         class="px-3.5 py-2.5 text-xs flex items-center justify-between cursor-pointer transition-colors"
+                         :class="selectedVal == '{{ choice.0 }}' ? 'bg-primary-50 text-primary-700 font-bold' : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'">
+                      <span>{{ choice.1 }}</span>
+                      <template x-if="selectedVal == '{{ choice.0 }}'">
+                        <svg class="w-3.5 h-3.5 text-primary-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                      </template>
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
               </div>
-              <div class="space-y-1.5">
-                <label class="block text-xs font-semibold text-slate-500">Status</label>
-                {{ sub_form.status }}
+
+              <!-- Custom Status Dropdown -->
+              <div class="space-y-1.5" x-data="{
+                  open: false,
+                  selectedVal: '{{ sub_form.status.value|default:'active' }}',
+                  selectedLabel: '{% for choice in sub_form.status.field.choices %}{% if choice.0|stringformat:'s' == sub_form.status.value|stringformat:'s' %}{{ choice.1|escapejs }}{% endif %}{% endfor %}' || 'Active'
+              }">
+                <label class="block font-semibold text-slate-500">Status</label>
+                <div class="relative">
+                  <input type="hidden" name="status" :value="selectedVal">
+                  <button type="button" 
+                          @click="open = !open" 
+                          @keydown.escape.window="open = false"
+                          class="w-full min-h-[42px] px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-900 flex items-center justify-between hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 shadow-xs transition-all cursor-pointer">
+                    <div class="flex items-center space-x-2 truncate">
+                      <span class="w-2 h-2 rounded-full" :class="{
+                        'bg-emerald-500': selectedVal === 'active',
+                        'bg-blue-500': selectedVal === 'trialing',
+                        'bg-amber-500': selectedVal === 'past_due',
+                        'bg-rose-500': selectedVal === 'canceled'
+                      }"></span>
+                      <span class="truncate" x-text="selectedLabel"></span>
+                    </div>
+                    <svg class="w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0 ml-2" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                  </button>
+
+                  <div x-show="open" 
+                       @click.outside="open = false" 
+                       x-cloak 
+                       x-transition:enter="transition ease-out duration-100" 
+                       x-transition:enter-start="opacity-0 translate-y-1 scale-98" 
+                       x-transition:enter-end="opacity-100 translate-y-0 scale-100" 
+                       x-transition:leave="transition ease-in duration-75" 
+                       x-transition:leave-start="opacity-100 translate-y-0 scale-100" 
+                       x-transition:leave-end="opacity-0 translate-y-1 scale-98" 
+                       class="absolute left-0 right-0 z-50 mt-1.5 bg-white rounded-xl border border-slate-200/90 shadow-xl py-1 max-h-60 overflow-y-auto">
+                    {% for choice in sub_form.status.field.choices %}
+                    <div @click="selectedVal = '{{ choice.0 }}'; selectedLabel = '{{ choice.1|escapejs }}'; open = false"
+                         class="px-3.5 py-2.5 text-xs flex items-center justify-between cursor-pointer transition-colors"
+                         :class="selectedVal == '{{ choice.0 }}' ? 'bg-primary-50 text-primary-700 font-bold' : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'">
+                      <div class="flex items-center space-x-2">
+                        <span class="w-2 h-2 rounded-full {% if choice.0 == 'active' %}bg-emerald-500{% elif choice.0 == 'trialing' %}bg-blue-500{% elif choice.0 == 'past_due' %}bg-amber-500{% else %}bg-rose-500{% endif %}"></span>
+                        <span>{{ choice.1 }}</span>
+                      </div>
+                      <template x-if="selectedVal == '{{ choice.0 }}'">
+                        <svg class="w-3.5 h-3.5 text-primary-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                      </template>
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
               </div>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
               <div class="space-y-1.5">
-                <label class="block text-xs font-semibold text-slate-500">Trial End Date</label>
+                <label class="block font-semibold text-slate-500">Trial End Date</label>
                 {{ sub_form.trial_end }}
               </div>
               <div class="space-y-1.5">
-                <label class="block text-xs font-semibold text-slate-500">Current Period End</label>
+                <label class="block font-semibold text-slate-500">Current Period End</label>
                 {{ sub_form.current_period_end }}
               </div>
             </div>
 
             <div class="pt-2 flex justify-end">
-              <button type="submit" class="min-h-[40px] px-5 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold font-heading shadow-md hover:opacity-95">
+              <button type="submit" class="min-h-[42px] px-6 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold shadow-xs active:scale-95 transition-all cursor-pointer">
                 Update Subscription
               </button>
             </div>

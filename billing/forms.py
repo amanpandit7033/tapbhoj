@@ -9,7 +9,7 @@ class RestaurantOnboardForm(forms.Form):
     restaurant_name = forms.CharField(
         max_length=150,
         widget=forms.TextInput(attrs={
-            'class': 'w-full text-sm rounded-xl px-3.5 py-2.5 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark focus:ring-2 focus:ring-tapbhoj-brand dark:focus:ring-tapbhoj-accent focus:outline-none',
+            'class': 'w-full text-xs rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all shadow-xs',
             'placeholder': 'e.g. Royal Punjab Dhaba'
         })
     )
@@ -17,7 +17,7 @@ class RestaurantOnboardForm(forms.Form):
         max_length=150,
         help_text='Unique URL identifier: tapbhoj.in/r/<slug>/',
         widget=forms.TextInput(attrs={
-            'class': 'w-full text-sm rounded-xl px-3.5 py-2.5 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark focus:ring-2 focus:ring-tapbhoj-brand dark:focus:ring-tapbhoj-accent focus:outline-none',
+            'class': 'w-full text-xs font-mono rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all shadow-xs',
             'placeholder': 'royal-punjab-dhaba'
         })
     )
@@ -25,7 +25,7 @@ class RestaurantOnboardForm(forms.Form):
         max_length=20,
         help_text='With country code, no + or spaces (e.g. 919876543210)',
         widget=forms.TextInput(attrs={
-            'class': 'w-full text-sm rounded-xl px-3.5 py-2.5 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark focus:ring-2 focus:ring-tapbhoj-brand dark:focus:ring-tapbhoj-accent focus:outline-none',
+            'class': 'w-full text-xs font-mono rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all shadow-xs',
             'placeholder': '919876543210'
         })
     )
@@ -34,13 +34,13 @@ class RestaurantOnboardForm(forms.Form):
         min_value=1,
         max_value=200,
         widget=forms.NumberInput(attrs={
-            'class': 'w-full text-sm rounded-xl px-3.5 py-2.5 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark focus:ring-2 focus:ring-tapbhoj-brand dark:focus:ring-tapbhoj-accent focus:outline-none'
+            'class': 'w-full text-xs rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all shadow-xs'
         })
     )
     address = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={
-            'class': 'w-full text-sm rounded-xl px-3.5 py-2.5 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark focus:ring-2 focus:ring-tapbhoj-brand dark:focus:ring-tapbhoj-accent focus:outline-none',
+            'class': 'w-full text-xs rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all shadow-xs',
             'placeholder': 'e.g. Shop 12, Market Complex'
         })
     )
@@ -49,19 +49,19 @@ class RestaurantOnboardForm(forms.Form):
     owner_username = forms.CharField(
         max_length=150,
         widget=forms.TextInput(attrs={
-            'class': 'w-full text-sm rounded-xl px-3.5 py-2.5 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark focus:ring-2 focus:ring-tapbhoj-brand dark:focus:ring-tapbhoj-accent focus:outline-none',
+            'class': 'w-full text-xs font-mono rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all shadow-xs',
             'placeholder': 'e.g. royalpunjab'
         })
     )
     owner_email = forms.EmailField(
         widget=forms.EmailInput(attrs={
-            'class': 'w-full text-sm rounded-xl px-3.5 py-2.5 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark focus:ring-2 focus:ring-tapbhoj-brand dark:focus:ring-tapbhoj-accent focus:outline-none',
+            'class': 'w-full text-xs rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all shadow-xs',
             'placeholder': 'owner@example.com'
         })
     )
     owner_password = forms.CharField(
         widget=forms.PasswordInput(attrs={
-            'class': 'w-full text-sm rounded-xl px-3.5 py-2.5 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark focus:ring-2 focus:ring-tapbhoj-brand dark:focus:ring-tapbhoj-accent focus:outline-none',
+            'class': 'w-full text-xs rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all shadow-xs',
             'placeholder': 'Set initial password'
         })
     )
@@ -71,14 +71,14 @@ class RestaurantOnboardForm(forms.Form):
         initial=14,
         min_value=0,
         widget=forms.NumberInput(attrs={
-            'class': 'w-full text-sm rounded-xl px-3.5 py-2.5 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark focus:ring-2 focus:ring-tapbhoj-brand dark:focus:ring-tapbhoj-accent focus:outline-none'
+            'class': 'w-full text-xs rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all shadow-xs'
         })
     )
     initial_plan = forms.ModelChoiceField(
         queryset=Plan.objects.filter(is_active=True),
         required=False,
         widget=forms.Select(attrs={
-            'class': 'w-full text-sm rounded-xl px-3.5 py-2.5 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark focus:ring-2 focus:ring-tapbhoj-brand dark:focus:ring-tapbhoj-accent focus:outline-none'
+            'class': 'w-full text-xs rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all shadow-xs'
         })
     )
 
@@ -107,18 +107,18 @@ class SubscriptionEditForm(forms.ModelForm):
         fields = ['plan', 'status', 'trial_end', 'current_period_end', 'auto_renew']
         widgets = {
             'plan': forms.Select(attrs={
-                'class': 'w-full text-sm rounded-xl px-3.5 py-2.5 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark'
+                'class': 'w-full text-xs rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all shadow-xs'
             }),
             'status': forms.Select(attrs={
-                'class': 'w-full text-sm rounded-xl px-3.5 py-2.5 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark'
+                'class': 'w-full text-xs rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all shadow-xs'
             }),
             'trial_end': forms.DateTimeInput(attrs={
                 'type': 'datetime-local',
-                'class': 'w-full text-sm rounded-xl px-3.5 py-2.5 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark'
+                'class': 'w-full text-xs rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all shadow-xs'
             }),
             'current_period_end': forms.DateTimeInput(attrs={
                 'type': 'datetime-local',
-                'class': 'w-full text-sm rounded-xl px-3.5 py-2.5 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark'
+                'class': 'w-full text-xs rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all shadow-xs'
             }),
         }
 
@@ -129,25 +129,25 @@ class RestaurantEditForm(forms.ModelForm):
         fields = ['name', 'slug', 'whatsapp_number', 'number_of_tables', 'address', 'google_review_url', 'status']
         widgets = {
             'name': forms.TextInput(attrs={
-                'class': 'w-full text-sm rounded-xl px-3.5 py-2 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark'
+                'class': 'w-full text-xs rounded-xl px-3.5 py-2 bg-white border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-600 shadow-xs'
             }),
             'slug': forms.TextInput(attrs={
-                'class': 'w-full text-sm rounded-xl px-3.5 py-2 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark'
+                'class': 'w-full text-xs font-mono rounded-xl px-3.5 py-2 bg-white border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-600 shadow-xs'
             }),
             'whatsapp_number': forms.TextInput(attrs={
-                'class': 'w-full text-sm rounded-xl px-3.5 py-2 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark'
+                'class': 'w-full text-xs font-mono rounded-xl px-3.5 py-2 bg-white border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-600 shadow-xs'
             }),
             'number_of_tables': forms.NumberInput(attrs={
-                'class': 'w-full text-sm rounded-xl px-3.5 py-2 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark'
+                'class': 'w-full text-xs rounded-xl px-3.5 py-2 bg-white border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-600 shadow-xs'
             }),
             'address': forms.TextInput(attrs={
-                'class': 'w-full text-sm rounded-xl px-3.5 py-2 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark'
+                'class': 'w-full text-xs rounded-xl px-3.5 py-2 bg-white border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-600 shadow-xs'
             }),
             'google_review_url': forms.URLInput(attrs={
-                'class': 'w-full text-sm rounded-xl px-3.5 py-2 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark'
+                'class': 'w-full text-xs rounded-xl px-3.5 py-2 bg-white border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-600 shadow-xs'
             }),
             'status': forms.Select(attrs={
-                'class': 'w-full text-sm rounded-xl px-3.5 py-2 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark'
+                'class': 'w-full text-xs rounded-xl px-3.5 py-2 bg-white border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-600 shadow-xs'
             }),
         }
 
@@ -165,15 +165,14 @@ class OwnerAccountEditForm(forms.Form):
     email = forms.EmailField(
         required=True,
         widget=forms.EmailInput(attrs={
-            'class': 'w-full text-sm rounded-xl px-3.5 py-2 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark'
+            'class': 'w-full text-xs rounded-xl px-3.5 py-2 bg-white border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-600 shadow-xs'
         })
     )
     new_password = forms.CharField(
         required=False,
         widget=forms.PasswordInput(attrs={
-            'class': 'w-full text-sm rounded-xl px-3.5 py-2 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark',
+            'class': 'w-full text-xs rounded-xl px-3.5 py-2 bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-600 shadow-xs',
             'placeholder': 'Leave blank to keep unchanged'
         }),
         help_text='Enter a new password if you want to reset the owner login.'
     )
-

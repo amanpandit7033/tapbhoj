@@ -1,4 +1,5 @@
 {% extends 'dashboard/base_dashboard.html' %}
+{% load static %}
 
 {% block title %}Menu Manager - {{ restaurant.name }}{% endblock %}
 
@@ -6,150 +7,160 @@
 <div class="space-y-6">
 
   <!-- Header with Primary Actions -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/5 dark:border-white/10 pb-4">
-    <div>
-      <h1 class="text-xl font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">Menu Manager</h1>
-      <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Manage your food categories, dishes, prices, and availability.</p>
+  <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor"><use href="#i-book"/></svg>
+      </div>
+      <div>
+        <h1 class="text-xl font-bold text-slate-900 tracking-tight">Menu Manager</h1>
+        <p class="text-xs text-slate-500">Manage categories, dishes, prices, and 1-tap sold-out stock toggles.</p>
+      </div>
     </div>
     
-    <div class="flex items-center space-x-2">
-      <a 
-        href="{% url 'dashboard:category_create' %}" 
-        class="min-h-[40px] px-3.5 py-2 rounded-xl border border-black/10 dark:border-white/10 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark text-tapbhoj-ink dark:text-tapbhoj-ink-dark text-xs font-semibold hover:bg-tapbhoj-bg dark:hover:bg-tapbhoj-bg-dark transition-colors shadow-sm"
-      >
-        + Add Category
+    <div class="flex items-center space-x-2.5">
+      <a href="{% url 'dashboard:category_create' %}"
+         class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 text-xs font-semibold hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer">
+        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+        <span>Add Category</span>
       </a>
-      <a 
-        href="{% url 'dashboard:item_create' %}" 
-        class="min-h-[40px] px-4 py-2 rounded-xl bg-tapbhoj-brand dark:bg-tapbhoj-brand-dark text-tapbhoj-surface dark:text-tapbhoj-bg-dark text-xs font-bold font-heading shadow-md hover:opacity-95 transition-opacity"
-      >
-        + Add Dish
+
+      <a href="{% url 'dashboard:item_create' %}"
+         class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold shadow-xs transition-opacity cursor-pointer">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+        <span>Add Dish</span>
       </a>
     </div>
   </div>
 
   <!-- Categories & Dishes List -->
   {% if not categories %}
-    <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl p-8 sm:p-12 border border-black/5 dark:border-white/10 text-center space-y-4">
-      <div class="w-12 h-12 mx-auto rounded-full bg-tapbhoj-brand/10 dark:bg-tapbhoj-accent/20 flex items-center justify-center text-tapbhoj-brand dark:text-tapbhoj-accent">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+    <div class="bg-white rounded-2xl p-10 sm:p-14 border border-slate-200/90 text-center space-y-4 shadow-xs">
+      <div class="w-14 h-14 mx-auto rounded-2xl bg-primary-50 text-primary-600 border border-primary-100 flex items-center justify-center">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor"><use href="#i-book"/></svg>
       </div>
       <div class="space-y-1">
-        <h3 class="font-bold font-heading text-base text-tapbhoj-ink dark:text-tapbhoj-ink-dark">No Menu Categories Yet</h3>
-        <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">Get started by creating your first food category (e.g. Starters, Main Course, Drinks).</p>
+        <h3 class="font-bold text-lg text-slate-900">No Menu Categories Yet</h3>
+        <p class="text-xs text-slate-500 max-w-sm mx-auto">
+          Start by organizing your food menu into categories (e.g. Starters, Main Course, Breads, Beverages).
+        </p>
       </div>
-      <a href="{% url 'dashboard:category_create' %}" class="inline-block min-h-[44px] px-5 py-2.5 rounded-xl bg-tapbhoj-brand dark:bg-tapbhoj-brand-dark text-tapbhoj-surface dark:text-tapbhoj-bg-dark font-bold font-heading text-xs shadow-md">
-        Create First Category
+      <a href="{% url 'dashboard:category_create' %}"
+         class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold text-xs shadow-xs transition-opacity cursor-pointer">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+        <span>Create First Category</span>
       </a>
     </div>
   {% else %}
-    <div class="space-y-8">
+    <div class="space-y-6">
       {% for category in categories %}
         <section class="space-y-3">
           
-          <!-- Category Header -->
-          <div class="flex items-center justify-between bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark px-4 py-3 rounded-xl border border-black/5 dark:border-white/10">
-            <div class="flex items-center space-x-2">
-              <span class="w-6 h-6 rounded-lg bg-tapbhoj-bg dark:bg-tapbhoj-bg-dark flex items-center justify-center text-xs font-bold text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
+          <!-- Category Header Bar -->
+          <div class="flex items-center justify-between bg-white px-5 py-3.5 rounded-2xl border border-slate-200/90 shadow-2xs">
+            <div class="flex items-center space-x-2.5">
+              <span class="w-6 h-6 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center text-xs font-mono font-bold">
                 {{ category.position }}
               </span>
-              <h2 class="text-base font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
+              <h2 class="text-base font-bold text-slate-900">
                 {{ category.name }}
               </h2>
+              <span class="text-[11px] text-slate-400 font-medium">
+                ({{ category.items.count }} dish{{ category.items.count|pluralize:"es" }})
+              </span>
               {% if not category.is_visible %}
-                <span class="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-500 font-semibold">Hidden</span>
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 font-semibold">Hidden</span>
               {% endif %}
             </div>
 
-            <div class="flex items-center space-x-2">
-              <a 
-                href="{% url 'dashboard:category_edit' pk=category.pk %}" 
-                class="p-1.5 text-tapbhoj-muted hover:text-tapbhoj-ink dark:hover:text-tapbhoj-ink-dark text-xs font-semibold"
-                title="Edit Category"
-              >
-                Edit
+            <div class="flex items-center space-x-1">
+              <a href="{% url 'dashboard:category_edit' pk=category.pk %}"
+                 class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 text-xs font-semibold transition-colors cursor-pointer"
+                 title="Edit Category">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                <span>Edit</span>
               </a>
-              <span class="text-black/10 dark:text-white/10">•</span>
-              <a 
-                href="{% url 'dashboard:category_delete' pk=category.pk %}" 
-                class="p-1.5 text-red-500 hover:text-red-700 text-xs font-semibold"
-                title="Delete Category"
-              >
-                Delete
+
+              <a href="{% url 'dashboard:category_delete' pk=category.pk %}"
+                 class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 text-xs font-semibold transition-colors cursor-pointer"
+                 title="Delete Category">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                <span>Delete</span>
               </a>
             </div>
           </div>
 
           <!-- Dishes in Category -->
-          <div class="bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-2xl border border-black/5 dark:border-white/10 shadow-sm overflow-hidden divide-y divide-black/5 dark:divide-white/5">
+          <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden divide-y divide-slate-100">
             {% for item in category.items.all %}
-              <div class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 {% if not item.is_available %}bg-amber-50/40 dark:bg-amber-950/20{% endif %}">
+              <div class="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors {% if not item.is_available %}bg-amber-50/40{% else %}hover:bg-slate-50/60{% endif %}">
                 
                 <!-- Dish Info -->
-                <div class="flex items-start space-x-3 flex-1">
-                  {% if item.is_veg %}
-                    <span class="inline-block w-4 h-4 rounded-sm border-2 border-tapbhoj-veg p-0.5 flex-shrink-0 mt-0.5" title="Vegetarian">
-                      <span class="block w-full h-full rounded-full bg-tapbhoj-veg"></span>
-                    </span>
-                  {% else %}
-                    <span class="inline-block w-4 h-4 rounded-sm border-2 border-tapbhoj-nonveg p-0.5 flex-shrink-0 mt-0.5" title="Non-Vegetarian">
-                      <span class="block w-full h-full rounded-full bg-tapbhoj-nonveg"></span>
-                    </span>
+                <div class="flex items-start space-x-3.5 flex-1 min-w-0">
+                  {% if item.photo %}
+                    <img src="{{ item.photo.url }}" alt="{{ item.name }}" class="w-12 h-12 rounded-xl object-cover border border-slate-200 shrink-0 shadow-2xs" loading="lazy">
                   {% endif %}
 
-                  <div class="space-y-0.5">
-                    <div class="flex items-center space-x-2">
-                      <h3 class="font-bold text-sm text-tapbhoj-ink dark:text-tapbhoj-ink-dark leading-snug">
+                  <!-- Veg / Non-Veg Icon -->
+                  <span class="inline-block w-4 h-4 rounded-xs border-2 {% if item.is_veg %}border-emerald-600{% else %}border-rose-600{% endif %} p-0.5 shrink-0 mt-0.5" title="{% if item.is_veg %}Vegetarian{% else %}Non-Vegetarian{% endif %}">
+                    <span class="block w-full h-full rounded-full {% if item.is_veg %}bg-emerald-600{% else %}bg-rose-600{% endif %}"></span>
+                  </span>
+
+                  <div class="space-y-1 min-w-0">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <h3 class="font-bold text-sm text-slate-900 leading-snug">
                         {{ item.name }}
                       </h3>
                       {% if item.tags %}
-                        <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-tapbhoj-accent/15 text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
-                          {{ item.tags }}
+                        <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/60">
+                          <span>{{ item.tags }}</span>
                         </span>
                       {% endif %}
                     </div>
                     {% if item.description %}
-                      <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark line-clamp-1">
+                      <p class="text-xs text-slate-500 line-clamp-1 leading-relaxed">
                         {{ item.description }}
                       </p>
                     {% endif %}
-                    <p class="text-xs font-bold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark">
+                    <p class="text-xs font-bold font-mono text-slate-900">
                       ₹{{ item.price|floatformat:0 }}
                     </p>
                   </div>
                 </div>
 
-                <!-- 1-Tap Toggle and Actions (Requirement O5) -->
-                <div class="flex items-center justify-between sm:justify-end space-x-3 pt-2 sm:pt-0 border-t sm:border-0 border-black/5 dark:border-white/5">
+                <!-- 1-Tap Toggle and Actions -->
+                <div class="flex items-center justify-between sm:justify-end gap-2.5 pt-3 sm:pt-0 border-t sm:border-0 border-slate-100">
                   
                   <!-- Sold Out Toggle Form -->
                   <form method="post" action="{% url 'dashboard:item_toggle' pk=item.pk %}">
                     {% csrf_token %}
-                    <button 
-                      type="submit" 
-                      class="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-semibold transition-all {% if item.is_available %}bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/40 hover:bg-emerald-100{% else %}bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-200 dark:border-amber-800/60 font-bold{% endif %}"
-                    >
+                    <button type="submit"
+                            class="inline-flex items-center gap-1.5 min-h-[36px] px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-2xs cursor-pointer {% if item.is_available %}bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100{% else %}bg-amber-100 text-amber-900 border border-amber-300 font-bold hover:bg-amber-200{% endif %}"
+                            title="Click to toggle available or sold-out">
                       {% if item.is_available %}
-                        ✓ Available
+                        <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                        <span>Available</span>
                       {% else %}
-                        ⚠️ Sold Out
+                        <svg class="w-3.5 h-3.5 text-amber-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        <span>Sold Out</span>
                       {% endif %}
                     </button>
                   </form>
 
-                  <!-- Edit / Delete -->
-                  <div class="flex items-center space-x-2">
-                    <a 
-                      href="{% url 'dashboard:item_edit' pk=item.pk %}" 
-                      class="min-h-[36px] px-2.5 py-1.5 rounded-lg border border-black/10 dark:border-white/10 text-xs font-semibold text-tapbhoj-ink dark:text-tapbhoj-ink-dark hover:bg-tapbhoj-bg dark:hover:bg-tapbhoj-bg-dark transition-colors"
-                    >
-                      Edit
+                  <!-- Edit / Delete Buttons -->
+                  <div class="flex items-center space-x-1.5">
+                    <a href="{% url 'dashboard:item_edit' pk=item.pk %}"
+                       class="inline-flex items-center gap-1 min-h-[36px] px-2.5 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
+                       title="Edit dish details">
+                      <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                      <span>Edit</span>
                     </a>
-                    <a 
-                      href="{% url 'dashboard:item_delete' pk=item.pk %}" 
-                      class="min-h-[36px] px-2.5 py-1.5 rounded-lg text-xs font-semibold text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
-                    >
-                      Delete
+
+                    <a href="{% url 'dashboard:item_delete' pk=item.pk %}"
+                       class="inline-flex items-center gap-1 min-h-[36px] px-2.5 py-1.5 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                       title="Remove dish from menu">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                      <span>Delete</span>
                     </a>
                   </div>
 
@@ -157,8 +168,14 @@
 
               </div>
             {% empty %}
-              <div class="p-6 text-center text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark">
-                No items in this category yet. Click "+ Add Dish" above to add dishes.
+              <div class="p-8 text-center space-y-2">
+                <p class="text-xs text-slate-400">
+                  No items in this category yet.
+                </p>
+                <a href="{% url 'dashboard:item_create' %}" class="inline-flex items-center gap-1 text-xs font-semibold text-primary-600 hover:underline">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                  <span>Add First Dish to {{ category.name }}</span>
+                </a>
               </div>
             {% endfor %}
           </div>

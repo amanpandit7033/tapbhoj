@@ -2,308 +2,700 @@
 {% load static %}
 
 {% block content %}
-<div class="min-h-screen flex bg-slate-50 dark:bg-[#0f172a] text-slate-900 dark:text-slate-100 font-sans pb-16 lg:pb-0" x-data="{ isDark: document.documentElement.classList.contains('dark'), mobileSidebarOpen: false }">
-  
-  <!-- 1. DESKTOP SIDEBAR (Flex child in document flow, NEVER overlaps) -->
-  <aside class="hidden lg:flex flex-col w-64 flex-shrink-0 h-screen sticky top-0 bg-white dark:bg-[#1e293b] border-r border-slate-200/80 dark:border-slate-800 z-20 justify-between">
-    
-    <div class="flex flex-col flex-1 overflow-y-auto">
-      <!-- Restaurant Header -->
-      <div class="h-16 flex items-center px-6 border-b border-slate-100 dark:border-slate-800 flex-shrink-0">
-        <a href="{% url 'dashboard:home' %}" class="flex items-center space-x-2.5">
-          {% if restaurant.logo %}
-            <img src="{{ restaurant.logo.url }}" alt="{{ restaurant.name }}" class="w-8 h-8 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shadow-sm">
-          {% else %}
-            <div class="w-8 h-8 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 flex items-center justify-center font-heading font-extrabold text-sm shadow-sm">
-              {{ restaurant.name|slice:":1" }}
+<div class="flex h-screen overflow-hidden bg-[#f4f5f7]" style="height:100dvh"
+     x-data="{
+         mobileSidebarOpen: false,
+         sidebarCollapsed: localStorage.getItem('tapbhoj_sidebar_collapsed') === 'true',
+         userMenuOpen: false,
+         notifOpen: false,
+         unreadCount: 0,
+         bellRinging: false,
+         toggleSidebar() {
+             if (window.innerWidth < 1024) {
+                 this.mobileSidebarOpen = !this.mobileSidebarOpen;
+             } else {
+                 this.sidebarCollapsed = !this.sidebarCollapsed;
+                 localStorage.setItem('tapbhoj_sidebar_collapsed', this.sidebarCollapsed);
+             }
+         }
+     }"
+     @keydown.escape.window="mobileSidebarOpen = false; userMenuOpen = false; notifOpen = false">
+
+    <!-- Mobile sidebar backdrop -->
+    <div x-show="mobileSidebarOpen" x-cloak style="display: none;"
+         x-transition:enter="transition-opacity ease-linear duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+         x-transition:leave="transition-opacity ease-linear duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-40 bg-slate-900/50 lg:hidden" @click="mobileSidebarOpen = false"></div>
+
+    <!-- Sidebar (Collapsible desktop & mobile drawer) -->
+    <aside :class="{
+               'translate-x-0': mobileSidebarOpen,
+               '-translate-x-full lg:translate-x-0': !mobileSidebarOpen,
+               'sidebar-collapsed lg:w-[4.5rem]': sidebarCollapsed,
+               'lg:w-64': !sidebarCollapsed
+           }"
+           class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200/90 transition-all duration-300 ease-in-out lg:static lg:inset-auto flex flex-col shrink-0 shadow-sm lg:shadow-none">
+
+        <!-- Logo / Store Header -->
+        <div class="h-16 flex items-center justify-between px-4 sm:px-5 shrink-0 logo-header border-b border-slate-100">
+            <a href="{% url 'dashboard:home' %}" class="flex items-center gap-3 min-w-0" title="{{ restaurant.name }}">
+                <!-- Collapsed Logo Icon -->
+                <span class="logo-collapsed hidden w-10 h-10 rounded-xl bg-primary-50 border border-primary-100 p-1 shrink-0 items-center justify-center overflow-hidden shadow-2xs">
+                    {% if restaurant.logo %}
+                        <img src="{{ restaurant.logo.url }}" alt="{{ restaurant.name }}" class="w-full h-full object-cover rounded-lg">
+                    {% else %}
+                        <span class="font-extrabold text-primary-700 text-sm font-mono">{{ restaurant.name|slice:":1"|upper }}</span>
+                    {% endif %}
+                </span>
+
+                <!-- Expanded Logo -->
+                <div class="logo-expanded flex items-center gap-3 min-w-0">
+                    <span class="w-10 h-10 rounded-xl bg-primary-50 border border-primary-100 p-1 shrink-0 flex items-center justify-center overflow-hidden shadow-2xs">
+                        {% if restaurant.logo %}
+                            <img src="{{ restaurant.logo.url }}" alt="{{ restaurant.name }}" class="w-full h-full object-cover rounded-lg">
+                        {% else %}
+                            <span class="font-extrabold text-primary-700 text-base">{{ restaurant.name|slice:":1"|upper }}</span>
+                        {% endif %}
+                    </span>
+                    <span class="logo-text leading-tight truncate">
+                        <span class="block font-extrabold text-sm text-slate-900 tracking-tight truncate">{{ restaurant.name }}</span>
+                        <span class="flex items-center gap-1.5 mt-0.5">
+                            {% if restaurant.status == 'active' %}
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                <span class="text-[10px] font-semibold text-emerald-600">Menu Live</span>
+                            {% else %}
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                <span class="text-[10px] font-semibold text-amber-600">Paused</span>
+                            {% endif %}
+                            <span class="text-slate-300 text-[10px]">&bull;</span>
+                            <span class="text-[10px] font-medium text-slate-400 uppercase tracking-wide">Owner</span>
+                        </span>
+                    </span>
+                </div>
+            </a>
+            <button @click="mobileSidebarOpen = false" class="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100" aria-label="Close menu">
+                <svg class="ic" fill="none" stroke="currentColor"><use href="#i-x"/></svg>
+            </button>
+        </div>
+
+        <!-- Sidebar Navigation Menu -->
+        <div class="flex-1 overflow-y-auto px-3 py-3 space-y-1">
+            <p class="nh">Store Operations</p>
+
+            <!-- Dashboard Overview -->
+            <a href="{% url 'dashboard:home' %}" title="Dashboard Overview" class="nl{% if request.resolver_match.url_name == 'home' %} on{% endif %}">
+                <svg class="ic shrink-0" fill="none" stroke="currentColor"><use href="#i-grid"/></svg>
+                <span class="nav-text truncate">Dashboard Overview</span>
+            </a>
+
+            <!-- Orders -->
+            <a href="{% url 'dashboard:orders' %}" title="Orders" class="nl{% if 'orders' in request.resolver_match.url_name %} on{% endif %}">
+                <svg class="ic shrink-0" fill="none" stroke="currentColor"><use href="#i-orders"/></svg>
+                <span class="nav-text truncate">Orders</span>
+                {% if today_orders_count and today_orders_count > 0 %}
+                <span class="nav-badge ml-auto inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary-100 text-primary-800 font-mono">{{ today_orders_count }}</span>
+                {% endif %}
+            </a>
+
+            <!-- Menu Manager -->
+            <a href="{% url 'dashboard:menu' %}" title="Menu Manager" class="nl{% if 'menu' in request.resolver_match.url_name %} on{% endif %}">
+                <svg class="ic shrink-0" fill="none" stroke="currentColor"><use href="#i-book"/></svg>
+                <span class="nav-text truncate">Menu Manager</span>
+            </a>
+
+            <!-- Tables & QR Cards -->
+            <a href="{% url 'dashboard:tables' %}" title="Tables & QR Cards" class="nl{% if 'tables' in request.resolver_match.url_name %} on{% endif %}">
+                <svg class="ic shrink-0" fill="none" stroke="currentColor"><use href="#i-grid"/></svg>
+                <span class="nav-text truncate">Tables & QR Cards</span>
+            </a>
+
+            <p class="nh">Account & Store</p>
+
+            <!-- Subscription & Plans -->
+            <a href="{% url 'dashboard:subscription' %}" title="Subscription & Plans" class="nl{% if 'subscription' in request.resolver_match.url_name %} on{% endif %}">
+                <svg class="ic shrink-0" fill="none" stroke="currentColor"><use href="#i-coin"/></svg>
+                <span class="nav-text truncate">Subscription & Plans</span>
+            </a>
+
+            <!-- Store Profile -->
+            <a href="{% url 'dashboard:profile' %}" title="Store Profile" class="nl{% if request.resolver_match.url_name == 'profile' %} on{% endif %}">
+                <svg class="ic shrink-0" fill="none" stroke="currentColor"><use href="#i-cog"/></svg>
+                <span class="nav-text truncate">Store Profile</span>
+            </a>
+        </div>
+
+        <!-- Pinned Bottom User Bar -->
+        <div class="p-3 border-t border-slate-100 flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-2.5 min-w-0">
+                <span class="w-8 h-8 rounded-full bg-primary-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
+                    {{ request.user.username|slice:":1"|upper }}
+                </span>
+                <div class="nav-text truncate">
+                    <p class="text-xs font-bold text-slate-800 truncate leading-tight">{{ request.user.username }}</p>
+                    <p class="text-[10px] text-slate-400 font-medium">Store Owner</p>
+                </div>
             </div>
-          {% endif %}
-          <div class="truncate max-w-[130px]">
-            <span class="font-extrabold font-heading text-sm text-slate-900 dark:text-white truncate block">{{ restaurant.name }}</span>
-            <span class="text-[10px] text-slate-400">Owner Portal</span>
+            <form method="post" action="{% url 'logout' %}" class="shrink-0">
+                {% csrf_token %}
+                <button type="submit" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors" title="Sign Out">
+                    <svg class="ic" style="width:1rem;height:1rem" fill="none" stroke="currentColor"><use href="#i-out"/></svg>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- Main Workspace Column -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-y-auto bg-[#f4f5f7]">
+
+        <!-- Impersonation Active Banner (Staff Assist Mode) -->
+        {% if is_impersonating %}
+        <div class="bg-gradient-to-r from-amber-500 via-amber-600 to-amber-500 text-white px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-3 text-xs sm:text-sm font-medium shadow-sm shrink-0 border-b border-amber-600/40 z-40">
+            <div class="flex items-center gap-2.5 min-w-0">
+                <span class="relative flex h-2.5 w-2.5 shrink-0">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
+                </span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-black/20 text-white font-mono shrink-0">
+                    Staff Assist
+                </span>
+                <span class="truncate text-xs sm:text-sm">
+                    Impersonating <strong class="font-bold underline decoration-white/40 underline-offset-2">{{ request.user.username }}</strong> for <strong class="font-bold">{{ impersonated_restaurant_name|default:restaurant.name }}</strong>
+                </span>
+            </div>
+            <a href="{% url 'platform:exit_impersonate' %}" 
+               class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white text-amber-950 hover:bg-amber-50 hover:shadow font-bold text-xs transition-all shadow-xs shrink-0 cursor-pointer">
+                <span>Exit Impersonation</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+            </a>
+        </div>
+        {% endif %}
+
+        <!-- Top Header Bar with Vibrant RCS Gradient -->
+        <header class="h-16 flex items-center justify-between px-4 sm:px-6 lg:px-8 shrink-0 sticky top-0 z-30 shadow-sm border-b border-black/10" style="background: linear-gradient(90deg, #1ac9bf 0%, #283891 100%);">
+            
+            <div class="flex items-center gap-3 min-w-0">
+                <!-- Hamburger / Collapse Toggle -->
+                <button @click="toggleSidebar()"
+                        class="p-2 -ml-2 rounded-xl text-white/90 hover:text-white hover:bg-white/15 transition-colors flex items-center justify-center cursor-pointer"
+                        aria-label="Toggle navigation menu"
+                        title="Toggle menu">
+                    <svg class="ic" style="width:1.35rem;height:1.35rem" fill="none" stroke="currentColor"><use href="#i-menu"/></svg>
+                </button>
+
+                <div class="hidden sm:flex items-center gap-2 text-white/90 text-sm font-semibold">
+                    <span>{{ restaurant.name }}</span>
+                    {% if restaurant.status == 'active' %}
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/20 text-white border border-white/25">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse"></span>
+                        Live
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 sm:gap-3">
+                <!-- View Live Menu Frosted Glass Pill -->
+                <a href="{% url 'public:menu' slug=restaurant.slug %}" target="_blank"
+                   class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-2xl bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 transition-all text-white text-xs font-semibold shadow-2xs group cursor-pointer"
+                   title="Open Customer Digital Menu">
+                    <span>View Live Menu</span>
+                    <svg class="w-3.5 h-3.5 text-white/80 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" fill="none" stroke="currentColor"><use href="#i-external"/></svg>
+                </a>
+
+                <!-- Notification Bell with Latest 5 Notifications Dialog -->
+                <div class="relative" @click.outside="notifOpen = false">
+                    <!-- Bell Button -->
+                    <button @click="notifOpen = !notifOpen; if(notifOpen) { unreadCount = 0; bellRinging = false; }"
+                            class="relative p-2 rounded-xl text-white/90 hover:text-white hover:bg-white/15 transition-all flex items-center justify-center cursor-pointer"
+                            :class="{ 'bell-ringing': bellRinging }"
+                            title="Notifications"
+                            aria-label="Order notifications">
+                        <svg class="ic" style="width:1.25rem;height:1.25rem" fill="none" stroke="currentColor"><use href="#i-bell"/></svg>
+                        
+                        <!-- Unread Count Badge with pulsing indicator -->
+                        <span x-show="unreadCount > 0" x-cloak
+                              class="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-rose-500 text-white text-[10px] font-black font-mono shadow-xs">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                            <span class="relative" x-text="unreadCount"></span>
+                        </span>
+                    </button>
+
+                    <!-- Notifications Dropdown Dialog Box (Latest 5 Notifications) -->
+                    <div x-show="notifOpen" x-cloak style="display: none;"
+                         x-transition:enter="transition ease-out duration-150" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100"
+                         x-transition:leave="transition ease-in duration-100" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95"
+                         class="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white border border-slate-200/90 shadow-2xl py-3 z-50 origin-top-right text-slate-900">
+                        
+                        <!-- Dialog Header -->
+                        <div class="px-4 pb-2.5 mb-1 border-b border-slate-100 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-sm font-bold text-slate-900">Notifications</h3>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary-50 text-primary-700 border border-primary-200">
+                                    Latest 5
+                                </span>
+                            </div>
+                            <a href="{% url 'dashboard:orders' %}" class="text-[11px] font-bold text-primary-600 hover:text-primary-800">
+                                View Orders &rarr;
+                            </a>
+                        </div>
+
+                        <!-- Notifications List (Latest 5) -->
+                        <div id="topnav-notif-list" class="max-h-80 overflow-y-auto divide-y divide-slate-100 px-2">
+                            {% for order in topnav_notifications %}
+                            <a href="{% url 'dashboard:orders' %}" 
+                               class="p-2.5 rounded-xl hover:bg-slate-50 transition-colors flex items-start justify-between gap-3 group block">
+                                <div class="flex items-start gap-2.5 min-w-0">
+                                    <span class="w-8 h-8 rounded-xl bg-primary-50 text-primary-700 font-bold text-xs flex items-center justify-center shrink-0 border border-primary-100 font-mono mt-0.5">
+                                        T-{{ order.table_number }}
+                                    </span>
+                                    <div class="min-w-0">
+                                        <p class="text-xs font-bold text-slate-800 group-hover:text-primary-700 transition-colors truncate">
+                                            Order #{{ order.id }} &bull; Table {{ order.table_number }}
+                                        </p>
+                                        <p class="text-[11px] text-slate-500 truncate max-w-[210px]">
+                                            {{ order.items_summary }}
+                                        </p>
+                                        <div class="flex items-center gap-2 mt-1">
+                                            <span class="text-[10px] text-slate-400 font-mono">
+                                                {{ order.created_at|date:"h:i A" }}
+                                            </span>
+                                            {% if order.payment_status == 'paid' %}
+                                            <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-50 text-emerald-700">
+                                                Paid UPI
+                                            </span>
+                                            {% elif order.payment_status == 'pending' %}
+                                            <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-50 text-amber-700">
+                                                Verify UTR
+                                            </span>
+                                            {% else %}
+                                            <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-slate-100 text-slate-600">
+                                                Unpaid
+                                            </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-right shrink-0">
+                                    <span class="text-xs font-black text-slate-900 font-mono">
+                                        ₹{{ order.total_amount|floatformat:0 }}
+                                    </span>
+                                </div>
+                            </a>
+                            {% empty %}
+                            <div class="py-6 text-center text-xs text-slate-400" id="topnav-notif-empty">
+                                <svg class="w-8 h-8 mx-auto text-slate-300 mb-1" fill="none" stroke="currentColor"><use href="#i-bell"/></svg>
+                                <p class="font-semibold text-slate-600">No recent orders</p>
+                                <p class="text-[11px]">New orders will appear here automatically.</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Dialog Footer -->
+                        <div class="px-4 pt-2.5 mt-1 border-t border-slate-100 text-center">
+                            <a href="{% url 'dashboard:orders' %}" class="text-xs font-bold text-slate-700 hover:text-primary-700 block py-1">
+                                Open All Orders &rarr;
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Profile Dropdown -->
+                <div class="relative" @click.outside="userMenuOpen = false">
+                    <button @click="userMenuOpen = !userMenuOpen" :aria-expanded="userMenuOpen"
+                            class="flex items-center gap-2 py-1 pl-1 pr-2.5 rounded-full hover:bg-white/15 transition-colors cursor-pointer">
+                        <span class="w-9 h-9 rounded-full bg-white text-[#283891] flex items-center justify-center font-bold text-sm border-2 border-white/40 shadow-xs">
+                            {{ restaurant.name|slice:":1"|upper }}
+                        </span>
+                        <span class="hidden md:block text-sm font-semibold text-white max-w-[10rem] truncate">{{ restaurant.name }}</span>
+                        <svg class="ic hidden sm:block text-white/80" style="width:.85rem;height:.85rem" fill="none" stroke="currentColor"><use href="#i-chev"/></svg>
+                    </button>
+
+                    <!-- Dropdown Card -->
+                    <div x-show="userMenuOpen" x-cloak style="display: none;"
+                         x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100"
+                         x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95"
+                         class="absolute right-0 mt-2 w-64 rounded-2xl bg-white border border-slate-200 shadow-xl py-2 z-50 origin-top-right">
+                        
+                        <div class="px-4 pb-2.5 mb-1 border-b border-slate-100">
+                            <p class="text-sm font-semibold text-slate-900 truncate">{{ restaurant.name }}</p>
+                            <p class="text-xs text-primary-600 font-mono truncate">@{{ request.user.username }}</p>
+                            {% if restaurant.whatsapp_number %}
+                            <p class="text-[11px] text-slate-400 mt-0.5">+{{ restaurant.whatsapp_number }}</p>
+                            {% endif %}
+                        </div>
+
+                        <a href="{% url 'dashboard:profile' %}" class="dd">
+                            <span>Store Profile</span>
+                            <svg class="ic text-slate-400" style="width:.85rem;height:.85rem" fill="none" stroke="currentColor"><use href="#i-cog"/></svg>
+                        </a>
+                        <a href="{% url 'dashboard:subscription' %}" class="dd">
+                            <span>Subscription & Plans</span>
+                            <svg class="ic text-slate-400" style="width:.85rem;height:.85rem" fill="none" stroke="currentColor"><use href="#i-coin"/></svg>
+                        </a>
+                        <a href="{% url 'dashboard:tables' %}" class="dd">
+                            <span>Tables & QR Cards</span>
+                            <span class="text-[10px] font-bold text-primary-700 bg-primary-50 px-1.5 py-0.5 rounded font-mono">{{ restaurant.number_of_tables }}</span>
+                        </a>
+
+                        <div class="border-t border-slate-100 my-1"></div>
+
+                        <form method="post" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="w-full text-left px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 flex items-center justify-between cursor-pointer">
+                                <span>Sign Out</span>
+                                <svg class="ic text-rose-500" style="width:.95rem;height:.95rem" fill="none" stroke="currentColor"><use href="#i-out"/></svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Workspace Content -->
+        <main class="flex-1 p-4 sm:p-6 lg:p-8 w-full space-y-6 pb-20 lg:pb-8">
+            {% block dashboard_content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Mobile Bottom Navigation Bar (Thumbs friendly) -->
+    <nav class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200">
+        <div class="grid grid-cols-5 h-16">
+            <a href="{% url 'dashboard:home' %}" class="flex flex-col items-center justify-center gap-1 text-xs font-medium {% if request.resolver_match.url_name == 'home' %}text-primary-700 font-bold{% else %}text-slate-400{% endif %}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor"><use href="#i-grid"/></svg>
+                <span class="text-[10px]">Home</span>
+            </a>
+            <a href="{% url 'dashboard:orders' %}" class="flex flex-col items-center justify-center gap-1 text-xs font-medium {% if 'orders' in request.resolver_match.url_name %}text-primary-700 font-bold{% else %}text-slate-400{% endif %}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor"><use href="#i-orders"/></svg>
+                <span class="text-[10px]">Orders</span>
+            </a>
+            <a href="{% url 'dashboard:menu' %}" class="flex flex-col items-center justify-center gap-1 text-xs font-medium {% if 'menu' in request.resolver_match.url_name %}text-primary-700 font-bold{% else %}text-slate-400{% endif %}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor"><use href="#i-book"/></svg>
+                <span class="text-[10px]">Menu</span>
+            </a>
+            <a href="{% url 'dashboard:tables' %}" class="flex flex-col items-center justify-center gap-1 text-xs font-medium {% if 'tables' in request.resolver_match.url_name %}text-primary-700 font-bold{% else %}text-slate-400{% endif %}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor"><use href="#i-grid"/></svg>
+                <span class="text-[10px]">Tables</span>
+            </a>
+            <a href="{% url 'dashboard:profile' %}" class="flex flex-col items-center justify-center gap-1 text-xs font-medium {% if request.resolver_match.url_name == 'profile' %}text-primary-700 font-bold{% else %}text-slate-400{% endif %}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor"><use href="#i-cog"/></svg>
+                <span class="text-[10px]">Profile</span>
+            </a>
+        </div>
+    </nav>
+</div>
+
+<!-- Floating Real-Time Live Order Toast Container -->
+<div id="dashboard-toast-container" class="fixed top-4 right-4 sm:top-5 sm:right-5 z-[9999] flex flex-col gap-3 max-w-[390px] w-full pointer-events-none px-2 sm:px-0"></div>
+
+<!-- Real-time Topnav Notification Bell WebSocket Listener -->
+{% if restaurant and restaurant.slug %}
+<style>
+@keyframes toast-bell-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(-14deg); }
+  40% { transform: rotate(14deg); }
+  60% { transform: rotate(-8deg); }
+  80% { transform: rotate(8deg); }
+}
+.toast-bell-animate {
+  animation: toast-bell-wiggle 1.2s ease-in-out infinite;
+  transform-origin: top center;
+}
+</style>
+<script>
+(function() {
+  const slug = "{{ restaurant.slug }}";
+  if (!slug) return;
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const wsUrl = `${protocol}//${window.location.host}/ws/dashboard/${slug}/orders/`;
+  let ws;
+
+  const recentToastIds = new Set();
+  let lastChimeTime = 0;
+
+  function playNotificationChime() {
+    const now = Date.now();
+    if (now - lastChimeTime < 1500) return;
+    lastChimeTime = now;
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = 'triangle';
+      osc1.frequency.setValueAtTime(523.25, ctx.currentTime);
+      gain1.gain.setValueAtTime(0.35, ctx.currentTime);
+      gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.start(ctx.currentTime);
+      osc1.stop(ctx.currentTime + 0.35);
+
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = 'triangle';
+      osc2.frequency.setValueAtTime(783.99, ctx.currentTime + 0.12);
+      gain2.gain.setValueAtTime(0.35, ctx.currentTime + 0.12);
+      gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.7);
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.start(ctx.currentTime + 0.12);
+      osc2.stop(ctx.currentTime + 0.7);
+    } catch (e) {}
+  }
+
+  window.showDashboardOrderToast = function(order, options = {}) {
+    const isPayment = options.type === 'payment';
+    const orderId = order.id || order.order_id || Date.now();
+    const toastKey = `${options.type || 'order'}-${orderId}`;
+
+    if (recentToastIds.has(toastKey)) return;
+    recentToastIds.add(toastKey);
+    setTimeout(() => recentToastIds.delete(toastKey), 4000);
+
+    const container = document.getElementById('dashboard-toast-container');
+    if (!container) return;
+
+    const tableNum = order.table_number || order.table || '0';
+    const totalAmount = Math.round(order.total_amount || order.amount || 0);
+    const summary = order.items_summary || (isPayment ? `UPI verification pending (UTR: ${order.upi_utr || 'Pending'})` : 'Customer placed a table order');
+    const ordersUrl = "{% url 'dashboard:orders' %}";
+
+    const toast = document.createElement('div');
+    toast.className = 'pointer-events-auto w-full bg-slate-900/95 backdrop-blur-md text-white rounded-2xl shadow-2xl shadow-slate-950/40 border border-slate-700/80 overflow-hidden transform transition-all duration-300 translate-x-10 opacity-0 scale-95 flex flex-col group hover:border-primary-400/80';
+
+    toast.innerHTML = `
+      <div class="h-1 w-full ${isPayment ? 'bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-500' : 'bg-gradient-to-r from-emerald-400 via-teal-400 to-[#283891]'}"></div>
+      <div class="p-3.5 sm:p-4 space-y-3">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${isPayment ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'} font-mono">
+              <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full ${isPayment ? 'bg-blue-400' : 'bg-emerald-400'} opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 ${isPayment ? 'bg-blue-500' : 'bg-emerald-400'}"></span>
+              </span>
+              <span>${isPayment ? 'UPI PAYMENT' : 'NEW ORDER RECEIVED'}</span>
+            </span>
+            <span class="text-[10px] text-slate-400 font-mono">Just now</span>
           </div>
-        </a>
-      </div>
-
-      <!-- Navigation Links -->
-      <nav class="p-4 space-y-1 text-xs font-medium">
-        <p class="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-          Store Operations
-        </p>
-
-        <!-- Home -->
-        <a 
-          href="{% url 'dashboard:home' %}" 
-          class="flex items-center space-x-3 px-3 py-2.5 rounded-xl transition-colors {% if request.resolver_match.url_name == 'home' %}bg-slate-100 dark:bg-slate-800/80 text-slate-900 dark:text-white font-bold shadow-sm{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white{% endif %}"
-        >
-          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-          <span>Dashboard Overview</span>
-        </a>
-
-        <!-- Orders -->
-        <a 
-          href="{% url 'dashboard:orders' %}" 
-          class="flex items-center space-x-3 px-3 py-2.5 rounded-xl transition-colors {% if 'orders' in request.resolver_match.url_name %}bg-slate-100 dark:bg-slate-800/80 text-slate-900 dark:text-white font-bold shadow-sm{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white{% endif %}"
-        >
-          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-          <span>Orders & Insights</span>
-        </a>
-
-        <!-- Menu -->
-        <a 
-          href="{% url 'dashboard:menu' %}" 
-          class="flex items-center space-x-3 px-3 py-2.5 rounded-xl transition-colors {% if 'menu' in request.resolver_match.url_name %}bg-slate-100 dark:bg-slate-800/80 text-slate-900 dark:text-white font-bold shadow-sm{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white{% endif %}"
-        >
-          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-          <span>Menu Manager</span>
-        </a>
-
-        <!-- Tables -->
-        <a 
-          href="{% url 'dashboard:tables' %}" 
-          class="flex items-center space-x-3 px-3 py-2.5 rounded-xl transition-colors {% if 'tables' in request.resolver_match.url_name %}bg-slate-100 dark:bg-slate-800/80 text-slate-900 dark:text-white font-bold shadow-sm{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white{% endif %}"
-        >
-          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
-          <span>Tables & QR Cards</span>
-        </a>
-
-        <div class="pt-4">
-          <p class="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-            Account & Plan
-          </p>
-
-          <a 
-            href="{% url 'dashboard:subscription' %}" 
-            class="flex items-center space-x-3 px-3 py-2.5 rounded-xl transition-colors {% if 'subscription' in request.resolver_match.url_name %}bg-slate-100 dark:bg-slate-800/80 text-slate-900 dark:text-white font-bold shadow-sm{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white{% endif %}"
-          >
-            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-            <span>Subscription & Plans</span>
-          </a>
-
-          <a 
-            href="{% url 'dashboard:profile' %}" 
-            class="flex items-center space-x-3 px-3 py-2.5 rounded-xl transition-colors {% if request.resolver_match.url_name == 'profile' %}bg-slate-100 dark:bg-slate-800/80 text-slate-900 dark:text-white font-bold shadow-sm{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white{% endif %}"
-          >
-            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-            <span>Store Profile</span>
-          </a>
-        </div>
-      </nav>
-    </div>
-
-    <!-- Pinned Bottom User Card -->
-    <div class="p-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between flex-shrink-0">
-      <div class="flex items-center space-x-2.5">
-        <div class="w-8 h-8 rounded-full bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-bold flex items-center justify-center text-xs shadow-sm">
-          {{ request.user.username|slice:":1"|upper }}
-        </div>
-        <div class="truncate max-w-[120px]">
-          <p class="text-xs font-bold leading-tight truncate">{{ request.user.username }}</p>
-          <p class="text-[10px] text-slate-400">Store Owner</p>
-        </div>
-      </div>
-
-      <form method="post" action="{% url 'logout' %}">
-        {% csrf_token %}
-        <button type="submit" class="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors" title="Sign Out">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-        </button>
-      </form>
-    </div>
-
-  </aside>
-
-  <!-- 2. MOBILE DRAWER SIDEBAR -->
-  <div 
-    x-show="mobileSidebarOpen" 
-    x-cloak
-    class="fixed inset-0 z-50 lg:hidden flex"
-  >
-    <div 
-      x-show="mobileSidebarOpen" 
-      x-transition.opacity 
-      @click="mobileSidebarOpen = false" 
-      class="fixed inset-0 bg-black/60 backdrop-blur-xs"
-    ></div>
-
-    <aside 
-      x-show="mobileSidebarOpen"
-      x-transition:enter="transition ease-out duration-200 transform"
-      x-transition:enter-start="-translate-x-full"
-      x-transition:enter-end="translate-x-0"
-      x-transition:leave="transition ease-in duration-150 transform"
-      x-transition:leave-start="translate-x-0"
-      x-transition:leave-end="-translate-x-full"
-      class="relative z-50 w-64 max-w-[80vw] h-full bg-white dark:bg-[#1e293b] border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between shadow-2xl"
-    >
-      <div class="flex flex-col flex-1 overflow-y-auto">
-        <div class="h-16 flex items-center justify-between px-6 border-b border-slate-100 dark:border-slate-800 flex-shrink-0">
-          <a href="{% url 'dashboard:home' %}" class="flex items-center space-x-2">
-            <span class="font-bold text-sm">{{ restaurant.name }}</span>
-          </a>
-          <button @click="mobileSidebarOpen = false" class="p-1 text-slate-400 hover:text-slate-600">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          <button type="button" class="toast-close p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer" aria-label="Close notification">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
           </button>
         </div>
 
-        <nav class="p-4 space-y-1.5 text-xs font-medium">
-          <a href="{% url 'dashboard:home' %}" class="flex items-center space-x-3 px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100">
-            <span>Dashboard Overview</span>
-          </a>
-          <a href="{% url 'dashboard:orders' %}" class="flex items-center space-x-3 px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100">
-            <span>Orders & Insights</span>
-          </a>
-          <a href="{% url 'dashboard:menu' %}" class="flex items-center space-x-3 px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100">
-            <span>Menu Manager</span>
-          </a>
-          <a href="{% url 'dashboard:tables' %}" class="flex items-center space-x-3 px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100">
-            <span>Tables & QR Cards</span>
-          </a>
-          <a href="{% url 'dashboard:subscription' %}" class="flex items-center space-x-3 px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100">
-            <span>Subscription</span>
-          </a>
-          <a href="{% url 'dashboard:profile' %}" class="flex items-center space-x-3 px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100">
-            <span>Store Profile</span>
-          </a>
-        </nav>
-      </div>
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-xl ${isPayment ? 'bg-gradient-to-br from-blue-400/25 to-blue-500/10 border border-blue-400/40 text-blue-300' : 'bg-gradient-to-br from-amber-400/25 to-amber-500/10 border border-amber-400/40 text-amber-300'} flex items-center justify-center shrink-0 shadow-inner">
+            ${isPayment ? `
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            ` : `
+              <svg class="w-5 h-5 toast-bell-animate" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C10.9 2 10 2.9 10 4V4.29C7.03 5.17 5 7.9 5 11.2V17L3 19V20H21V19L19 17V11.2C19 7.9 16.97 5.17 14 4.29V4C14 2.9 13.1 2 12 2ZM12 23C13.1 23 14 22.1 14 21H10C10 22.1 10.9 23 12 23Z"/>
+              </svg>
+            `}
+          </div>
 
-      <div class="p-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-        <span class="text-xs font-bold">{{ request.user.username }}</span>
-        <form method="post" action="{% url 'logout' %}">
-          {% csrf_token %}
-          <button type="submit" class="text-xs text-red-600 font-semibold">Sign Out</button>
-        </form>
-      </div>
-    </aside>
-  </div>
-
-  <!-- 3. MAIN WORKSPACE CONTAINER -->
-  <div class="flex-1 flex flex-col min-w-0">
-    
-    <!-- Top Header Bar -->
-    <header class="h-16 sticky top-0 z-10 bg-white/95 dark:bg-[#1e293b]/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 px-4 sm:px-8 flex items-center justify-between">
-      
-      <div class="flex items-center space-x-3">
-        <button 
-          @click="mobileSidebarOpen = true" 
-          class="lg:hidden p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
-          aria-label="Open sidebar"
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-        </button>
-
-        <div class="flex items-center space-x-2">
-          <span class="font-bold text-sm text-slate-900 dark:text-white hidden sm:inline">{{ restaurant.name }}</span>
-          {% if restaurant.status == 'active' %}
-            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
-              Active
-            </span>
-          {% else %}
-            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
-              Paused
-            </span>
-          {% endif %}
-        </div>
-      </div>
-
-      <div class="flex items-center space-x-2.5">
-        <a 
-          href="{% url 'public:menu' slug=restaurant.slug %}" 
-          target="_blank"
-          class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold font-heading shadow-sm hover:opacity-95 transition-opacity"
-        >
-          <span>View Live Menu ↗</span>
-        </a>
-
-        <!-- Dark / Light Mode Toggle -->
-        <button 
-          type="button"
-          @click="
-            isDark = !isDark;
-            if (isDark) {
-              document.documentElement.classList.add('dark');
-              localStorage.setItem('theme', 'dark');
-            } else {
-              document.documentElement.classList.remove('dark');
-              localStorage.setItem('theme', 'light');
-            }
-          "
-          class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          aria-label="Toggle theme"
-        >
-          <template x-if="!isDark">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-          </template>
-          <template x-if="isDark">
-            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 9h-1m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-          </template>
-        </button>
-      </div>
-
-    </header>
-
-    <!-- Flash Messages -->
-    {% if messages %}
-      <div class="px-4 sm:px-8 pt-4">
-        <div class="space-y-2">
-          {% for message in messages %}
-            <div class="p-3.5 rounded-xl text-xs font-medium flex items-center justify-between shadow-sm {% if message.tags == 'success' %}bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50{% elif message.tags == 'error' %}bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800/50{% else %}bg-blue-50 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/50{% endif %}">
-              <span>{{ message }}</span>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-extrabold text-white tracking-tight">Table ${tableNum}</span>
+              <span class="px-1.5 py-0.2 rounded text-[10px] font-bold bg-white/10 text-slate-300 font-mono">#${orderId}</span>
             </div>
-          {% endfor %}
+            <p class="text-xs text-slate-300 font-medium truncate mt-0.5 max-w-[210px]" title="${summary}">
+              ${summary}
+            </p>
+          </div>
+
+          <div class="text-right shrink-0">
+            <span class="text-base font-black ${isPayment ? 'text-blue-300' : 'text-emerald-400'} font-mono block">
+              ₹${totalAmount}
+            </span>
+            <span class="text-[9px] text-slate-400 font-mono block uppercase tracking-wide">
+              ${(order.payment_method || 'BILL').toUpperCase()}
+            </span>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between gap-2 pt-1 border-t border-slate-800/80">
+          <span class="text-[11px] text-slate-400 font-mono">Live Sync</span>
+          <a href="${ordersUrl}#order-card-${orderId}" class="toast-action-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary-600 hover:bg-primary-500 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer">
+            <span>View in Kitchen</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </a>
         </div>
       </div>
-    {% endif %}
 
-    <!-- Main Workspace Content -->
-    <main class="flex-1 px-4 sm:px-8 py-6">
-      {% block dashboard_content %}{% endblock %}
-    </main>
+      <div class="h-1 w-full bg-slate-800 overflow-hidden">
+        <div class="toast-bar h-full ${isPayment ? 'bg-gradient-to-r from-blue-400 to-indigo-400' : 'bg-gradient-to-r from-emerald-400 via-teal-400 to-[#1ac9bf]'} transition-all duration-100 ease-linear" style="width: 100%;"></div>
+      </div>
+    `;
 
-  </div>
+    container.appendChild(toast);
 
-  <!-- Mobile Bottom Bar -->
-  <nav class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-[#1e293b]/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800">
-    <div class="grid grid-cols-5 h-16">
-      <a 
-        href="{% url 'dashboard:home' %}" 
-        class="flex flex-col items-center justify-center space-y-1 text-xs font-medium {% if request.resolver_match.url_name == 'home' %}text-slate-900 dark:text-white font-bold{% else %}text-slate-400{% endif %}"
-      >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-        <span class="text-[10px]">Home</span>
-      </a>
-      <a 
-        href="{% url 'dashboard:orders' %}" 
-        class="flex flex-col items-center justify-center space-y-1 text-xs font-medium {% if 'orders' in request.resolver_match.url_name %}text-slate-900 dark:text-white font-bold{% else %}text-slate-400{% endif %}"
-      >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-        <span class="text-[10px]">Orders</span>
-      </a>
-      <a 
-        href="{% url 'dashboard:menu' %}" 
-        class="flex flex-col items-center justify-center space-y-1 text-xs font-medium {% if 'menu' in request.resolver_match.url_name %}text-slate-900 dark:text-white font-bold{% else %}text-slate-400{% endif %}"
-      >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-        <span class="text-[10px]">Menu</span>
-      </a>
-      <a 
-        href="{% url 'dashboard:tables' %}" 
-        class="flex flex-col items-center justify-center space-y-1 text-xs font-medium {% if 'tables' in request.resolver_match.url_name %}text-slate-900 dark:text-white font-bold{% else %}text-slate-400{% endif %}"
-      >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
-        <span class="text-[10px]">Tables</span>
-      </a>
-      <a 
-        href="{% url 'dashboard:profile' %}" 
-        class="flex flex-col items-center justify-center space-y-1 text-xs font-medium {% if request.resolver_match.url_name == 'profile' %}text-slate-900 dark:text-white font-bold{% else %}text-slate-400{% endif %}"
-      >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-        <span class="text-[10px]">Profile</span>
-      </a>
-    </div>
-  </nav>
+    requestAnimationFrame(() => {
+      toast.classList.remove('translate-x-10', 'opacity-0', 'scale-95');
+      toast.classList.add('translate-x-0', 'opacity-100', 'scale-100');
+    });
 
-</div>
+    const progressBar = toast.querySelector('.toast-bar');
+    const closeBtn = toast.querySelector('.toast-close');
+    const actionBtn = toast.querySelector('.toast-action-btn');
+
+    let totalDuration = 5500;
+    let remaining = totalDuration;
+    let startTime = Date.now();
+    let isPaused = false;
+    let timerId = null;
+
+    function dismissToast() {
+      if (timerId) cancelAnimationFrame(timerId);
+      toast.classList.remove('translate-x-0', 'opacity-100', 'scale-100');
+      toast.classList.add('translate-x-12', 'opacity-0', 'scale-95');
+      setTimeout(() => toast.remove(), 300);
+    }
+
+    function step() {
+      if (!isPaused) {
+        const elapsed = Date.now() - startTime;
+        const currentRemaining = Math.max(0, remaining - elapsed);
+        const percent = (currentRemaining / totalDuration) * 100;
+        if (progressBar) progressBar.style.width = `${percent}%`;
+
+        if (currentRemaining <= 0) {
+          dismissToast();
+          return;
+        }
+      }
+      timerId = requestAnimationFrame(step);
+    }
+    timerId = requestAnimationFrame(step);
+
+    toast.addEventListener('mouseenter', () => {
+      isPaused = true;
+      const elapsed = Date.now() - startTime;
+      remaining = Math.max(0, remaining - elapsed);
+    });
+
+    toast.addEventListener('mouseleave', () => {
+      isPaused = false;
+      startTime = Date.now();
+    });
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dismissToast();
+      });
+    }
+
+    if (actionBtn) {
+      actionBtn.addEventListener('click', (e) => {
+        const targetCard = document.getElementById(`order-card-${orderId}`);
+        if (targetCard) {
+          e.preventDefault();
+          targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          targetCard.classList.add('ring-4', 'ring-emerald-500/50', 'ring-offset-2');
+          setTimeout(() => targetCard.classList.remove('ring-4', 'ring-emerald-500/50', 'ring-offset-2'), 3500);
+          dismissToast();
+        }
+      });
+    }
+  };
+
+  function handleNewOrder(order) {
+    playNotificationChime();
+
+    // Trigger Alpine bell reaction state
+    const appEl = document.querySelector('[x-data]');
+    if (appEl && window.Alpine) {
+      const alpineData = Alpine.$data(appEl);
+      if (alpineData) {
+        alpineData.unreadCount = (alpineData.unreadCount || 0) + 1;
+        alpineData.bellRinging = true;
+      }
+    }
+
+    // Prepend to topnav notifications dialog list (max 5)
+    const list = document.getElementById('topnav-notif-list');
+    const emptyState = document.getElementById('topnav-notif-empty');
+    if (emptyState) emptyState.remove();
+
+    if (list) {
+      const item = document.createElement('a');
+      item.href = "{% url 'dashboard:orders' %}";
+      item.className = 'p-2.5 rounded-xl bg-emerald-50/70 hover:bg-emerald-100/70 transition-colors flex items-start justify-between gap-3 group block border border-emerald-100 mb-1';
+      item.innerHTML = `
+        <div class="flex items-start gap-2.5 min-w-0">
+          <span class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center justify-center shrink-0 border border-emerald-200 font-mono mt-0.5">
+            T-${order.table_number}
+          </span>
+          <div class="min-w-0">
+            <p class="text-xs font-bold text-slate-900 group-hover:text-primary-700 transition-colors truncate">
+              Order #${order.id} &bull; Table ${order.table_number}
+            </p>
+            <p class="text-[11px] text-slate-600 truncate max-w-[210px]">
+              ${order.items_summary || 'New items ordered'}
+            </p>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="text-[10px] text-slate-400 font-mono">Just now</span>
+              <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">
+                New Order
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="text-right shrink-0">
+          <span class="text-xs font-black text-emerald-700 font-mono">
+            ₹${Math.round(order.total_amount)}
+          </span>
+        </div>
+      `;
+      list.prepend(item);
+
+      // Keep only latest 5 notifications
+      while (list.children.length > 5) {
+        list.lastElementChild.remove();
+      }
+    }
+
+    // Trigger premium toast notification
+    if (window.showDashboardOrderToast) {
+      window.showDashboardOrderToast(order, { type: 'new_order' });
+    }
+  }
+
+  function connect() {
+    ws = new WebSocket(wsUrl);
+    ws.onmessage = function(event) {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'new_order_event' && data.order) {
+          handleNewOrder(data.order);
+        } else if (data.type === 'payment_update_event') {
+          playNotificationChime();
+          const appEl = document.querySelector('[x-data]');
+          if (appEl && window.Alpine) {
+            const alpineData = Alpine.$data(appEl);
+            if (alpineData) {
+              alpineData.unreadCount = (alpineData.unreadCount || 0) + 1;
+              alpineData.bellRinging = true;
+            }
+          }
+          if (window.showDashboardOrderToast) {
+            window.showDashboardOrderToast(data, { type: 'payment' });
+          }
+        }
+      } catch (e) {
+        console.error('Error in topnav notifications WS:', e);
+      }
+    };
+    ws.onclose = function() {
+      setTimeout(connect, 3000);
+    };
+  }
+
+  connect();
+})();
+</script>
+{% endif %}
 {% endblock %}

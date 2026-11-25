@@ -8,15 +8,15 @@ class CategoryForm(forms.ModelForm):
         fields = ['name', 'position', 'is_visible']
         widgets = {
             'name': forms.TextInput(attrs={
-                'class': 'w-full text-sm rounded-xl px-3.5 py-2.5 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark focus:ring-2 focus:ring-tapbhoj-brand dark:focus:ring-tapbhoj-accent focus:outline-none',
+                'class': 'w-full text-xs rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 focus:ring-2 focus:ring-primary-600 focus:outline-none shadow-xs',
                 'placeholder': 'e.g. Starters, Main Course, Drinks'
             }),
             'position': forms.NumberInput(attrs={
-                'class': 'w-full text-sm rounded-xl px-3.5 py-2.5 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark focus:ring-2 focus:ring-tapbhoj-brand dark:focus:ring-tapbhoj-accent focus:outline-none',
+                'class': 'w-full text-xs rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 focus:ring-2 focus:ring-primary-600 focus:outline-none shadow-xs',
                 'min': '0'
             }),
             'is_visible': forms.CheckboxInput(attrs={
-                'class': 'w-4 h-4 rounded text-tapbhoj-brand dark:text-tapbhoj-accent focus:ring-tapbhoj-brand dark:focus:ring-tapbhoj-accent border-black/10 dark:border-white/10'
+                'class': 'w-4 h-4 rounded text-primary-600 focus:ring-primary-600 border-slate-300'
             }),
         }
 
@@ -37,39 +37,39 @@ class MenuItemForm(forms.ModelForm):
         ]
         widgets = {
             'category': forms.Select(attrs={
-                'class': 'w-full text-sm rounded-xl px-3.5 py-2.5 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark focus:ring-2 focus:ring-tapbhoj-brand dark:focus:ring-tapbhoj-accent focus:outline-none'
+                'class': 'w-full text-xs rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 focus:ring-2 focus:ring-primary-600 focus:outline-none shadow-xs'
             }),
             'name': forms.TextInput(attrs={
-                'class': 'w-full text-sm rounded-xl px-3.5 py-2.5 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark focus:ring-2 focus:ring-tapbhoj-brand dark:focus:ring-tapbhoj-accent focus:outline-none',
+                'class': 'w-full text-xs rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 focus:ring-2 focus:ring-primary-600 focus:outline-none shadow-xs',
                 'placeholder': 'e.g. Paneer Butter Masala'
             }),
             'description': forms.Textarea(attrs={
                 'rows': 2,
-                'class': 'w-full text-sm rounded-xl px-3.5 py-2.5 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark focus:ring-2 focus:ring-tapbhoj-brand dark:focus:ring-tapbhoj-accent focus:outline-none',
+                'class': 'w-full text-xs rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 focus:ring-2 focus:ring-primary-600 focus:outline-none shadow-xs',
                 'placeholder': 'Short description of the dish and ingredients'
             }),
             'price': forms.NumberInput(attrs={
-                'class': 'w-full text-sm rounded-xl px-3.5 py-2.5 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark focus:ring-2 focus:ring-tapbhoj-brand dark:focus:ring-tapbhoj-accent focus:outline-none',
+                'class': 'w-full text-xs rounded-xl !pl-8 pr-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 focus:ring-2 focus:ring-primary-600 focus:outline-none shadow-xs',
                 'step': '1',
                 'min': '0',
-                'placeholder': '₹'
+                'placeholder': '0'
             }),
             'is_veg': forms.CheckboxInput(attrs={
-                'class': 'w-4 h-4 rounded text-tapbhoj-veg focus:ring-tapbhoj-veg border-black/10 dark:border-white/10'
+                'class': 'w-4 h-4 rounded text-emerald-600 focus:ring-emerald-600 border-slate-300'
             }),
             'is_available': forms.CheckboxInput(attrs={
-                'class': 'w-4 h-4 rounded text-tapbhoj-brand dark:text-tapbhoj-accent focus:ring-tapbhoj-brand border-black/10 dark:border-white/10'
+                'class': 'w-4 h-4 rounded text-primary-600 focus:ring-primary-600 border-slate-300'
             }),
             'tags': forms.TextInput(attrs={
-                'class': 'w-full text-sm rounded-xl px-3.5 py-2.5 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark focus:ring-2 focus:ring-tapbhoj-brand dark:focus:ring-tapbhoj-accent focus:outline-none',
+                'class': 'w-full text-xs rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 focus:ring-2 focus:ring-primary-600 focus:outline-none shadow-xs',
                 'placeholder': 'Comma-separated, e.g. Bestseller, Chef Pick, Spicy'
             }),
             'position': forms.NumberInput(attrs={
-                'class': 'w-full text-sm rounded-xl px-3.5 py-2.5 bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark border border-black/10 dark:border-white/10 text-tapbhoj-ink dark:text-tapbhoj-ink-dark focus:ring-2 focus:ring-tapbhoj-brand dark:focus:ring-tapbhoj-accent focus:outline-none',
+                'class': 'w-full text-xs rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 focus:ring-2 focus:ring-primary-600 focus:outline-none shadow-xs',
                 'min': '0'
             }),
             'photo': forms.FileInput(attrs={
-                'class': 'w-full text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-tapbhoj-brand/10 file:text-tapbhoj-brand dark:file:bg-tapbhoj-accent/20 dark:file:text-tapbhoj-accent hover:file:bg-tapbhoj-brand/20'
+                'class': 'w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 cursor-pointer'
             }),
         }
 

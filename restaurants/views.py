@@ -27,6 +27,7 @@ def dashboard_home(request):
     today_orders = restaurant.orders.filter(created_at__gte=today_start)
     today_orders_count = today_orders.count()
     today_sales = today_orders.filter(~Q(status='cancelled')).aggregate(s=Sum('total_amount'))['s'] or 0
+    recent_orders = restaurant.orders.all().order_by('-created_at')[:5]
 
     context = {
         'restaurant': restaurant,
@@ -36,6 +37,7 @@ def dashboard_home(request):
         'number_of_tables': restaurant.number_of_tables,
         'today_orders_count': today_orders_count,
         'today_sales': today_sales,
+        'recent_orders': recent_orders,
     }
     return render(request, 'dashboard/home.html', context)
 
@@ -139,7 +141,7 @@ def table_print_sheet(request):
             'qr_url': reverse('dashboard:table_qr', kwargs={'table_number': num}),
         })
 
-    return render(request, 'dashboard/print_sheet.html', {
+    return render(request, 'dashboard/tables_print.html', {
         'restaurant': restaurant,
         'tables': tables,
     })

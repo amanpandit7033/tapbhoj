@@ -102,7 +102,7 @@ def item_create(request):
     else:
         form = MenuItemForm(restaurant=restaurant)
 
-    return render(request, 'dashboard/item_form.html', {
+    return render(request, 'dashboard/dish_form.html', {
         'restaurant': restaurant,
         'form': form,
         'is_edit': False,
@@ -124,7 +124,7 @@ def item_edit(request, pk):
     else:
         form = MenuItemForm(instance=item, restaurant=restaurant)
 
-    return render(request, 'dashboard/item_form.html', {
+    return render(request, 'dashboard/dish_form.html', {
         'restaurant': restaurant,
         'item': item,
         'form': form,

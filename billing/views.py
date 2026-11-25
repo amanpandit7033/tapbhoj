@@ -15,7 +15,7 @@ from django.utils import timezone
 from accounts.models import OwnerProfile
 from core.decorators import owner_required
 from menu.models import MenuItem
-from orders.models import OrderLog
+from orders.models import OrderLog, TableSession
 from restaurants.models import Restaurant
 from .forms import (
     OwnerAccountEditForm,
@@ -32,6 +32,91 @@ from .models import Plan, Subscription
 
 @staff_member_required(login_url='login')
 def platform_dashboard(request):
+    """
+    Platform superadmin dashboard showing real-time today operational counts:
+    orders, gross merchandise value, UPI verified revenue, active tables,
+    store activity, and live order streams.
+    """
+    now = timezone.now()
+    local_now = timezone.localtime(now)
+    today_start = local_now.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    # Today's orders
+    today_orders_qs = OrderLog.objects.filter(created_at__gte=today_start).select_related('restaurant')
+    today_order_count = today_orders_qs.count()
+    today_volume = today_orders_qs.aggregate(total=Sum('total_amount'))['total'] or 0
+    today_aov = (today_volume / today_order_count) if today_order_count > 0 else 0
+
+    # Today's payment breakdown
+    today_paid_orders = today_orders_qs.filter(payment_status='paid')
+    today_paid_count = today_paid_orders.count()
+    today_paid_volume = today_paid_orders.aggregate(total=Sum('total_amount'))['total'] or 0
+
+    today_pending_payment_count = today_orders_qs.filter(payment_status='pending').count()
+    today_unpaid_count = today_orders_qs.filter(payment_status='unpaid').count()
+
+    # Order status breakdown for today
+    status_counts = {
+        'sent': today_orders_qs.filter(status='sent').count(),
+        'preparing': today_orders_qs.filter(status='preparing').count(),
+        'completed': today_orders_qs.filter(status='completed').count(),
+        'cancelled': today_orders_qs.filter(status='cancelled').count(),
+    }
+
+    # Real-time active tables across all stores
+    active_tables_count = TableSession.objects.filter(is_active=True).count()
+
+    # Store counts
+    total_stores_count = Restaurant.objects.count()
+    active_stores_count = Restaurant.objects.filter(status='active').count()
+
+    # Stores receiving orders today
+    stores_active_today_count = today_orders_qs.values('restaurant_id').distinct().count()
+
+    # Stores onboarded today
+    new_stores_today_count = Restaurant.objects.filter(created_at__gte=today_start).count()
+
+    # Top performing restaurants today
+    top_restaurants_today = (
+        Restaurant.objects.filter(orders__created_at__gte=today_start)
+        .annotate(
+            today_orders=Count('orders', filter=Q(orders__created_at__gte=today_start), distinct=True),
+            today_revenue=Sum('orders__total_amount', filter=Q(orders__created_at__gte=today_start))
+        )
+        .order_by('-today_orders', '-today_revenue')
+        .distinct()[:5]
+    )
+
+    # Latest orders placed today (live feed)
+    recent_orders_today = today_orders_qs.order_by('-created_at')[:15]
+
+    context = {
+        'today_date': local_now,
+        'today_order_count': today_order_count,
+        'today_volume': today_volume,
+        'today_aov': today_aov,
+        'today_paid_count': today_paid_count,
+        'today_paid_volume': today_paid_volume,
+        'today_pending_payment_count': today_pending_payment_count,
+        'today_unpaid_count': today_unpaid_count,
+        'status_counts': status_counts,
+        'active_tables_count': active_tables_count,
+        'total_stores_count': total_stores_count,
+        'active_stores_count': active_stores_count,
+        'stores_active_today_count': stores_active_today_count,
+        'new_stores_today_count': new_stores_today_count,
+        'top_restaurants_today': top_restaurants_today,
+        'recent_orders_today': recent_orders_today,
+    }
+    return render(request, 'platform/dashboard.html', context)
+
+
+# Alias for backward compatibility
+platform_today_dashboard = platform_dashboard
+
+
+@staff_member_required(login_url='login')
+def platform_stores(request):
     """Platform admin overview of all restaurants, statuses, and subscriptions."""
     status_filter = request.GET.get('status', '').strip()
     search_query = request.GET.get('q', '').strip()
@@ -71,7 +156,7 @@ def platform_dashboard(request):
         'status_filter': status_filter,
         'search_query': search_query,
     }
-    return render(request, 'platform/dashboard.html', context)
+    return render(request, 'platform/stores.html', context)
 
 
 @staff_member_required(login_url='login')
@@ -280,8 +365,8 @@ def platform_item_toggle(request, pk):
 @staff_member_required(login_url='login')
 def platform_impersonate(request, pk):
     """
-    Requirement A6: Impersonate or assist an owner to enter their menu.
-    Logs staff member in as the restaurant's owner user.
+    Requirement A6: Impersonate an owner to assist with their menu or store settings.
+    Logs staff member in as the restaurant's owner user and records impersonator session metadata.
     """
     restaurant = get_object_or_404(Restaurant, pk=pk)
     owner_profile = restaurant.owners.first()
@@ -289,10 +374,42 @@ def platform_impersonate(request, pk):
         messages.error(request, f'No owner user account found for "{restaurant.name}".')
         return redirect('platform:restaurant_detail', pk=pk)
 
+    original_admin_id = request.user.id
     owner_user = owner_profile.user
     auth_login(request, owner_user)
-    messages.info(request, f'Now assisting as "{owner_user.username}" for restaurant "{restaurant.name}".')
+
+    # Persist impersonation state across the newly authenticated session
+    request.session['impersonator_id'] = original_admin_id
+    request.session['impersonated_restaurant_name'] = restaurant.name
+    request.session['impersonated_restaurant_id'] = restaurant.pk
+
+    messages.info(request, f'Impersonating "{owner_user.username}" for restaurant "{restaurant.name}". Use "Exit Impersonation" at any time to return to Platform Admin.')
     return redirect('dashboard:home')
+
+
+def platform_exit_impersonate(request):
+    """
+    Exit impersonation mode and return back to Platform Admin account.
+    """
+    impersonator_id = request.session.get('impersonator_id')
+    restaurant_id = request.session.get('impersonated_restaurant_id')
+
+    if not impersonator_id:
+        messages.error(request, 'No active impersonation session found.')
+        return redirect('dashboard:home')
+
+    admin_user = get_object_or_404(User, pk=impersonator_id, is_staff=True)
+    auth_login(request, admin_user)
+
+    # Clean up impersonation session keys
+    request.session.pop('impersonator_id', None)
+    request.session.pop('impersonated_restaurant_name', None)
+    request.session.pop('impersonated_restaurant_id', None)
+
+    messages.success(request, 'Exited impersonation mode. Returned to Platform Admin.')
+    if restaurant_id:
+        return redirect('platform:restaurant_detail', pk=restaurant_id)
+    return redirect('platform:dashboard')
 
 
 @staff_member_required(login_url='login')
