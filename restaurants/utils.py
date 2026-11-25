@@ -37,10 +37,10 @@ def distance_to_segment(p_lat: float, p_lng: float, a_lat: float, a_lng: float, 
     return math.hypot(px - proj_x, py - proj_y)
 
 
-def is_point_inside_polygon(lat: float, lng: float, polygon: list, tolerance_meters: float = 15.0) -> bool:
+def is_point_inside_polygon(lat: float, lng: float, polygon: list, tolerance_meters: float = 5.0) -> bool:
     """
-    Check if a coordinate (lat, lng) is inside a polygon, or within a tolerance buffer (default 15m)
-    to handle indoor smartphone GPS drift.
+    Check if a coordinate (lat, lng) is inside a polygon, or within a tight tolerance buffer (default 5.0m)
+    to handle minor indoor smartphone GPS drift without allowing orders outside the premises.
     """
     if not polygon or len(polygon) < 3:
         return True
