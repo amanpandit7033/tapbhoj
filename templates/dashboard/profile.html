@@ -237,43 +237,8 @@
         {% endif %}
       </div>
 
-      <!-- GPS Geofencing & 4-Corner Store Boundary -->
+      <!-- GPS Geofencing (Circular Radius) -->
       <div class="pt-3 border-t border-slate-100 space-y-4" x-data="{
-        mode: '{{ restaurant.boundary_polygon|yesno:"corners,circle" }}',
-        corners: {{ restaurant.boundary_polygon|default:'[{},{},{},{}]'|safe }},
-        capturingIdx: null,
-
-        initCorners() {
-          while (this.corners.length < 4) {
-            this.corners.push({ lat: '', lng: '' });
-          }
-        },
-
-        captureCorner(idx) {
-          if (!navigator.geolocation) {
-            alert('Geolocation is not supported by your browser.');
-            return;
-          }
-          this.capturingIdx = idx;
-          navigator.geolocation.getCurrentPosition(
-            (pos) => {
-              const latVal = pos.coords.latitude.toFixed(6);
-              const lngVal = pos.coords.longitude.toFixed(6);
-              this.corners[idx] = { lat: latVal, lng: lngVal };
-              const latInput = document.getElementById(`c${idx + 1}_lat`);
-              const lngInput = document.getElementById(`c${idx + 1}_lng`);
-              if (latInput) latInput.value = latVal;
-              if (lngInput) lngInput.value = lngVal;
-              this.capturingIdx = null;
-            },
-            (err) => {
-              alert('Could not detect location. Please enter coordinates manually.');
-              this.capturingIdx = null;
-            },
-            { enableHighAccuracy: true }
-          );
-        },
-
         detectCenter() {
           if (!navigator.geolocation) {
             alert('Geolocation is not supported by your browser.');
@@ -284,143 +249,47 @@
               document.getElementById('{{ form.latitude.id_for_label }}').value = pos.coords.latitude.toFixed(6);
               document.getElementById('{{ form.longitude.id_for_label }}').value = pos.coords.longitude.toFixed(6);
             },
-            (err) => alert('Could not detect location.'),
+            (err) => alert('Could not detect location. Please check browser permissions.'),
             { enableHighAccuracy: true }
           );
         }
-      }" x-init="initCorners()">
-
+      }">
         <div class="flex items-center justify-between pb-1">
           <div>
             <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">GPS Geofencing Anti-Spam</h3>
-            <p class="text-[11px] text-slate-400">Strictly prevents orders from phones located outside your restaurant premise.</p>
+            <p class="text-[11px] text-slate-400">Prevents spam orders from people sitting miles away from your restaurant.</p>
           </div>
-
-          <!-- Mode Toggle Tabs -->
-          <div class="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200">
-            <button type="button" @click="mode = 'corners'"
-                    :class="mode === 'corners' ? 'bg-white text-primary-700 shadow-2xs font-bold' : 'text-slate-600 font-semibold'"
-                    class="px-2.5 py-1 text-xs rounded-lg transition-all cursor-pointer">
-              4 Corners Boundary (High Precision)
-            </button>
-            <button type="button" @click="mode = 'circle'"
-                    :class="mode === 'circle' ? 'bg-white text-primary-700 shadow-2xs font-bold' : 'text-slate-600 font-semibold'"
-                    class="px-2.5 py-1 text-xs rounded-lg transition-all cursor-pointer">
-              Circular Radius
-            </button>
-          </div>
+          <button type="button" @click="detectCenter()"
+                  class="px-2.5 py-1 rounded-lg bg-primary-50 text-primary-700 text-xs font-bold hover:bg-primary-100 transition-colors cursor-pointer">
+            Detect My GPS
+          </button>
         </div>
 
-        <!-- Mode 1: 4-Corner Polygon Boundary -->
-        <div x-show="mode === 'corners'" class="space-y-3 bg-slate-50/70 p-4 rounded-2xl border border-slate-200/80">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-800">4 Corner Building Boundary</span>
-            <span class="text-[10px] text-slate-400">Walk to each corner and tap "Capture GPS"</span>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <!-- Corner 1 (Top-Left) -->
-            <div class="p-3 bg-white rounded-xl border border-slate-200 shadow-2xs space-y-2">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-slate-700">Corner 1 (Top-Left / NW)</span>
-                <button type="button" @click="captureCorner(0)"
-                        class="px-2 py-0.5 rounded-lg bg-primary-50 text-primary-700 text-[10px] font-bold hover:bg-primary-100 transition-colors cursor-pointer">
-                  <span x-text="capturingIdx === 0 ? 'Capturing...' : 'Capture GPS'"></span>
-                </button>
-              </div>
-              <div class="grid grid-cols-2 gap-2 text-[11px]">
-                <input type="number" step="0.000001" name="c1_lat" id="c1_lat" placeholder="Latitude" x-model="corners[0].lat"
-                       class="w-full text-xs font-mono rounded-lg px-2.5 py-1.5 bg-slate-50 border border-slate-200">
-                <input type="number" step="0.000001" name="c1_lng" id="c1_lng" placeholder="Longitude" x-model="corners[0].lng"
-                       class="w-full text-xs font-mono rounded-lg px-2.5 py-1.5 bg-slate-50 border border-slate-200">
-              </div>
+        <div class="space-y-3 bg-slate-50/70 p-4 rounded-2xl border border-slate-200/80">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="space-y-1">
+              <label for="{{ form.latitude.id_for_label }}" class="block text-[11px] font-semibold text-slate-500">
+                Latitude
+              </label>
+              {{ form.latitude }}
             </div>
-
-            <!-- Corner 2 (Top-Right) -->
-            <div class="p-3 bg-white rounded-xl border border-slate-200 shadow-2xs space-y-2">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-slate-700">Corner 2 (Top-Right / NE)</span>
-                <button type="button" @click="captureCorner(1)"
-                        class="px-2 py-0.5 rounded-lg bg-primary-50 text-primary-700 text-[10px] font-bold hover:bg-primary-100 transition-colors cursor-pointer">
-                  <span x-text="capturingIdx === 1 ? 'Capturing...' : 'Capture GPS'"></span>
-                </button>
-              </div>
-              <div class="grid grid-cols-2 gap-2 text-[11px]">
-                <input type="number" step="0.000001" name="c2_lat" id="c2_lat" placeholder="Latitude" x-model="corners[1].lat"
-                       class="w-full text-xs font-mono rounded-lg px-2.5 py-1.5 bg-slate-50 border border-slate-200">
-                <input type="number" step="0.000001" name="c2_lng" id="c2_lng" placeholder="Longitude" x-model="corners[1].lng"
-                       class="w-full text-xs font-mono rounded-lg px-2.5 py-1.5 bg-slate-50 border border-slate-200">
-              </div>
+            <div class="space-y-1">
+              <label for="{{ form.longitude.id_for_label }}" class="block text-[11px] font-semibold text-slate-500">
+                Longitude
+              </label>
+              {{ form.longitude }}
             </div>
-
-            <!-- Corner 3 (Bottom-Right) -->
-            <div class="p-3 bg-white rounded-xl border border-slate-200 shadow-2xs space-y-2">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-slate-700">Corner 3 (Bottom-Right / SE)</span>
-                <button type="button" @click="captureCorner(2)"
-                        class="px-2 py-0.5 rounded-lg bg-primary-50 text-primary-700 text-[10px] font-bold hover:bg-primary-100 transition-colors cursor-pointer">
-                  <span x-text="capturingIdx === 2 ? 'Capturing...' : 'Capture GPS'"></span>
-                </button>
-              </div>
-              <div class="grid grid-cols-2 gap-2 text-[11px]">
-                <input type="number" step="0.000001" name="c3_lat" id="c3_lat" placeholder="Latitude" x-model="corners[2].lat"
-                       class="w-full text-xs font-mono rounded-lg px-2.5 py-1.5 bg-slate-50 border border-slate-200">
-                <input type="number" step="0.000001" name="c3_lng" id="c3_lng" placeholder="Longitude" x-model="corners[2].lng"
-                       class="w-full text-xs font-mono rounded-lg px-2.5 py-1.5 bg-slate-50 border border-slate-200">
-              </div>
-            </div>
-
-            <!-- Corner 4 (Bottom-Left) -->
-            <div class="p-3 bg-white rounded-xl border border-slate-200 shadow-2xs space-y-2">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-slate-700">Corner 4 (Bottom-Left / SW)</span>
-                <button type="button" @click="captureCorner(3)"
-                        class="px-2 py-0.5 rounded-lg bg-primary-50 text-primary-700 text-[10px] font-bold hover:bg-primary-100 transition-colors cursor-pointer">
-                  <span x-text="capturingIdx === 3 ? 'Capturing...' : 'Capture GPS'"></span>
-                </button>
-              </div>
-              <div class="grid grid-cols-2 gap-2 text-[11px]">
-                <input type="number" step="0.000001" name="c4_lat" id="c4_lat" placeholder="Latitude" x-model="corners[3].lat"
-                       class="w-full text-xs font-mono rounded-lg px-2.5 py-1.5 bg-slate-50 border border-slate-200">
-                <input type="number" step="0.000001" name="c4_lng" id="c4_lng" placeholder="Longitude" x-model="corners[3].lng"
-                       class="w-full text-xs font-mono rounded-lg px-2.5 py-1.5 bg-slate-50 border border-slate-200">
-              </div>
+            <div class="space-y-1">
+              <label for="{{ form.geofence_radius.id_for_label }}" class="block text-[11px] font-semibold text-slate-500">
+                Allowed Radius (Meters)
+              </label>
+              {{ form.geofence_radius }}
             </div>
           </div>
-          <p class="text-[11px] text-slate-500">Only diners whose phones are physically inside these 4 walls can place orders.</p>
+          <p class="text-[11px] text-slate-400">
+            Recommended: 50 to 100 meters. Leave empty to allow orders without GPS verification.
+          </p>
         </div>
-
-        <!-- Mode 2: Circular Radius -->
-        <div x-show="mode === 'circle'" class="space-y-3 bg-slate-50/70 p-4 rounded-2xl border border-slate-200/80">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-slate-800">Store Center &amp; Radius</span>
-              <button type="button" @click="detectCenter()"
-                      class="px-2.5 py-1 rounded-lg bg-primary-50 text-primary-700 text-xs font-bold hover:bg-primary-100 transition-colors">
-                Detect Center GPS
-              </button>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div class="space-y-1">
-                <label for="{{ form.latitude.id_for_label }}" class="block text-[11px] font-semibold text-slate-500">
-                  Latitude
-                </label>
-                {{ form.latitude }}
-              </div>
-              <div class="space-y-1">
-                <label for="{{ form.longitude.id_for_label }}" class="block text-[11px] font-semibold text-slate-500">
-                  Longitude
-                </label>
-                {{ form.longitude }}
-              </div>
-              <div class="space-y-1">
-                <label for="{{ form.geofence_radius.id_for_label }}" class="block text-[11px] font-semibold text-slate-500">
-                  Radius (Meters)
-                </label>
-                {{ form.geofence_radius }}
-              </div>
-            </div>
-          </div>
       </div>
     </div>
 

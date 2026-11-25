@@ -112,11 +112,10 @@ def log_public_order(request, slug):
     if not table_number:
         return HttpResponseBadRequest("Table number is required.")
 
-    # Geofence Validation: Polygon (4 Corners) or Circular Radius
-    has_polygon = bool(restaurant.boundary_polygon and len(restaurant.boundary_polygon) >= 3)
-    has_circle = bool(restaurant.latitude is not None and restaurant.longitude is not None)
+    # Geofence Validation: Circular Radius from Restaurant Coordinates
+    has_geofence = bool(restaurant.latitude is not None and restaurant.longitude is not None)
 
-    if has_polygon or has_circle:
+    if has_geofence:
         client_lat = data.get('lat')
         client_lng = data.get('lng')
 
@@ -125,33 +124,23 @@ def log_public_order(request, slug):
                 cl_lat = float(client_lat)
                 cl_lng = float(client_lng)
 
-                # Prioritize high-precision 4-Corner Polygon if set
-                if has_polygon:
-                    from restaurants.utils import is_point_inside_polygon
-                    if not is_point_inside_polygon(cl_lat, cl_lng, restaurant.boundary_polygon):
-                        return JsonResponse({
-                            'status': 'error',
-                            'code': 'OUT_OF_BOUNDS',
-                            'message': f"Your device location is outside the authorized building boundary of {restaurant.name}. Orders can only be placed while seated inside the restaurant.",
-                        }, status=403)
-                elif has_circle:
-                    import math
-                    lat1, lon1 = math.radians(float(restaurant.latitude)), math.radians(float(restaurant.longitude))
-                    lat2, lon2 = math.radians(cl_lat), math.radians(cl_lng)
+                import math
+                lat1, lon1 = math.radians(float(restaurant.latitude)), math.radians(float(restaurant.longitude))
+                lat2, lon2 = math.radians(cl_lat), math.radians(cl_lng)
 
-                    dlat = lat2 - lat1
-                    dlon = lon2 - lon1
-                    a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
-                    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-                    distance_meters = 6371000 * c  # Earth radius in meters
+                dlat = lat2 - lat1
+                dlon = lon2 - lon1
+                a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
+                c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+                distance_meters = 6371000 * c  # Earth radius in meters
 
-                    allowed_radius = restaurant.geofence_radius or 200
-                    if distance_meters > allowed_radius:
-                        return JsonResponse({
-                            'status': 'error',
-                            'code': 'OUT_OF_RANGE',
-                            'message': f"You appear to be {distance_meters:.0f}m away from the restaurant. Ordering is only permitted within {allowed_radius}m of {restaurant.name}.",
-                        }, status=403)
+                allowed_radius = restaurant.geofence_radius or 100
+                if distance_meters > allowed_radius:
+                    return JsonResponse({
+                        'status': 'error',
+                        'code': 'OUT_OF_RANGE',
+                        'message': f"You appear to be {distance_meters:.0f}m away from the restaurant. Ordering is only permitted within {allowed_radius}m of {restaurant.name}.",
+                    }, status=403)
             except Exception:
                 pass
         else:
