@@ -346,4 +346,31 @@ class PlatformAdminAndBillingTests(TestCase):
         new_plan.refresh_from_db()
         self.assertFalse(new_plan.is_active)
 
+    def test_separated_plans_and_subscriptions_views(self):
+        """Verify separated Plans and Subscriptions pages load independently with proper data."""
+        self.client.login(username='staff', password='Password@123')
+
+        # 1. Plans page
+        plans_res = self.client.get(reverse('platform:plans'))
+        self.assertEqual(plans_res.status_code, 200)
+        self.assertContains(plans_res, 'Subscription Plans')
+        self.assertContains(plans_res, 'Starter Plan')
+
+        # 2. Subscriptions page
+        subs_res = self.client.get(reverse('platform:subscriptions'))
+        self.assertEqual(subs_res.status_code, 200)
+        self.assertContains(subs_res, 'Store Subscriptions')
+        self.assertContains(subs_res, 'Test Bistro')
+
+        # 3. Filter on subscriptions page
+        subs_filter_res = self.client.get(reverse('platform:subscriptions') + '?status=trialing')
+        self.assertEqual(subs_filter_res.status_code, 200)
+        self.assertContains(subs_filter_res, 'Test Bistro')
+
+        # 4. Legacy billing overview redirect
+        legacy_res = self.client.get(reverse('platform:billing_overview'))
+        self.assertEqual(legacy_res.status_code, 302)
+        self.assertRedirects(legacy_res, reverse('platform:subscriptions'))
+
+
 

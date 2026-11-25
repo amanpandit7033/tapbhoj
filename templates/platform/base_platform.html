@@ -85,10 +85,16 @@
                 <span class="nav-text truncate">Platform Analytics</span>
             </a>
 
-            <!-- Billing & Subscriptions -->
-            <a href="{% url 'platform:billing_overview' %}" title="Billing & Subscriptions" class="nl{% if request.resolver_match.url_name == 'billing_overview' %} on{% endif %}">
+            <!-- Store Subscriptions -->
+            <a href="{% url 'platform:subscriptions' %}" title="Subscriptions" class="nl{% if request.resolver_match.url_name in 'subscriptions billing_overview' %} on{% endif %}">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                <span class="nav-text truncate">Subscriptions</span>
+            </a>
+
+            <!-- Subscription Plans -->
+            <a href="{% url 'platform:plans' %}" title="Plans" class="nl{% if request.resolver_match.url_name in 'plans plan_create plan_edit' %} on{% endif %}">
                 <svg class="ic shrink-0" fill="none" stroke="currentColor"><use href="#i-coin"/></svg>
-                <span class="nav-text truncate">Billing &amp; Subscriptions</span>
+                <span class="nav-text truncate">Plans</span>
             </a>
         </div>
 

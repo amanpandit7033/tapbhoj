@@ -520,15 +520,56 @@ def platform_analytics(request):
 
 
 @staff_member_required(login_url='login')
-def platform_billing_overview(request):
-    """Platform-wide billing and plans overview."""
-    plans = Plan.objects.all()
-    subscriptions = Subscription.objects.select_related('restaurant', 'plan').order_by('-created_at')
-
-    return render(request, 'platform/billing_overview.html', {
+def platform_plans(request):
+    """Platform-wide commercial subscription plans management."""
+    plans = Plan.objects.all().order_by('price')
+    return render(request, 'platform/plans.html', {
         'plans': plans,
-        'subscriptions': subscriptions,
     })
+
+
+@staff_member_required(login_url='login')
+def platform_subscriptions(request):
+    """Platform-wide store subscriptions management with filters."""
+    qs = Subscription.objects.select_related('restaurant', 'plan').order_by('-created_at')
+
+    # Status counts before filtering
+    total_count = qs.count()
+    active_count = qs.filter(status='active').count()
+    trialing_count = qs.filter(status='trialing').count()
+    past_due_count = qs.filter(status__in=['past_due', 'expired', 'paused']).count()
+
+    # Status filter
+    status_filter = request.GET.get('status', '').strip()
+    if status_filter:
+        if status_filter == 'past_due':
+            qs = qs.filter(status__in=['past_due', 'expired', 'paused'])
+        else:
+            qs = qs.filter(status=status_filter)
+
+    # Search filter
+    search_q = request.GET.get('q', '').strip()
+    if search_q:
+        qs = qs.filter(
+            Q(restaurant__name__icontains=search_q) |
+            Q(restaurant__slug__icontains=search_q)
+        )
+
+    return render(request, 'platform/subscriptions.html', {
+        'subscriptions': qs,
+        'total_count': total_count,
+        'active_count': active_count,
+        'trialing_count': trialing_count,
+        'past_due_count': past_due_count,
+        'current_status': status_filter,
+        'search_query': search_q,
+    })
+
+
+@staff_member_required(login_url='login')
+def platform_billing_overview(request):
+    """Legacy alias redirecting to subscriptions view."""
+    return redirect('platform:subscriptions')
 
 
 @staff_member_required(login_url='login')

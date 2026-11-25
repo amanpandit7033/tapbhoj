@@ -20,9 +20,11 @@ urlpatterns = [
     path('items/<int:pk>/toggle/', views.platform_item_toggle, name='item_toggle'),
     path('orders/', views.platform_live_orders, name='live_orders'),
     path('analytics/', views.platform_analytics, name='analytics'),
+    path('subscriptions/', views.platform_subscriptions, name='subscriptions'),
+    path('plans/', views.platform_plans, name='plans'),
     path('billing/', views.platform_billing_overview, name='billing_overview'),
-    path('billing/plans/new/', views.platform_plan_create, name='plan_create'),
-    path('billing/plans/<int:pk>/edit/', views.platform_plan_edit, name='plan_edit'),
-    path('billing/plans/<int:pk>/toggle/', views.platform_plan_toggle, name='plan_toggle'),
+    path('plans/new/', views.platform_plan_create, name='plan_create'),
+    path('plans/<int:pk>/edit/', views.platform_plan_edit, name='plan_edit'),
+    path('plans/<int:pk>/toggle/', views.platform_plan_toggle, name='plan_toggle'),
 ]
 
