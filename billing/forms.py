@@ -176,3 +176,47 @@ class OwnerAccountEditForm(forms.Form):
         }),
         help_text='Enter a new password if you want to reset the owner login.'
     )
+
+
+class PlanForm(forms.ModelForm):
+    class Meta:
+        model = Plan
+        fields = ['name', 'slug', 'price', 'duration_days', 'description', 'is_active']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'w-full text-xs rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all shadow-xs',
+                'placeholder': 'e.g. Starter Monthly, Growth Quarterly, Pro Annual'
+            }),
+            'slug': forms.TextInput(attrs={
+                'class': 'w-full text-xs font-mono rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all shadow-xs',
+                'placeholder': 'e.g. starter-monthly'
+            }),
+            'price': forms.NumberInput(attrs={
+                'class': 'w-full text-xs rounded-xl !pl-8 pr-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all shadow-xs',
+                'step': '1',
+                'min': '0',
+                'placeholder': '499'
+            }),
+            'duration_days': forms.NumberInput(attrs={
+                'class': 'w-full text-xs rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all shadow-xs',
+                'min': '1',
+                'placeholder': '30'
+            }),
+            'description': forms.Textarea(attrs={
+                'rows': 3,
+                'class': 'w-full text-xs rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all shadow-xs',
+                'placeholder': 'Features and details (e.g. Ideal for cafes and dhabas with up to 15 tables)'
+            }),
+            'is_active': forms.CheckboxInput(attrs={
+                'class': 'w-4 h-4 rounded text-primary-600 focus:ring-primary-600 border-slate-300'
+            }),
+        }
+
+    def clean_slug(self):
+        slug = self.cleaned_data['slug'].lower().strip()
+        qs = Plan.objects.filter(slug=slug)
+        if self.instance and self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError('A subscription plan with this slug already exists.')
+        return slug

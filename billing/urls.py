@@ -21,5 +21,8 @@ urlpatterns = [
     path('orders/', views.platform_live_orders, name='live_orders'),
     path('analytics/', views.platform_analytics, name='analytics'),
     path('billing/', views.platform_billing_overview, name='billing_overview'),
+    path('billing/plans/new/', views.platform_plan_create, name='plan_create'),
+    path('billing/plans/<int:pk>/edit/', views.platform_plan_edit, name='plan_edit'),
+    path('billing/plans/<int:pk>/toggle/', views.platform_plan_toggle, name='plan_toggle'),
 ]
 

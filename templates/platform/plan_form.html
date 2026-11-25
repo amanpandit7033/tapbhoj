@@ -1,0 +1,167 @@
+{% extends 'platform/base_platform.html' %}
+
+{% block title %}{{ title }} - TapBhoj Platform Admin{% endblock %}
+
+{% block platform_content %}
+<div class="max-w-2xl mx-auto space-y-6">
+
+  <!-- Breadcrumbs & Back Link -->
+  <div class="flex items-center space-x-2 text-xs">
+    <a href="{% url 'platform:billing_overview' %}" 
+       class="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 transition-colors shadow-2xs">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+      <span class="font-semibold">Billing &amp; Plans</span>
+    </a>
+    <span class="text-slate-300">/</span>
+    <span class="font-bold text-slate-900">{% if is_edit %}Edit Plan{% else %}Create Plan{% endif %}</span>
+  </div>
+
+  <!-- Header -->
+  <div class="border-b border-slate-200/80 pb-4">
+    <h1 class="text-2xl font-bold text-slate-900 tracking-tight">
+      {{ title }}
+    </h1>
+    <p class="text-xs text-slate-500 mt-1">
+      Define pricing tier, billing cycle duration, and feature access for partner restaurants.
+    </p>
+  </div>
+
+  <!-- Form Card -->
+  <div class="bg-white rounded-2xl p-6 sm:p-7 border border-slate-200/90 shadow-xs space-y-6">
+    <form method="post" class="space-y-5" x-data="{
+      name: '{{ form.name.value|default:''|escapejs }}',
+      slug: '{{ form.slug.value|default:''|escapejs }}',
+      updateSlug() {
+        if (!this.slug || this.slug === '') {
+          this.slug = this.name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        }
+      },
+      setDuration(days) {
+        document.getElementById('{{ form.duration_days.id_for_label }}').value = days;
+      }
+    }">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="p-3.5 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 space-y-1">
+          {% for error in form.non_field_errors %}
+            <p>{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Plan Name & Slug -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="space-y-1.5">
+          <label for="{{ form.name.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-500">
+            Plan Name <span class="text-red-500">*</span>
+          </label>
+          <input type="text" 
+                 name="{{ form.name.name }}" 
+                 id="{{ form.name.id_for_label }}" 
+                 x-model="name"
+                 @blur="updateSlug()"
+                 value="{{ form.name.value|default:'' }}"
+                 placeholder="e.g. Starter Monthly, Growth Quarterly"
+                 class="w-full text-xs rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all shadow-xs">
+          {% if form.name.errors %}
+            <p class="text-xs text-red-500">{{ form.name.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <div class="space-y-1.5">
+          <label for="{{ form.slug.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-500">
+            Slug (Unique ID) <span class="text-red-500">*</span>
+          </label>
+          <input type="text" 
+                 name="{{ form.slug.name }}" 
+                 id="{{ form.slug.id_for_label }}" 
+                 x-model="slug"
+                 value="{{ form.slug.value|default:'' }}"
+                 placeholder="starter-monthly"
+                 class="w-full text-xs font-mono rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all shadow-xs">
+          {% if form.slug.errors %}
+            <p class="text-xs text-red-500">{{ form.slug.errors.0 }}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Price & Duration -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        
+        <!-- Price (INR) -->
+        <div class="space-y-1.5">
+          <label for="{{ form.price.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-500">
+            Price in Rupees (₹) <span class="text-red-500">*</span>
+          </label>
+          <div class="relative flex items-center">
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400 pointer-events-none select-none">₹</span>
+            {{ form.price }}
+          </div>
+          {% if form.price.errors %}
+            <p class="text-xs text-red-500">{{ form.price.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Duration in Days -->
+        <div class="space-y-1.5">
+          <label for="{{ form.duration_days.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-500">
+            Billing Cycle (Days) <span class="text-red-500">*</span>
+          </label>
+          {{ form.duration_days }}
+          
+          <!-- Presets -->
+          <div class="flex items-center gap-1.5 pt-1 text-[11px]">
+            <span class="text-slate-400 font-medium">Quick:</span>
+            <button type="button" @click="setDuration(30)" class="px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold cursor-pointer transition-colors">30d (Monthly)</button>
+            <button type="button" @click="setDuration(90)" class="px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold cursor-pointer transition-colors">90d (Quarterly)</button>
+            <button type="button" @click="setDuration(365)" class="px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold cursor-pointer transition-colors">365d (Annual)</button>
+          </div>
+          {% if form.duration_days.errors %}
+            <p class="text-xs text-red-500">{{ form.duration_days.errors.0 }}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Description / Features -->
+      <div class="space-y-1.5">
+        <label for="{{ form.description.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-500">
+          Plan Description &amp; Highlights
+        </label>
+        {{ form.description }}
+        <p class="text-[11px] text-slate-400">Brief summary of the target store size, table limit, or key inclusions.</p>
+        {% if form.description.errors %}
+          <p class="text-xs text-red-500">{{ form.description.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Active Status Toggle -->
+      <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+        <div>
+          <label for="{{ form.is_active.id_for_label }}" class="text-xs font-bold text-slate-900 cursor-pointer">
+            Plan is Active
+          </label>
+          <p class="text-[11px] text-slate-500">When active, this plan is available for partner store onboarding and renewals.</p>
+        </div>
+        <div>
+          {{ form.is_active }}
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="pt-4 border-t border-slate-100 flex items-center justify-end space-x-3">
+        <a href="{% url 'platform:billing_overview' %}" 
+           class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 text-xs font-semibold hover:bg-slate-50 transition-colors shadow-2xs">
+          Cancel
+        </a>
+        <button type="submit" 
+                class="px-5 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold shadow-xs hover:shadow-sm transition-all cursor-pointer">
+          {% if is_edit %}Save Changes{% else %}Create Plan{% endif %}
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+</div>
+{% endblock %}

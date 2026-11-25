@@ -19,6 +19,7 @@ from orders.models import OrderLog, TableSession
 from restaurants.models import Restaurant
 from .forms import (
     OwnerAccountEditForm,
+    PlanForm,
     RestaurantEditForm,
     RestaurantOnboardForm,
     SubscriptionEditForm,
@@ -528,6 +529,58 @@ def platform_billing_overview(request):
         'plans': plans,
         'subscriptions': subscriptions,
     })
+
+
+@staff_member_required(login_url='login')
+def platform_plan_create(request):
+    """Create a new subscription pricing plan."""
+    if request.method == 'POST':
+        form = PlanForm(request.POST)
+        if form.is_valid():
+            plan = form.save()
+            messages.success(request, f'Subscription plan "{plan.name}" created successfully!')
+            return redirect('platform:billing_overview')
+    else:
+        form = PlanForm()
+
+    return render(request, 'platform/plan_form.html', {
+        'form': form,
+        'title': 'Create Subscription Plan',
+        'is_edit': False,
+    })
+
+
+@staff_member_required(login_url='login')
+def platform_plan_edit(request, pk):
+    """Edit an existing subscription pricing plan."""
+    plan = get_object_or_404(Plan, pk=pk)
+    if request.method == 'POST':
+        form = PlanForm(request.POST, instance=plan)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Subscription plan "{plan.name}" updated successfully!')
+            return redirect('platform:billing_overview')
+    else:
+        form = PlanForm(instance=plan)
+
+    return render(request, 'platform/plan_form.html', {
+        'form': form,
+        'plan': plan,
+        'title': f'Edit Plan: {plan.name}',
+        'is_edit': True,
+    })
+
+
+@staff_member_required(login_url='login')
+def platform_plan_toggle(request, pk):
+    """Toggle plan active/inactive status."""
+    if request.method == 'POST':
+        plan = get_object_or_404(Plan, pk=pk)
+        plan.is_active = not plan.is_active
+        plan.save(update_fields=['is_active'])
+        status_label = 'activated' if plan.is_active else 'deactivated'
+        messages.success(request, f'Plan "{plan.name}" {status_label}.')
+    return redirect('platform:billing_overview')
 
 
 

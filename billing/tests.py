@@ -295,3 +295,55 @@ class PlatformAdminAndBillingTests(TestCase):
         self.assertEqual(del_response.status_code, 302)
         self.assertFalse(Restaurant.objects.filter(pk=self.restaurant.pk).exists())
 
+    def test_platform_plan_create_edit_toggle(self):
+        """Staff can create, edit, and toggle active status of subscription plans."""
+        self.client.login(username='staff', password='Password@123')
+
+        # 1. GET plan create page
+        create_url = reverse('platform:plan_create')
+        res = self.client.get(create_url)
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, 'Create Subscription Plan')
+
+        # 2. POST plan create
+        post_data = {
+            'name': 'Growth Quarterly',
+            'slug': 'growth-quarterly',
+            'price': '1299.00',
+            'duration_days': 90,
+            'description': 'Quarterly plan with 15% discount.',
+            'is_active': True,
+        }
+        res = self.client.post(create_url, post_data)
+        self.assertEqual(res.status_code, 302)
+        self.assertTrue(Plan.objects.filter(slug='growth-quarterly').exists())
+
+        new_plan = Plan.objects.get(slug='growth-quarterly')
+        self.assertEqual(new_plan.duration_days, 90)
+
+        # 3. Edit plan
+        edit_url = reverse('platform:plan_edit', kwargs={'pk': new_plan.pk})
+        edit_res = self.client.get(edit_url)
+        self.assertEqual(edit_res.status_code, 200)
+
+        post_edit = {
+            'name': 'Growth Quarterly Pro',
+            'slug': 'growth-quarterly',
+            'price': '1499.00',
+            'duration_days': 90,
+            'description': 'Updated description.',
+            'is_active': True,
+        }
+        res = self.client.post(edit_url, post_edit)
+        self.assertEqual(res.status_code, 302)
+        new_plan.refresh_from_db()
+        self.assertEqual(new_plan.name, 'Growth Quarterly Pro')
+        self.assertEqual(new_plan.price, Decimal('1499.00'))
+
+        # 4. Toggle plan
+        toggle_url = reverse('platform:plan_toggle', kwargs={'pk': new_plan.pk})
+        self.client.post(toggle_url)
+        new_plan.refresh_from_db()
+        self.assertFalse(new_plan.is_active)
+
+
