@@ -20,6 +20,10 @@ class RestaurantProfileForm(forms.ModelForm):
             'name': forms.TextInput(attrs={
                 'class': 'w-full text-xs rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 focus:ring-2 focus:ring-primary-600 focus:outline-none shadow-xs'
             }),
+            'logo': forms.FileInput(attrs={
+                'class': 'w-full text-xs text-slate-500 file:mr-3.5 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 cursor-pointer file:transition-colors',
+                'accept': 'image/*'
+            }),
             'whatsapp_number': forms.TextInput(attrs={
                 'class': 'w-full text-xs font-mono rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 focus:ring-2 focus:ring-primary-600 focus:outline-none shadow-xs',
                 'placeholder': 'e.g. 919876543210 (with country code)'

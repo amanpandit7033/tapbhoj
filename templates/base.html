@@ -104,7 +104,7 @@
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
         /* Default form fields styling - using :where() to preserve Tailwind utility class specificity */
-        :where(input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="range"])),
+        :where(input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="range"]):not([type="file"])),
         :where(textarea) {
             background-color: #ffffff;
             border: 1px solid #cbd5e1;
@@ -119,6 +119,14 @@
             border-color: #283891;
             box-shadow: 0 0 0 3px rgba(40, 56, 145, 0.15);
             outline: none;
+        }
+
+        /* Clean file input styling */
+        input[type="file"] {
+            border: none !important;
+            padding: 0.25rem 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
         }
 
         /* Input padding overrides for inputs with leading icons or currency prefixes */

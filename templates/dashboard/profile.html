@@ -55,21 +55,40 @@
         {% endif %}
       </div>
 
-      <!-- Logo Upload -->
-      <div class="space-y-2">
+      <!-- Logo Upload with Live Preview -->
+      <div class="space-y-2.5" x-data="{ previewUrl: null }">
         <label for="{{ form.logo.id_for_label }}" class="block text-xs font-semibold uppercase tracking-wider text-slate-500">
           Restaurant Logo
         </label>
-        {% if restaurant.logo %}
-          <div class="flex items-center space-x-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
-            <img src="{{ restaurant.logo.url }}" alt="{{ restaurant.name }}" class="w-12 h-12 rounded-xl object-cover border border-slate-200 shadow-2xs">
+
+        <!-- New Selected Preview (via file chooser) -->
+        <template x-if="previewUrl">
+          <div class="flex items-center space-x-3.5 p-3 rounded-xl bg-emerald-50/70 border border-emerald-200 shadow-2xs">
+            <img :src="previewUrl" alt="New logo preview" class="w-12 h-12 rounded-xl object-cover border border-emerald-200 shadow-xs">
             <div>
-              <span class="text-xs font-bold text-slate-900 block">Active Logo</span>
-              <span class="text-[11px] text-slate-400">Upload a new file below to replace it</span>
+              <span class="text-xs font-bold text-emerald-900 block">New Logo Selected</span>
+              <span class="text-[11px] text-emerald-700">Save changes below to update your restaurant branding</span>
             </div>
           </div>
+        </template>
+
+        <!-- Current Active Logo -->
+        {% if restaurant.logo %}
+          <template x-if="!previewUrl">
+            <div class="flex items-center space-x-3.5 p-3 rounded-xl bg-slate-50 border border-slate-200 shadow-2xs">
+              <img src="{{ restaurant.logo.url }}" alt="{{ restaurant.name }}" class="w-12 h-12 rounded-xl object-cover border border-slate-200 shadow-xs">
+              <div>
+                <span class="text-xs font-bold text-slate-900 block">Current Active Logo</span>
+                <span class="text-[11px] text-slate-400">Choose a new image below to replace</span>
+              </div>
+            </div>
+          </template>
         {% endif %}
-        {{ form.logo }}
+
+        <div class="pt-0.5" @change="if ($event.target.files && $event.target.files[0]) previewUrl = URL.createObjectURL($event.target.files[0])">
+          {{ form.logo }}
+        </div>
+        <p class="text-[11px] text-slate-400">Recommended: Square PNG or JPG, at least 300x300px.</p>
         {% if form.logo.errors %}
           <p class="text-xs text-rose-500">{{ form.logo.errors.0 }}</p>
         {% endif %}
