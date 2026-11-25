@@ -1,6 +1,8 @@
 import io
 import qrcode
 from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -144,4 +146,30 @@ def table_print_sheet(request):
     return render(request, 'dashboard/tables_print.html', {
         'restaurant': restaurant,
         'tables': tables,
+    })
+
+
+@owner_required
+def owner_password_change(request):
+    """Allow logged-in restaurant owner to change their account password securely."""
+    restaurant = request.restaurant
+
+    if request.method == 'POST':
+        form = PasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Your password was changed successfully!')
+            return redirect('dashboard:profile')
+    else:
+        form = PasswordChangeForm(user=request.user)
+
+    for field in form.fields.values():
+        field.widget.attrs.update({
+            'class': 'w-full text-xs rounded-xl px-3.5 py-2.5 bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all shadow-xs'
+        })
+
+    return render(request, 'dashboard/password_change.html', {
+        'restaurant': restaurant,
+        'form': form,
     })

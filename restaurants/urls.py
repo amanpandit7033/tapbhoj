@@ -10,6 +10,8 @@ urlpatterns = [
     # Dashboard Home & Profile
     path('', views.dashboard_home, name='home'),
     path('profile/', views.dashboard_profile, name='profile'),
+    path('password-change/', views.owner_password_change, name='password_change'),
+    path('password-reset/', views.owner_password_change, name='password_reset'),
     path('toggle-status/', views.dashboard_toggle_status, name='toggle_status'),
     path('tables/', views.dashboard_tables, name='tables'),
     path('tables/<int:table_number>/qr/', views.table_qr_code, name='table_qr'),
