@@ -52,8 +52,27 @@ def dashboard_profile(request):
     if request.method == 'POST':
         form = RestaurantProfileForm(request.POST, request.FILES, instance=restaurant)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Restaurant profile updated successfully.')
+            rest = form.save(commit=False)
+
+            # Process 4-corner polygon coordinates if submitted
+            import json
+            corners_raw = request.POST.get('corners_json', '').strip()
+            if corners_raw:
+                try:
+                    corners_data = json.loads(corners_raw)
+                    valid_corners = []
+                    for c in corners_data:
+                        if c.get('lat') and c.get('lng'):
+                            valid_corners.append({
+                                'lat': float(c['lat']),
+                                'lng': float(c['lng'])
+                            })
+                    rest.boundary_polygon = valid_corners
+                except Exception:
+                    pass
+
+            rest.save()
+            messages.success(request, 'Restaurant profile and store boundary updated successfully.')
             return redirect('dashboard:profile')
     else:
         form = RestaurantProfileForm(instance=restaurant)

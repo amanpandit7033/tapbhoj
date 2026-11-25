@@ -61,6 +61,7 @@ class Restaurant(models.Model):
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, help_text='Restaurant latitude for geofence validation.')
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, help_text='Restaurant longitude for geofence validation.')
     geofence_radius = models.PositiveIntegerField(default=200, help_text='Allowed ordering distance in meters (default 200m).')
+    boundary_polygon = models.JSONField(default=list, blank=True, help_text='List of 4 corner coordinates defining store boundary.')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active', db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
