@@ -105,6 +105,14 @@ class TableCartConsumer(AsyncJsonWebsocketConsumer):
         """Dispatches group updates to the connected WebSocket client."""
         await self.send_json(event)
 
+    async def order_redirect_broadcast(self, event):
+        """Notifies all connected table devices to redirect to order tracking."""
+        await self.send_json(event)
+
+    async def table_cleared_broadcast(self, event):
+        """Notifies all connected table devices when cashier clears the table."""
+        await self.send_json(event)
+
     # Database Helpers
     @database_sync_to_async
     def get_restaurant(self, slug):

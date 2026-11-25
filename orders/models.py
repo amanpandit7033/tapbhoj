@@ -23,6 +23,14 @@ class OrderLog(models.Model):
         on_delete=models.CASCADE,
         related_name='orders'
     )
+    session = models.ForeignKey(
+        'TableSession',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='orders',
+        help_text='Active table dining session this order belongs to.'
+    )
     table_number = models.CharField(max_length=20, db_index=True)
     items_json = models.JSONField(
         default=list,

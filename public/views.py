@@ -1,7 +1,8 @@
 import json
 from decimal import Decimal
+from django.db import models
 from django.http import JsonResponse, HttpResponseBadRequest
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST, require_GET
 from restaurants.models import Restaurant
@@ -60,6 +61,16 @@ def log_public_order(request, slug):
     if not table_number:
         return HttpResponseBadRequest("Table number is required.")
 
+    # Link to or start active dining TableSession
+    import re
+    from orders.models import TableSession
+    clean_table = re.sub(r'[^a-zA-Z0-9_\-]', '', table_number)
+    session, _ = TableSession.objects.get_or_create(
+        restaurant=restaurant,
+        table_number=clean_table,
+        is_active=True
+    )
+
     payment_method = str(data.get('payment_method', 'upi_direct')).strip()
     payment_status = str(data.get('payment_status', 'unpaid')).strip()
     if payment_status not in dict(OrderLog.PAYMENT_STATUS_CHOICES):
@@ -67,6 +78,7 @@ def log_public_order(request, slug):
 
     order = OrderLog.objects.create(
         restaurant=restaurant,
+        session=session,
         table_number=table_number,
         items_json=items,
         total_amount=total_amount,
@@ -76,12 +88,17 @@ def log_public_order(request, slug):
         payment_status=payment_status,
     )
 
-    # Real-time WebSocket push notification to Dashboard
+    tracking_url = reverse('public:order_tracking', kwargs={'slug': restaurant.slug, 'order_id': order.id})
+
+    # Real-time WebSocket push notifications:
+    # 1. Alert Restaurant Cashier & Kitchen Dashboard
+    # 2. Alert all connected diners at this table to redirect together to tracking page
     try:
         from asgiref.sync import async_to_sync
         from channels.layers import get_channel_layer
         channel_layer = get_channel_layer()
         if channel_layer:
+            # Broadcast to Kitchen & Dashboard
             async_to_sync(channel_layer.group_send)(
                 f"restaurant_orders_{restaurant.slug}",
                 {
@@ -99,6 +116,18 @@ def log_public_order(request, slug):
                     }
                 }
             )
+
+            # Broadcast to ALL phones at this table: redirect together!
+            table_group = f"cart_{restaurant.slug}_{clean_table}"
+            async_to_sync(channel_layer.group_send)(
+                table_group,
+                {
+                    'type': 'order_redirect_broadcast',
+                    'order_id': order.id,
+                    'tracking_url': tracking_url,
+                    'actor': data.get('diner_name', 'Someone at your table'),
+                }
+            )
     except Exception:
         pass
 
@@ -106,7 +135,7 @@ def log_public_order(request, slug):
         'status': 'ok',
         'order_id': order.id,
         'payment_status': order.payment_status,
-        'tracking_url': reverse('public:order_tracking', kwargs={'slug': restaurant.slug, 'order_id': order.id}),
+        'tracking_url': tracking_url,
     })
 
 
@@ -114,7 +143,8 @@ def order_tracking(request, slug, order_id):
     """
     Live order tracking page for customer.
     Shows real-time preparation progress (Received -> Cooking -> Served -> Completed),
-    order summary, and the Pay / Request Bill prompt when served.
+    consolidated order summary across running table session rounds,
+    and the Pay / Request Bill prompt when served.
     """
     restaurant = get_object_or_404(Restaurant, slug=slug)
     order = get_object_or_404(restaurant.orders, pk=order_id)
@@ -123,17 +153,40 @@ def order_tracking(request, slug, order_id):
     if order.payment_status == 'paid':
         return redirect('public:receipt', slug=restaurant.slug, order_id=order.id)
 
-    # Build UPI intent URI
+    # Consolidated session orders for this table (Rounds 1, 2, 3...)
+    if order.session:
+        session_orders = order.session.orders.filter(~models.Q(status='cancelled')).order_by('created_at')
+    else:
+        session_orders = [order]
+
+    # Calculate combined total and merged items
+    combined_total = sum(Decimal(str(o.total_amount)) for o in session_orders)
+    combined_items = []
+    for o in session_orders:
+        for it in (o.items_json or []):
+            combined_items.append({
+                'name': it.get('name', 'Dish'),
+                'quantity': it.get('quantity', 1),
+                'price': it.get('price', 0),
+                'item_total': it.get('item_total', float(it.get('price', 0)) * int(it.get('quantity', 1))),
+                'is_veg': it.get('is_veg', True),
+                'round': o.id,
+            })
+
+    # Build UPI intent URI with combined running total
     upi_url = ''
     if restaurant.upi_id:
         import urllib.parse
         payee = urllib.parse.quote(restaurant.upi_payee_name or restaurant.name)
         note = urllib.parse.quote(f"Table {order.table_number} {restaurant.name}")
-        upi_url = f"upi://pay?pa={urllib.parse.quote(restaurant.upi_id)}&pn={payee}&am={order.total_amount:.2f}&cu=INR&tn={note}"
+        upi_url = f"upi://pay?pa={urllib.parse.quote(restaurant.upi_id)}&pn={payee}&am={combined_total:.2f}&cu=INR&tn={note}"
 
     return render(request, 'public/track_order.html', {
         'restaurant': restaurant,
         'order': order,
+        'session_orders': session_orders,
+        'combined_items': combined_items,
+        'combined_total': combined_total,
         'upi_url': upi_url,
     })
 
@@ -180,10 +233,18 @@ def submit_upi_payment(request, slug):
     order = get_object_or_404(restaurant.orders, pk=order_id)
 
     upi_utr = str(data.get('upi_utr', '')).strip()
-    order.payment_status = 'pending'
-    if upi_utr:
-        order.upi_utr = upi_utr
-    order.save(update_fields=['payment_status', 'upi_utr'])
+
+    # Mark this order and any other orders in the active running table session as pending
+    if order.session:
+        orders_to_update = order.session.orders.filter(~models.Q(payment_status='paid'))
+    else:
+        orders_to_update = [order]
+
+    for o in orders_to_update:
+        o.payment_status = 'pending'
+        if upi_utr:
+            o.upi_utr = upi_utr
+        o.save(update_fields=['payment_status', 'upi_utr'])
 
     # Broadcast payment update to restaurant dashboard
     try:

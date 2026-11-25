@@ -36,4 +36,5 @@ urlpatterns = [
     path('orders/<int:pk>/status/', orders_views.order_update_status, name='order_status'),
     path('orders/<int:pk>/payment-status/', orders_views.order_update_payment_status, name='order_payment_status'),
     path('orders/<int:pk>/request-payment/', orders_views.order_request_payment, name='order_request_payment'),
+    path('tables/<str:table_number>/clear-session/', orders_views.table_clear_session, name='table_clear_session'),
 ]

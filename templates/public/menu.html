@@ -926,6 +926,14 @@ document.addEventListener('alpine:init', () => {
               if (data.actor && data.actor !== this.dinerName && data.message) {
                 this.showToast(data.message);
               }
+            } else if (data.type === 'order_redirect_broadcast' && data.tracking_url) {
+              // Group redirect: Someone at this table placed an order!
+              this.cart = {};
+              window.location.href = data.tracking_url;
+            } else if (data.type === 'table_cleared_broadcast') {
+              // Cashier cleared table: reset cart
+              this.cart = {};
+              this.showToast('This table session has ended.');
             }
           } catch (e) {
             console.error('Error handling WebSocket message:', e);

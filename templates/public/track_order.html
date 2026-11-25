@@ -191,7 +191,7 @@
           </div>
           <div>
             <h3 class="text-sm font-bold">Food Served! Ready for the bill?</h3>
-            <p class="text-xs text-emerald-100">You can pay your bill via 1-Tap UPI or at the counter.</p>
+            <p class="text-xs text-emerald-100">You can pay your combined table bill via 1-Tap UPI or at the counter.</p>
           </div>
         </div>
 
@@ -199,26 +199,34 @@
                 type="button"
                 class="w-full py-3 px-4 rounded-xl bg-white text-emerald-800 font-extrabold text-xs shadow-sm hover:bg-emerald-50 transition-all flex items-center justify-center gap-2 cursor-pointer">
           <svg class="w-4 h-4 text-emerald-700" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          <span>Pay Bill ₹{{ order.total_amount|floatformat:0 }} via UPI</span>
+          <span>Pay Bill ₹{{ combined_total|default:order.total_amount|floatformat:0 }} via UPI</span>
         </button>
       </div>
     </template>
 
-    <!-- Order Items Breakdown Card -->
+    <!-- Order Items Breakdown Card (Consolidated for Table Session) -->
     <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs space-y-4">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Order Items</h3>
-        <span class="text-xs text-slate-400 font-medium">{{ order.items_json|length }} item(s)</span>
+        <div>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Table Order Summary</h3>
+          {% if session_orders|length > 1 %}
+            <span class="text-[11px] text-primary-600 font-semibold font-mono">{{ session_orders|length }} Ordering Rounds Combined</span>
+          {% endif %}
+        </div>
+        <span class="text-xs text-slate-400 font-medium">{{ combined_items|length|default:order.items_json|length }} item(s)</span>
       </div>
 
       <div class="divide-y divide-slate-100">
-        {% for item in order.items_json %}
+        {% for item in combined_items|default:order.items_json %}
           <div class="py-2.5 flex items-center justify-between text-xs">
             <div class="flex items-center space-x-2.5">
               <span class="w-2 h-2 rounded-full shrink-0 {% if item.is_veg %}bg-emerald-500{% else %}bg-rose-500{% endif %}"></span>
               <div>
                 <p class="font-semibold text-slate-900">{{ item.name }}</p>
-                <p class="text-[11px] text-slate-400">{{ item.quantity }} &times; ₹{{ item.price }}</p>
+                <p class="text-[11px] text-slate-400">
+                  {{ item.quantity }} &times; ₹{{ item.price }}
+                  {% if item.round %} &bull; Round #{{ item.round }}{% endif %}
+                </p>
               </div>
             </div>
             <span class="font-bold font-mono text-slate-900">₹{{ item.item_total|default:item.price }}</span>
@@ -235,10 +243,10 @@
       <!-- Total Row -->
       <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
         <div>
-          <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold block">Total Amount</span>
-          <span class="text-[11px] text-slate-400 font-medium">Taxes included</span>
+          <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold block">Total Table Bill</span>
+          <span class="text-[11px] text-slate-400 font-medium">All rounds included</span>
         </div>
-        <span class="text-xl font-black font-mono text-slate-900">₹{{ order.total_amount|floatformat:0 }}</span>
+        <span class="text-xl font-black font-mono text-slate-900">₹{{ combined_total|default:order.total_amount|floatformat:0 }}</span>
       </div>
     </div>
 
@@ -247,14 +255,14 @@
       <a href="{% url 'public:menu' slug=restaurant.slug %}?table={{ order.table_number }}"
          class="flex-1 py-3 px-4 rounded-xl border border-slate-200 bg-white text-slate-700 text-xs font-bold hover:bg-slate-50 transition-colors shadow-2xs text-center flex items-center justify-center gap-1.5">
         <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-        <span>Order More Dishes</span>
+        <span>Add Extra Dishes</span>
       </a>
 
       <button @click="openPaymentModal()"
               type="button"
               class="flex-1 py-3 px-4 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold shadow-xs transition-colors text-center flex items-center justify-center gap-1.5 cursor-pointer">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-        <span>Pay Bill (₹{{ order.total_amount|floatformat:0 }})</span>
+        <span>Pay Bill (₹{{ combined_total|default:order.total_amount|floatformat:0 }})</span>
       </button>
     </div>
 

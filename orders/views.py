@@ -190,6 +190,16 @@ def order_update_payment_status(request, pk):
 
             order.save(update_fields=update_fields)
 
+            # If order belongs to an active table session, update all running orders in this session
+            if order.session:
+                session_orders = order.session.orders.exclude(pk=order.pk).filter(~Q(status='cancelled'))
+                for so in session_orders:
+                    so.payment_status = new_payment_status
+                    so.paid_at = order.paid_at
+                    if new_payment_method:
+                        so.payment_method = new_payment_method
+                    so.save(update_fields=update_fields)
+
             msg = f"Table {order.table_number} payment verified as {order.get_payment_status_display()}."
             messages.success(request, msg)
 
@@ -217,5 +227,50 @@ def order_request_payment(request, pk):
         order.payment_requested = True
         order.save(update_fields=['payment_requested'])
         messages.success(request, f"Payment requested for Table {order.table_number}. The payment dialog is now shown on the customer's phone.")
+
+    return redirect(request.META.get('HTTP_REFERER', 'dashboard:orders'))
+
+
+@owner_required
+def table_clear_session(request, table_number):
+    """
+    Clears an active table session once customers finish and leave.
+    Closes the session so past diners cannot place ghost orders from outside.
+    Broadcasts table_cleared_broadcast to disconnect/clear open browser tabs.
+    """
+    if request.method == 'POST':
+        import re
+        from orders.models import TableSession
+        clean_table = re.sub(r'[^a-zA-Z0-9_\-]', '', str(table_number).strip())
+        restaurant = request.restaurant
+
+        active_sessions = TableSession.objects.filter(
+            restaurant=restaurant,
+            table_number=clean_table,
+            is_active=True
+        )
+        for s in active_sessions:
+            s.is_active = False
+            s.save(update_fields=['is_active', 'updated_at'])
+            s.cart_items.all().delete()
+
+        # Broadcast table cleared event over table WebSocket group
+        try:
+            from asgiref.sync import async_to_sync
+            from channels.layers import get_channel_layer
+            channel_layer = get_channel_layer()
+            if channel_layer:
+                async_to_sync(channel_layer.group_send)(
+                    f"cart_{restaurant.slug}_{clean_table}",
+                    {
+                        'type': 'table_cleared_broadcast',
+                        'table_number': clean_table,
+                        'message': 'Table session ended by cashier.',
+                    }
+                )
+        except Exception:
+            pass
+
+        messages.success(request, f"Table {table_number} has been cleared and reset for the next guests.")
 
     return redirect(request.META.get('HTTP_REFERER', 'dashboard:orders'))
