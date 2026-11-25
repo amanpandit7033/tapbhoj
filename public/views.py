@@ -29,8 +29,11 @@ def restaurant_menu(request, slug):
 
     # If this table already has an order where bill has been requested or payment is pending/paid,
     # redirect directly to the tracking/payment screen to prevent ordering on a finalized bill!
+    cookie_session_token = request.COOKIES.get(f"tbl_token_{restaurant.slug}_{table_number}")
+    session_obj = None
+
     if table_number:
-        import re
+        import re, secrets
         from orders.models import TableSession
         clean_table = re.sub(r'[^a-zA-Z0-9_\-]', '', table_number)
         active_session = TableSession.objects.filter(
@@ -38,6 +41,21 @@ def restaurant_menu(request, slug):
             table_number=clean_table,
             is_active=True
         ).first()
+
+        # If no active session exists, start a fresh session with a unique token
+        if not active_session:
+            new_token = secrets.token_urlsafe(16)
+            active_session = TableSession.objects.create(
+                restaurant=restaurant,
+                table_number=clean_table,
+                session_token=new_token,
+                is_active=True
+            )
+        elif not active_session.session_token:
+            active_session.session_token = secrets.token_urlsafe(16)
+            active_session.save(update_fields=['session_token'])
+
+        session_obj = active_session
 
         if active_session:
             settling_order = active_session.orders.filter(
@@ -58,7 +76,17 @@ def restaurant_menu(request, slug):
         'categories': categories,
         'table_number': table_number,
     }
-    return render(request, 'public/menu.html', context)
+    response = render(request, 'public/menu.html', context)
+    if session_obj and session_obj.session_token:
+        # Save session token in client cookie so subsequent orders must match this physical table session
+        response.set_cookie(
+            f"tbl_token_{restaurant.slug}_{table_number}",
+            session_obj.session_token,
+            max_age=12 * 3600,
+            httponly=True,
+            samesite='Lax'
+        )
+    return response
 
 
 @require_POST
@@ -85,14 +113,38 @@ def log_public_order(request, slug):
         return HttpResponseBadRequest("Table number is required.")
 
     # Link to or start active dining TableSession
-    import re
+    import re, secrets
     from orders.models import TableSession
     clean_table = re.sub(r'[^a-zA-Z0-9_\-]', '', table_number)
-    session, _ = TableSession.objects.get_or_create(
+
+    # Check for active table session
+    active_session = TableSession.objects.filter(
         restaurant=restaurant,
         table_number=clean_table,
         is_active=True
-    )
+    ).first()
+
+    cookie_token = request.COOKIES.get(f"tbl_token_{restaurant.slug}_{table_number}")
+
+    # Security check: If a session is active and has a token, ensure the client holds the active token
+    # or starts a fresh table session only if no current session is ongoing
+    if active_session:
+        session = active_session
+        if active_session.session_token and cookie_token and cookie_token != active_session.session_token:
+            # Token mismatch: Customer tab belongs to an old or cleared dining session!
+            return JsonResponse({
+                'status': 'error',
+                'code': 'SESSION_EXPIRED',
+                'message': 'Your dining session for this table has expired or was cleared by the cashier. Please scan the QR code on your table to begin a fresh order.',
+            }, status=403)
+    else:
+        # Create fresh session
+        session = TableSession.objects.create(
+            restaurant=restaurant,
+            table_number=clean_table,
+            session_token=secrets.token_urlsafe(16),
+            is_active=True
+        )
 
     payment_method = str(data.get('payment_method', 'upi_direct')).strip()
     payment_status = str(data.get('payment_status', 'unpaid')).strip()

@@ -107,6 +107,17 @@ class TableSession(models.Model):
         related_name='table_sessions'
     )
     table_number = models.CharField(max_length=20, db_index=True)
+    session_token = models.CharField(
+        max_length=64,
+        blank=True,
+        db_index=True,
+        help_text='Unique session key passed on QR code / session cookie to identify active physical diners.'
+    )
+    passcode = models.CharField(
+        max_length=6,
+        blank=True,
+        help_text='4-digit daily passcode for waiter verification or table opening.'
+    )
     is_active = models.BooleanField(default=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

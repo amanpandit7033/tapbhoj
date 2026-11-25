@@ -1107,6 +1107,9 @@ document.addEventListener('alpine:init', () => {
         } else if (result.code === 'BILL_ALREADY_REQUESTED' && result.tracking_url) {
           alert(result.message || 'The bill for this table is being settled. Redirecting to payment screen.');
           window.location.href = result.tracking_url;
+        } else if (result.code === 'SESSION_EXPIRED') {
+          alert(result.message || 'Your table session has ended. Please scan the table QR code again.');
+          window.location.reload();
         } else {
           alert(result.message || 'Could not place order. Please try again.');
         }
