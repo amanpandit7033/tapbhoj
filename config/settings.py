@@ -19,6 +19,19 @@ DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
 ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if host.strip()]
 
+# Reverse proxy SSL detection & CSRF trusted origins for production
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
+
+csrf_env = os.getenv('CSRF_TRUSTED_ORIGINS', 'https://127.0.0.1')
+CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in csrf_env.split(',') if origin.strip()]
+for host in ALLOWED_HOSTS:
+    if host not in ('*', 'localhost', '127.0.0.1'):
+        https_origin = f"https://{host}"
+        if https_origin not in CSRF_TRUSTED_ORIGINS:
+            CSRF_TRUSTED_ORIGINS.append(https_origin)
+
 # Application definition
 INSTALLED_APPS = [
     'daphne',
