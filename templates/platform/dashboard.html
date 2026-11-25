@@ -4,50 +4,50 @@
 {% block title %}Operations Dashboard - Today Counts | TapBhoj Platform{% endblock %}
 
 {% block platform_content %}
-<div class="space-y-6">
+<div class="space-y-4">
 
     <!-- Top Header & Live Pulse Toolbar -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div>
             <div class="flex items-center gap-2 mb-1">
-                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-primary-50 text-primary-700 border border-primary-200">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary-50 text-primary-700 border border-primary-200">
                     Operations Pulse
                 </span>
                 <span class="text-xs text-slate-400 font-mono">{{ today_date|date:"l, d M Y" }}</span>
             </div>
-            <h1 class="text-2xl font-black text-slate-900 tracking-tight">Today's Operations Dashboard</h1>
-            <p class="text-sm text-slate-500 mt-0.5">Real-time today operational counts, order volume, dining activity, and store performance.</p>
+            <h1 class="text-xl font-bold text-slate-900 tracking-tight">Today's Operations Dashboard</h1>
+            <p class="text-xs text-slate-500 mt-0.5">Real-time today operational counts, order volume, dining activity, and store performance.</p>
         </div>
 
-        <div class="flex items-center flex-wrap gap-2.5">
+        <div class="flex items-center flex-wrap gap-2">
             <!-- Real-time Live Badge -->
-            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-slate-200/90 text-xs font-semibold text-slate-700 shadow-2xs">
-                <span class="relative flex h-2.5 w-2.5">
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-white border border-slate-200/90 text-xs font-semibold text-slate-700 shadow-2xs">
+                <span class="relative flex h-2 w-2">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
                 <span>Live Data</span>
             </div>
 
             <!-- Refresh Button -->
             <button onclick="window.location.reload()" 
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200/90 text-xs font-bold text-slate-700 shadow-2xs transition-all cursor-pointer"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200/90 text-xs font-semibold text-slate-700 shadow-2xs transition-all cursor-pointer"
                     title="Reload latest counts">
-                <svg class="ic text-slate-500" style="width:.9rem;height:.9rem" fill="none" stroke="currentColor"><use href="#i-cog"/></svg>
+                <svg class="ic text-slate-500" style="width:.85rem;height:.85rem" fill="none" stroke="currentColor"><use href="#i-cog"/></svg>
                 <span>Refresh</span>
             </button>
 
             <!-- Onboard Store Quick Button -->
             <a href="{% url 'platform:restaurant_create' %}" 
-               class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary-700 text-white font-bold text-xs shadow-xs hover:shadow-sm transition-all">
-                <svg class="ic" style="width:1rem;height:1rem" fill="none" stroke="currentColor"><use href="#i-plus"/></svg>
+               class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-primary hover:bg-primary-700 text-white font-semibold text-xs shadow-xs hover:shadow-sm transition-all">
+                <svg class="ic" style="width:.9rem;height:.9rem" fill="none" stroke="currentColor"><use href="#i-plus"/></svg>
                 <span>Onboard Store</span>
             </a>
         </div>
     </div>
 
     <!-- 5 Primary Metric KPI Cards for TODAY -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         
         <!-- Card 1: Today's Total Orders -->
         <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-2xs flex flex-col justify-between relative overflow-hidden group hover:border-primary-200 transition-all">
@@ -159,11 +159,11 @@
     </div>
 
     <!-- Operational Status Bar for Today's Orders -->
-    <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-2xs">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 mb-3 border-b border-slate-100">
+    <div class="bg-white rounded-xl p-3.5 sm:p-4 border border-slate-200/90 shadow-2xs">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-2.5 mb-2.5 border-b border-slate-100">
             <div>
-                <h3 class="text-sm font-bold text-slate-900">Today's Order Status Breakdown</h3>
-                <p class="text-xs text-slate-500">Real-time distribution of today's {{ today_order_count }} order{% if today_order_count != 1 %}s{% endif %}</p>
+                <h3 class="text-xs font-bold text-slate-900">Today's Order Status Breakdown</h3>
+                <p class="text-[11px] text-slate-500">Real-time distribution of today's {{ today_order_count }} order{% if today_order_count != 1 %}s{% endif %}</p>
             </div>
             <a href="{% url 'platform:live_orders' %}" class="inline-flex items-center gap-1 text-xs font-bold text-primary hover:text-primary-700">
                 <span>View Full Live Orders Monitor</span>
@@ -171,53 +171,53 @@
             </a>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
             <!-- Sent to WhatsApp / Kitchen -->
-            <div class="bg-slate-50 rounded-xl p-3 border border-slate-200/70">
-                <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Sent to Kitchen</p>
-                <p class="text-xl font-black text-slate-900 font-mono mt-1">{{ status_counts.sent }}</p>
-                <span class="inline-block mt-1 text-[10px] font-semibold text-slate-500">Awaiting prep</span>
+            <div class="bg-slate-50 rounded-xl p-2.5 border border-slate-200/70">
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Sent to Kitchen</p>
+                <p class="text-lg font-black text-slate-900 font-mono mt-0.5">{{ status_counts.sent }}</p>
+                <span class="inline-block mt-0.5 text-[9px] font-semibold text-slate-500">Awaiting prep</span>
             </div>
 
             <!-- Preparing -->
-            <div class="bg-amber-50/60 rounded-xl p-3 border border-amber-200/60">
-                <p class="text-[11px] font-bold text-amber-700 uppercase tracking-wide">Preparing</p>
-                <p class="text-xl font-black text-amber-800 font-mono mt-1">{{ status_counts.preparing }}</p>
-                <span class="inline-block mt-1 text-[10px] font-semibold text-amber-700">In the kitchen</span>
+            <div class="bg-amber-50/60 rounded-xl p-2.5 border border-amber-200/60">
+                <p class="text-[10px] font-bold text-amber-700 uppercase tracking-wide">Preparing</p>
+                <p class="text-lg font-black text-amber-800 font-mono mt-0.5">{{ status_counts.preparing }}</p>
+                <span class="inline-block mt-0.5 text-[9px] font-semibold text-amber-700">In the kitchen</span>
             </div>
 
             <!-- Completed / Served -->
-            <div class="bg-emerald-50/60 rounded-xl p-3 border border-emerald-200/60">
-                <p class="text-[11px] font-bold text-emerald-700 uppercase tracking-wide">Completed</p>
-                <p class="text-xl font-black text-emerald-800 font-mono mt-1">{{ status_counts.completed }}</p>
-                <span class="inline-block mt-1 text-[10px] font-semibold text-emerald-700">Served &amp; done</span>
+            <div class="bg-emerald-50/60 rounded-xl p-2.5 border border-emerald-200/60">
+                <p class="text-[10px] font-bold text-emerald-700 uppercase tracking-wide">Completed</p>
+                <p class="text-lg font-black text-emerald-800 font-mono mt-0.5">{{ status_counts.completed }}</p>
+                <span class="inline-block mt-0.5 text-[9px] font-semibold text-emerald-700">Served &amp; done</span>
             </div>
 
             <!-- Cancelled -->
-            <div class="bg-rose-50/60 rounded-xl p-3 border border-rose-200/60">
-                <p class="text-[11px] font-bold text-rose-700 uppercase tracking-wide">Cancelled</p>
-                <p class="text-xl font-black text-rose-800 font-mono mt-1">{{ status_counts.cancelled }}</p>
-                <span class="inline-block mt-1 text-[10px] font-semibold text-rose-700">Voided orders</span>
+            <div class="bg-rose-50/60 rounded-xl p-2.5 border border-rose-200/60">
+                <p class="text-[10px] font-bold text-rose-700 uppercase tracking-wide">Cancelled</p>
+                <p class="text-lg font-black text-rose-800 font-mono mt-0.5">{{ status_counts.cancelled }}</p>
+                <span class="inline-block mt-0.5 text-[9px] font-semibold text-rose-700">Voided orders</span>
             </div>
 
             <!-- Verified Paid (UPI) -->
-            <div class="bg-emerald-50/60 rounded-xl p-3 border border-emerald-200/60">
-                <p class="text-[11px] font-bold text-emerald-700 uppercase tracking-wide">Paid (UPI)</p>
-                <p class="text-xl font-black text-emerald-800 font-mono mt-1">{{ today_paid_count }}</p>
-                <span class="inline-block mt-1 text-[10px] font-semibold text-emerald-700">₹{{ today_paid_volume|floatformat:0 }} verified</span>
+            <div class="bg-emerald-50/60 rounded-xl p-2.5 border border-emerald-200/60">
+                <p class="text-[10px] font-bold text-emerald-700 uppercase tracking-wide">Paid (UPI)</p>
+                <p class="text-lg font-black text-emerald-800 font-mono mt-0.5">{{ today_paid_count }}</p>
+                <span class="inline-block mt-0.5 text-[9px] font-semibold text-emerald-700">₹{{ today_paid_volume|floatformat:0 }} verified</span>
             </div>
 
             <!-- Pending / Unpaid -->
-            <div class="bg-blue-50/60 rounded-xl p-3 border border-blue-200/60">
-                <p class="text-[11px] font-bold text-blue-700 uppercase tracking-wide">Pending / Cash</p>
-                <p class="text-xl font-black text-blue-800 font-mono mt-1">{{ today_pending_payment_count|add:today_unpaid_count }}</p>
-                <span class="inline-block mt-1 text-[10px] font-semibold text-blue-700">{{ today_pending_payment_count }} pending UTR</span>
+            <div class="bg-blue-50/60 rounded-xl p-2.5 border border-blue-200/60">
+                <p class="text-[10px] font-bold text-blue-700 uppercase tracking-wide">Pending / Cash</p>
+                <p class="text-lg font-black text-blue-800 font-mono mt-0.5">{{ today_pending_payment_count|add:today_unpaid_count }}</p>
+                <span class="inline-block mt-0.5 text-[9px] font-semibold text-blue-700">{{ today_pending_payment_count }} pending UTR</span>
             </div>
         </div>
     </div>
 
     <!-- Main Workspace Grid: 2 Columns -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
 
         <!-- Left Column: Today's Real-Time Order Stream (8 cols) -->
         <div class="lg:col-span-8 bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden flex flex-col">

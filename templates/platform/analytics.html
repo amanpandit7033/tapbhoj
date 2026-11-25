@@ -3,13 +3,13 @@
 {% block title %}Platform Analytics - TapBhoj Platform Admin{% endblock %}
 
 {% block platform_content %}
-<div class="space-y-6">
+<div class="space-y-4">
 
   <!-- Header -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
     <div>
-      <div class="flex items-center space-x-2.5">
-        <h1 class="text-2xl font-bold text-slate-900 tracking-tight">
+      <div class="flex items-center space-x-2">
+        <h1 class="text-xl font-bold text-slate-900 tracking-tight">
           Platform Analytics
         </h1>
         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary-50 text-primary-700 border border-primary-200">
@@ -17,23 +17,23 @@
         </span>
       </div>
       <p class="text-xs text-slate-500 mt-0.5">
-        Comprehensive platform-wide performance, gross volume, and store growth leaderboards.
+        Platform-wide performance, gross volume, and store growth leaderboards.
       </p>
     </div>
   </div>
 
-  <!-- Key Metrics Row (4 Cards) -->
-  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+  <!-- Key Metrics Row (4 Compact Cards) -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
     <!-- Total Platform GMV -->
-    <div class="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs flex flex-col justify-between hover:border-slate-300 transition-colors">
+    <div class="bg-white rounded-xl border border-slate-200/90 p-3.5 shadow-2xs flex flex-col justify-between hover:border-slate-300 transition-colors">
       <div class="flex items-center justify-between">
         <span class="text-xs font-semibold text-slate-500">Platform GMV</span>
-        <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor"><use href="#i-coin"/></svg>
+        <div class="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"><use href="#i-coin"/></svg>
         </div>
       </div>
-      <div class="mt-2.5">
-        <span class="text-2xl font-extrabold text-slate-900 tracking-tight font-mono block">₹{{ total_gmv|floatformat:0 }}</span>
+      <div class="mt-2">
+        <span class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-mono block">₹{{ total_gmv|floatformat:0 }}</span>
         <p class="text-[10px] text-emerald-600 font-bold flex items-center mt-0.5">
           +₹{{ today_gmv|floatformat:0 }} today
         </p>
@@ -41,15 +41,15 @@
     </div>
 
     <!-- Total Orders -->
-    <div class="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs flex flex-col justify-between hover:border-slate-300 transition-colors">
+    <div class="bg-white rounded-xl border border-slate-200/90 p-3.5 shadow-2xs flex flex-col justify-between hover:border-slate-300 transition-colors">
       <div class="flex items-center justify-between">
         <span class="text-xs font-semibold text-slate-500">Total Orders</span>
-        <div class="w-8 h-8 rounded-xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+        <div class="w-7 h-7 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
         </div>
       </div>
-      <div class="mt-2.5">
-        <span class="text-2xl font-extrabold text-slate-900 tracking-tight font-mono block">{{ total_orders }}</span>
+      <div class="mt-2">
+        <span class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-mono block">{{ total_orders }}</span>
         <p class="text-[10px] text-blue-600 font-bold flex items-center mt-0.5">
           +{{ today_orders }} today
         </p>
@@ -57,49 +57,49 @@
     </div>
 
     <!-- 7-Day Volume -->
-    <div class="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs flex flex-col justify-between hover:border-slate-300 transition-colors">
+    <div class="bg-white rounded-xl border border-slate-200/90 p-3.5 shadow-2xs flex flex-col justify-between hover:border-slate-300 transition-colors">
       <div class="flex items-center justify-between">
         <span class="text-xs font-semibold text-slate-500">7-Day Volume</span>
-        <div class="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        <div class="w-7 h-7 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
         </div>
       </div>
-      <div class="mt-2.5">
-        <span class="text-2xl font-extrabold text-slate-900 tracking-tight font-mono block">{{ week_orders }} <span class="text-xs font-normal text-slate-400">orders</span></span>
+      <div class="mt-2">
+        <span class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-mono block">{{ week_orders }} <span class="text-xs font-normal text-slate-400">orders</span></span>
         <p class="text-[10px] text-indigo-600 font-bold mt-0.5">₹{{ week_gmv|floatformat:0 }} revenue</p>
       </div>
     </div>
 
     <!-- Average Order Value (AOV) -->
-    <div class="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs flex flex-col justify-between hover:border-slate-300 transition-colors">
+    <div class="bg-white rounded-xl border border-slate-200/90 p-3.5 shadow-2xs flex flex-col justify-between hover:border-slate-300 transition-colors">
       <div class="flex items-center justify-between">
         <span class="text-xs font-semibold text-slate-500">Average Order (AOV)</span>
-        <div class="w-8 h-8 rounded-xl bg-teal-50 border border-teal-100 text-teal-600 flex items-center justify-center shrink-0">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor"><use href="#i-chart"/></svg>
+        <div class="w-7 h-7 rounded-lg bg-teal-50 border border-teal-100 text-teal-600 flex items-center justify-center shrink-0">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"><use href="#i-chart"/></svg>
         </div>
       </div>
-      <div class="mt-2.5">
-        <span class="text-2xl font-extrabold text-slate-900 tracking-tight font-mono block">₹{{ aov|floatformat:0 }}</span>
+      <div class="mt-2">
+        <span class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-mono block">₹{{ aov|floatformat:0 }}</span>
         <p class="text-[10px] text-slate-400 font-medium mt-0.5">Per table order</p>
       </div>
     </div>
   </div>
 
-  <!-- Store Leaderboard & Top Dishes Grid -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  <!-- Store Leaderboard & Top Dishes (Balanced 2-Column Grid) -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
 
     <!-- Store Performance Leaderboard -->
-    <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-3.5">
-        <div class="flex items-center space-x-2.5">
-          <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center shrink-0">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor"><use href="#i-chart"/></svg>
+    <div class="bg-white rounded-xl p-4 border border-slate-200/90 shadow-2xs flex flex-col h-[340px]">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2.5 mb-2.5 shrink-0">
+        <div class="flex items-center space-x-2">
+          <div class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center shrink-0">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"><use href="#i-chart"/></svg>
           </div>
           <div>
-            <h2 class="text-sm font-bold text-slate-900">
+            <h2 class="text-xs font-bold text-slate-900">
               Store Performance Leaderboard
             </h2>
-            <p class="text-[11px] text-slate-400">Stores ranked by total GMV revenue</p>
+            <p class="text-[10px] text-slate-400">Stores ranked by total GMV revenue</p>
           </div>
         </div>
         <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
@@ -107,47 +107,44 @@
         </span>
       </div>
 
-      <div class="overflow-x-auto">
+      <div class="overflow-y-auto flex-1 pr-0.5">
         <table class="w-full text-left text-xs">
-          <thead class="bg-slate-50/70 border-b border-slate-100 text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+          <thead class="bg-slate-50/70 border-b border-slate-100 text-[10px] uppercase font-bold text-slate-400 tracking-wider sticky top-0">
             <tr>
-              <th class="py-2.5 px-3">Restaurant</th>
-              <th class="py-2.5 px-3 text-center">Status</th>
-              <th class="py-2.5 px-3 text-center">Orders</th>
-              <th class="py-2.5 px-3 text-right">Revenue</th>
+              <th class="py-2 px-2.5">Restaurant</th>
+              <th class="py-2 px-2 text-center">Status</th>
+              <th class="py-2 px-2 text-center">Orders</th>
+              <th class="py-2 px-2.5 text-right">Revenue</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 text-slate-700">
             {% for r in restaurant_stats %}
               <tr class="hover:bg-slate-50/60 transition-colors">
-                <td class="py-3 px-3">
-                  <a href="{% url 'platform:restaurant_detail' pk=r.pk %}" class="font-bold text-sm text-slate-900 hover:text-primary-700 hover:underline flex items-center space-x-2">
-                    <span class="w-6 h-6 rounded-md bg-primary-50 text-primary-700 flex items-center justify-center text-[10px] font-bold">
+                <td class="py-2 px-2.5">
+                  <a href="{% url 'platform:restaurant_detail' pk=r.pk %}" class="font-bold text-xs text-slate-900 hover:text-primary-700 hover:underline flex items-center space-x-2">
+                    <span class="w-5 h-5 rounded-md bg-primary-50 text-primary-700 flex items-center justify-center text-[10px] font-bold shrink-0">
                       {{ r.name|slice:":1"|upper }}
                     </span>
-                    <div>
-                      <p class="font-bold text-slate-900 leading-tight">{{ r.name }}</p>
-                      <p class="text-[10px] text-slate-400 font-mono">/r/{{ r.slug }}/</p>
-                    </div>
+                    <span class="truncate max-w-[140px]">{{ r.name }}</span>
                   </a>
                 </td>
-                <td class="py-3 px-3 text-center whitespace-nowrap">
+                <td class="py-2 px-2 text-center whitespace-nowrap">
                   {% if r.status == 'active' %}
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                       Active
                     </span>
                   {% else %}
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
                       Paused
                     </span>
                   {% endif %}
                 </td>
-                <td class="py-3 px-3 text-center font-bold text-slate-900">
-                  <span class="px-2 py-1 rounded-lg bg-slate-100 text-xs font-mono">
+                <td class="py-2 px-2 text-center font-bold text-slate-900">
+                  <span class="px-1.5 py-0.5 rounded bg-slate-100 text-xs font-mono">
                     {{ r.order_count }}
                   </span>
                 </td>
-                <td class="py-3 px-3 text-right font-extrabold text-slate-900 font-mono text-sm">
+                <td class="py-2 px-2.5 text-right font-extrabold text-slate-900 font-mono text-xs">
                   ₹{{ r.total_revenue|default:0|floatformat:0 }}
                 </td>
               </tr>
@@ -164,17 +161,17 @@
     </div>
 
     <!-- Top Selling Dishes Across Platform -->
-    <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-3.5">
-        <div class="flex items-center space-x-2.5">
-          <div class="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor"><use href="#i-book"/></svg>
+    <div class="bg-white rounded-xl p-4 border border-slate-200/90 shadow-2xs flex flex-col h-[340px]">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2.5 mb-2.5 shrink-0">
+        <div class="flex items-center space-x-2">
+          <div class="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"><use href="#i-book"/></svg>
           </div>
           <div>
-            <h2 class="text-sm font-bold text-slate-900">
+            <h2 class="text-xs font-bold text-slate-900">
               Top Ordered Dishes Platform-Wide
             </h2>
-            <p class="text-[11px] text-slate-400">Most popular menu choices across all stores</p>
+            <p class="text-[10px] text-slate-400">Most popular menu choices across all stores</p>
           </div>
         </div>
         <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
@@ -182,23 +179,23 @@
         </span>
       </div>
 
-      <div class="space-y-2">
+      <div class="overflow-y-auto flex-1 pr-0.5 space-y-1.5">
         {% for dish in top_dishes %}
-          <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 hover:bg-slate-100/60 transition-colors text-xs">
-            <div class="flex items-center space-x-3">
-              <span class="w-4 h-4 rounded-xs border-2 {% if dish.is_veg %}border-emerald-600{% else %}border-rose-600{% endif %} p-0.5 flex items-center justify-center shrink-0">
-                <span class="block w-2 h-2 rounded-full {% if dish.is_veg %}bg-emerald-600{% else %}bg-rose-600{% endif %}"></span>
+          <div class="flex items-center justify-between py-1.5 px-2.5 rounded-lg bg-slate-50 border border-slate-100/90 hover:bg-slate-100/70 transition-colors text-xs">
+            <div class="flex items-center space-x-2.5 min-w-0">
+              <span class="w-3.5 h-3.5 rounded-xs border {% if dish.is_veg %}border-emerald-600{% else %}border-rose-600{% endif %} p-0.5 flex items-center justify-center shrink-0">
+                <span class="block w-1.5 h-1.5 rounded-full {% if dish.is_veg %}bg-emerald-600{% else %}bg-rose-600{% endif %}"></span>
               </span>
-              <div>
-                <strong class="font-bold text-slate-900 text-sm block leading-tight">{{ dish.name }}</strong>
-                <p class="text-[11px] text-slate-500 mt-0.5">
+              <div class="min-w-0">
+                <strong class="font-bold text-slate-900 text-xs block truncate leading-tight">{{ dish.name }}</strong>
+                <p class="text-[10px] text-slate-500">
                   <span class="font-semibold text-slate-700 font-mono">{{ dish.quantity }} units</span> ordered
                 </p>
               </div>
             </div>
-            <div class="text-right">
-              <span class="font-extrabold font-mono text-slate-900 text-sm">₹{{ dish.revenue|floatformat:0 }}</span>
-              <p class="text-[10px] text-slate-400">total GMV</p>
+            <div class="text-right shrink-0 pl-2">
+              <span class="font-bold font-mono text-slate-900 text-xs">₹{{ dish.revenue|floatformat:0 }}</span>
+              <p class="text-[9px] text-slate-400">GMV</p>
             </div>
           </div>
         {% empty %}
@@ -211,68 +208,67 @@
 
   </div>
 
-  <!-- Subscription Status Breakdown -->
-  <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs space-y-4">
-    <div class="flex items-center justify-between border-b border-slate-100 pb-3.5">
-      <div class="flex items-center space-x-2.5">
-        <div class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor"><use href="#i-shield"/></svg>
+  <!-- Subscription Status Breakdown (Compact 4-Stat Strip) -->
+  <div class="bg-white rounded-xl p-4 border border-slate-200/90 shadow-2xs space-y-3">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+      <div class="flex items-center space-x-2">
+        <div class="w-6 h-6 rounded-md bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"><use href="#i-shield"/></svg>
         </div>
         <div>
-          <h2 class="text-sm font-bold text-slate-900">
+          <h2 class="text-xs font-bold text-slate-900">
             Subscription Health &amp; Breakdown
           </h2>
-          <p class="text-[11px] text-slate-400">Live store tier lifecycle and active recurring billing cohorts</p>
         </div>
       </div>
-      <a href="{% url 'platform:billing_overview' %}" class="text-xs font-semibold text-primary-600 hover:underline flex items-center space-x-1">
-        <span>View Plans</span>
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      <a href="{% url 'platform:subscriptions' %}" class="text-xs font-semibold text-primary-600 hover:underline flex items-center space-x-1">
+        <span>View Subscriptions</span>
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
       </a>
     </div>
 
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
       <!-- Active Paid -->
-      <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center space-x-3.5">
-        <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor"><use href="#i-shield"/></svg>
-        </div>
+      <div class="p-3 rounded-lg bg-emerald-50/70 border border-emerald-200/80 flex items-center justify-between">
         <div>
           <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-800">Active Paid</p>
-          <p class="text-2xl font-extrabold font-mono text-emerald-900 mt-0.5">{{ sub_stats.active }}</p>
+          <p class="text-xl font-black font-mono text-emerald-900 mt-0.5">{{ sub_stats.active }}</p>
+        </div>
+        <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor"><use href="#i-shield"/></svg>
         </div>
       </div>
 
       <!-- In Free Trial -->
-      <div class="p-4 rounded-xl bg-blue-50 border border-blue-200 flex items-center space-x-3.5">
-        <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor"><use href="#i-coin"/></svg>
-        </div>
+      <div class="p-3 rounded-lg bg-blue-50/70 border border-blue-200/80 flex items-center justify-between">
         <div>
           <p class="text-[10px] font-bold uppercase tracking-wider text-blue-800">In Free Trial</p>
-          <p class="text-2xl font-extrabold font-mono text-blue-900 mt-0.5">{{ sub_stats.trialing }}</p>
+          <p class="text-xl font-black font-mono text-blue-900 mt-0.5">{{ sub_stats.trialing }}</p>
+        </div>
+        <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor"><use href="#i-coin"/></svg>
         </div>
       </div>
 
       <!-- Past Due -->
-      <div class="p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-center space-x-3.5">
-        <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-        </div>
+      <div class="p-3 rounded-lg bg-amber-50/70 border border-amber-200/80 flex items-center justify-between">
         <div>
           <p class="text-[10px] font-bold uppercase tracking-wider text-amber-800">Past Due</p>
-          <p class="text-2xl font-extrabold font-mono text-amber-900 mt-0.5">{{ sub_stats.past_due }}</p>
+          <p class="text-xl font-black font-mono text-amber-900 mt-0.5">{{ sub_stats.past_due }}</p>
+        </div>
+        <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
         </div>
       </div>
 
       <!-- Cancelled -->
-      <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center space-x-3.5">
-        <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center shrink-0">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        </div>
+      <div class="p-3 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between">
         <div>
           <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Cancelled</p>
-          <p class="text-2xl font-extrabold font-mono text-slate-800 mt-0.5">{{ sub_stats.cancelled }}</p>
+          <p class="text-xl font-black font-mono text-slate-800 mt-0.5">{{ sub_stats.cancelled }}</p>
+        </div>
+        <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center shrink-0">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </div>
       </div>
     </div>
