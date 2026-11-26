@@ -378,6 +378,7 @@ def order_tracking(request, slug, order_id):
 
     from restaurants.utils import encode_table_token
     table_token = encode_table_token(restaurant, order.table_number)
+    total_items_count = sum(int(it.get('quantity', 1)) for it in combined_items)
 
     return render(request, 'public/track_order.html', {
         'restaurant': restaurant,
@@ -385,6 +386,7 @@ def order_tracking(request, slug, order_id):
         'table_token': table_token,
         'session_orders': session_orders,
         'combined_items': combined_items,
+        'total_items_count': total_items_count,
         'combined_total': combined_total,
         'upi_url': upi_url,
     })

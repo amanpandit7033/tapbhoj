@@ -207,7 +207,7 @@
             <span class="text-[11px] text-primary-600 font-semibold font-mono">{{ session_orders|length }} Ordering Rounds Combined</span>
           {% endif %}
         </div>
-        <span class="text-xs text-slate-400 font-medium">{{ combined_items|length|default:order.items_json|length }} item(s)</span>
+        <span class="text-xs text-slate-400 font-medium">{{ total_items_count }} item(s)</span>
       </div>
 
       <div class="divide-y divide-slate-100">
