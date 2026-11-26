@@ -218,12 +218,12 @@
               <div>
                 <p class="font-semibold text-slate-900">{{ item.name }}</p>
                 <p class="text-[11px] text-slate-400">
-                  {{ item.quantity }} &times; ₹{{ item.price }}
+                  {{ item.quantity }} &times; ₹{{ item.price|floatformat:0 }}
                   {% if item.round %} &bull; Round #{{ item.round }}{% endif %}
                 </p>
               </div>
             </div>
-            <span class="font-bold font-mono text-slate-900">₹{{ item.item_total|default:item.price }}</span>
+            <span class="font-bold font-mono text-slate-900">₹{{ item.item_total|default:item.price|floatformat:0 }}</span>
           </div>
         {% endfor %}
       </div>
