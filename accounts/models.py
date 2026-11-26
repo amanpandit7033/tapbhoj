@@ -53,6 +53,7 @@ class StaffMember(models.Model):
     name = models.CharField(max_length=120)
     role = models.CharField(max_length=30, choices=ROLE_CHOICES, default='waiter')
     phone = models.CharField(max_length=20, blank=True)
+    wallet_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     is_active = models.BooleanField(default=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -63,3 +64,45 @@ class StaffMember(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.get_role_display()}) - {self.restaurant.name}"
+
+
+class WaiterWalletTransaction(models.Model):
+    """Tracks every tip credited to a waiter's wallet and every payout settled by the store."""
+    TX_TYPE_CHOICES = [
+        ('tip', 'Tip Credited'),
+        ('payout', 'Wallet Payout'),
+    ]
+
+    restaurant = models.ForeignKey(
+        Restaurant,
+        on_delete=models.CASCADE,
+        related_name='wallet_transactions'
+    )
+    staff = models.ForeignKey(
+        StaffMember,
+        on_delete=models.CASCADE,
+        related_name='wallet_transactions'
+    )
+    order = models.ForeignKey(
+        'orders.OrderLog',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='wallet_transactions'
+    )
+    tx_type = models.CharField(max_length=20, choices=TX_TYPE_CHOICES)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    note = models.CharField(max_length=200, blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.staff.name} {self.tx_type} ₹{self.amount}"

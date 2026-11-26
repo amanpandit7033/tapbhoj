@@ -209,6 +209,12 @@
           <span>Taxes &amp; Restaurant Fees</span>
           <span class="font-mono text-emerald-600 font-semibold">Included</span>
         </div>
+        {% if order.tip_amount > 0 %}
+        <div class="flex items-center justify-between text-xs text-emerald-700 font-semibold">
+          <span>Waiter Tip{% if order.tipped_staff %} ({{ order.tipped_staff.name }}){% endif %}</span>
+          <span class="font-mono">+₹{{ order.tip_amount|floatformat:0 }}</span>
+        </div>
+        {% endif %}
 
         <!-- Grand Total Card -->
         <div class="mt-2 p-4 rounded-2xl bg-slate-900 text-white flex items-center justify-between relative overflow-hidden shadow-sm">
@@ -218,7 +224,7 @@
           </div>
           <div class="text-right">
             <span class="text-2xl font-black font-mono text-emerald-400 block tracking-tight">
-              ₹{{ order.total_amount|floatformat:0 }}
+              ₹{{ order.total_amount|add:order.tip_amount|floatformat:0 }}
             </span>
           </div>
         </div>

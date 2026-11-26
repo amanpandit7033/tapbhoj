@@ -17,10 +17,12 @@ urlpatterns = [
     path('tables/<int:table_number>/qr/', views.table_qr_code, name='table_qr'),
     path('tables/print/', views.table_print_sheet, name='table_print'),
 
-    # Staff Management
+    # Staff Management & Waiter Tip Wallet
     path('staff/', views.dashboard_staff, name='staff'),
     path('staff/<int:pk>/toggle/', views.staff_toggle_active, name='staff_toggle'),
     path('staff/<int:pk>/delete/', views.staff_delete, name='staff_delete'),
+    path('wallet/', views.dashboard_wallet, name='wallet'),
+    path('wallet/<int:staff_id>/payout/', views.wallet_payout, name='wallet_payout'),
 
     # Menu Manager
     path('menu/', menu_views.menu_manager, name='menu'),

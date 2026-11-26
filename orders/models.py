@@ -63,6 +63,19 @@ class OrderLog(models.Model):
         default=False,
         help_text='True when admin / waiter clicks Request Payment after serving.'
     )
+    tip_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    tipped_staff = models.ForeignKey(
+        'accounts.StaffMember',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='tips_received',
+        help_text='Waiter credited with the tip on this order.'
+    )
+    tip_credited = models.BooleanField(
+        default=False,
+        help_text='True once tip_amount has been credited to tipped_staff wallet.'
+    )
     paid_at = models.DateTimeField(
         null=True,
         blank=True

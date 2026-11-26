@@ -274,7 +274,7 @@
         <div class="w-14 h-14 mx-auto rounded-2xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center shadow-2xs">
           <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </div>
-        <h3 class="text-lg font-black text-slate-900 tracking-tight">Pay ₹{{ order.total_amount|floatformat:0 }}</h3>
+        <h3 class="text-lg font-black text-slate-900 tracking-tight" x-text="'Pay ₹' + grandTotal">Pay ₹{{ grand_total|default:order.total_amount|floatformat:0 }}</h3>
         <p class="text-xs text-slate-500">
           Table {{ order.table_number }} &bull; {{ restaurant.name }}
         </p>
@@ -283,15 +283,53 @@
       <!-- Stage 1: Initial Payment Options -->
       <template x-if="!isAwaitingVerification">
         <div class="space-y-3 pt-1">
+          {% if waiters %}
+          <!-- Optional Waiter Tip Selector -->
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 text-left space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-800">Tip Your Waiter (Optional)</span>
+              <span class="text-[11px] font-mono font-bold text-emerald-700" x-show="tipAmount > 0" x-text="'+₹' + tipAmount"></span>
+            </div>
+
+            <select x-model="selectedWaiterId" @change="saveTip()"
+                    class="w-full text-xs font-semibold rounded-xl px-3 py-2 bg-white border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+              <option value="">Select waiter...</option>
+              {% for w in waiters %}
+                <option value="{{ w.id }}">{{ w.name }}</option>
+              {% endfor %}
+            </select>
+
+            <div class="grid grid-cols-4 gap-1.5">
+              <button type="button" @click="setTip(0)"
+                      :class="tipAmount == 0 ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-700 border-slate-200'"
+                      class="py-1.5 rounded-lg border text-[11px] font-bold transition-colors cursor-pointer">None</button>
+              <button type="button" @click="setTip(20)"
+                      :class="tipAmount == 20 ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-slate-700 border-slate-200'"
+                      class="py-1.5 rounded-lg border text-[11px] font-bold transition-colors cursor-pointer">₹20</button>
+              <button type="button" @click="setTip(50)"
+                      :class="tipAmount == 50 ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-slate-700 border-slate-200'"
+                      class="py-1.5 rounded-lg border text-[11px] font-bold transition-colors cursor-pointer">₹50</button>
+              <button type="button" @click="setTip(100)"
+                      :class="tipAmount == 100 ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-slate-700 border-slate-200'"
+                      class="py-1.5 rounded-lg border text-[11px] font-bold transition-colors cursor-pointer">₹100</button>
+            </div>
+
+            <div class="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-200/70">
+              <span>Food Bill: ₹{{ combined_total|default:order.total_amount|floatformat:0 }}</span>
+              <span class="font-bold text-slate-900" x-text="'Total: ₹' + grandTotal"></span>
+            </div>
+          </div>
+          {% endif %}
+
           <!-- 1-Tap UPI Intent Button -->
-          {% if upi_url %}
-            <a href="{{ upi_url }}"
+          <template x-if="upiUrl">
+            <a :href="upiUrl"
                @click="onUpiAppOpened()"
                class="w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs flex items-center justify-center space-x-2 transition-all">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-              <span>Pay with GPay / PhonePe / Paytm</span>
+              <span x-text="'Pay ₹' + grandTotal + ' with GPay / PhonePe / Paytm'">Pay with GPay / PhonePe / Paytm</span>
             </a>
-          {% endif %}
+          </template>
 
           <button type="button"
                   @click="isAwaitingVerification = true"
@@ -383,7 +421,16 @@ function orderTracker() {
     pollTimer: null,
     pollUrl: "{% url 'public:order_status' slug=restaurant.slug order_id=order.id %}",
     submitUpiUrl: "{% url 'public:submit_upi_payment' slug=restaurant.slug %}",
+    saveTipUrl: "{% url 'public:save_order_tip' slug=restaurant.slug %}",
+    upiUrl: "{{ upi_url|default:''|escapejs }}",
+    baseBillTotal: {{ combined_total|default:order.total_amount|floatformat:0 }},
+    tipAmount: {{ tip_amount|default:0|floatformat:0 }},
+    selectedWaiterId: "{{ order.tipped_staff_id|default:'' }}",
     csrfToken: '{{ csrf_token }}',
+
+    get grandTotal() {
+      return Number(this.baseBillTotal || 0) + Number(this.tipAmount || 0);
+    },
 
     get stepIndex() {
       if (this.currentStatus === 'sent') return 1;
@@ -452,6 +499,34 @@ function orderTracker() {
 
     onUpiAppOpened() {
       this.isAwaitingVerification = true;
+    },
+
+    async setTip(amount) {
+      this.tipAmount = amount;
+      await this.saveTip();
+    },
+
+    async saveTip() {
+      try {
+        const res = await fetch(this.saveTipUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': this.csrfToken
+          },
+          body: JSON.stringify({
+            order_id: {{ order.id }},
+            tip_amount: this.tipAmount,
+            staff_id: this.selectedWaiterId || null
+          })
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.status === 'ok') {
+          this.tipAmount = Number(data.tip_amount || 0);
+          if (data.upi_url !== undefined) this.upiUrl = data.upi_url;
+        }
+      } catch (e) {}
     },
 
     async submitUtr() {

@@ -199,7 +199,16 @@ def order_update_status(request, pk):
 
         if new_status in dict(OrderLog.STATUS_CHOICES):
             order.status = new_status
-            order.save(update_fields=['status'])
+            update_fields = ['status']
+            if (
+                new_status in ('served', 'completed')
+                and hasattr(request.user, 'staff_profile')
+                and request.user.staff_profile.role == 'waiter'
+                and order.tipped_staff is None
+            ):
+                order.tipped_staff = request.user.staff_profile
+                update_fields.append('tipped_staff')
+            order.save(update_fields=update_fields)
             messages.success(request, f"Order from Table {order.table_number} marked as {order.get_status_display()}.")
 
     return redirect(request.META.get('HTTP_REFERER', 'dashboard:orders'))
@@ -232,14 +241,39 @@ def order_update_payment_status(request, pk):
             order.save(update_fields=update_fields)
 
             # If order belongs to an active table session, update all running orders in this session
+            session_orders = []
             if order.session:
-                session_orders = order.session.orders.exclude(pk=order.pk).filter(~Q(status='cancelled'))
+                session_orders = list(order.session.orders.exclude(pk=order.pk).filter(~Q(status='cancelled')))
                 for so in session_orders:
                     so.payment_status = new_payment_status
                     so.paid_at = order.paid_at
                     if new_payment_method:
                         so.payment_method = new_payment_method
                     so.save(update_fields=update_fields)
+
+            # Credit waiter wallet once when payment is verified as paid
+            if new_payment_status == 'paid':
+                from django.db import transaction
+                from django.db.models import F
+                from accounts.models import StaffMember, WaiterWalletTransaction
+
+                with transaction.atomic():
+                    for paid_order in [order] + session_orders:
+                        if paid_order.tip_amount and paid_order.tip_amount > 0 and paid_order.tipped_staff_id and not paid_order.tip_credited:
+                            StaffMember.objects.filter(pk=paid_order.tipped_staff_id).update(
+                                wallet_balance=F('wallet_balance') + paid_order.tip_amount
+                            )
+                            WaiterWalletTransaction.objects.create(
+                                restaurant=restaurant,
+                                staff_id=paid_order.tipped_staff_id,
+                                order=paid_order,
+                                tx_type='tip',
+                                amount=paid_order.tip_amount,
+                                note=f"Tip from Table {paid_order.table_number} (Order #{paid_order.id})",
+                                created_by=request.user,
+                            )
+                            paid_order.tip_credited = True
+                            paid_order.save(update_fields=['tip_credited'])
 
             msg = f"Table {order.table_number} payment verified as {order.get_payment_status_display()}."
             messages.success(request, msg)

@@ -216,4 +216,82 @@ class RoleAccessMatrixTests(TestCase):
         )
 
 
+class WaiterWalletTests(TestCase):
+    def setUp(self):
+        import json
+        from django.contrib.auth import get_user_model
+        from accounts.models import OwnerProfile, StaffMember
+        from orders.models import OrderLog
+
+        self.json = json
+        User = get_user_model()
+        self.r = Restaurant.objects.create(
+            name='Tip Resto', slug='tip-resto', whatsapp_number='919876543210',
+            upi_id='resto@upi', status='active'
+        )
+        self.owner = User.objects.create_user(username='t_owner', password='pw')
+        OwnerProfile.objects.create(user=self.owner, restaurant=self.r)
+
+        self.waiter_user = User.objects.create_user(username='t_waiter', password='pw')
+        self.waiter = StaffMember.objects.create(
+            restaurant=self.r, user=self.waiter_user, name='Raju', role='waiter', is_active=True
+        )
+        self.kitchen_user = User.objects.create_user(username='t_kitchen', password='pw')
+        StaffMember.objects.create(
+            restaurant=self.r, user=self.kitchen_user, name='Chef', role='kitchen', is_active=True
+        )
+        self.order = OrderLog.objects.create(
+            restaurant=self.r, table_number='3', total_amount=500, items_json=[]
+        )
+
+    def test_customer_tip_credits_waiter_wallet_and_payout(self):
+        from accounts.models import WaiterWalletTransaction
+
+        # 1. Customer saves ₹50 tip for Raju on tracking page
+        resp = self.client.post(
+            '/r/tip-resto/save-tip/',
+            data=self.json.dumps({
+                'order_id': self.order.pk,
+                'tip_amount': 50,
+                'staff_id': self.waiter.pk,
+            }),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+        payload = resp.json()
+        self.assertEqual(payload['grand_total'], 550.0)
+        self.assertIn('am=550.00', payload['upi_url'])
+
+        # 2. Owner/Cashier marks order as paid -> wallet credited once
+        self.client.force_login(self.owner)
+        self.client.post(f'/dashboard/orders/{self.order.pk}/payment-status/', {'payment_status': 'paid'})
+        self.waiter.refresh_from_db()
+        self.order.refresh_from_db()
+        self.assertEqual(float(self.waiter.wallet_balance), 50.0)
+        self.assertTrue(self.order.tip_credited)
+        self.assertEqual(WaiterWalletTransaction.objects.filter(staff=self.waiter, tx_type='tip').count(), 1)
+
+        # Marking paid again does not double-credit
+        self.client.post(f'/dashboard/orders/{self.order.pk}/payment-status/', {'payment_status': 'paid'})
+        self.waiter.refresh_from_db()
+        self.assertEqual(float(self.waiter.wallet_balance), 50.0)
+
+        # 3. Waiter can view own wallet; kitchen is denied (403)
+        self.client.force_login(self.waiter_user)
+        self.assertEqual(self.client.get('/dashboard/wallet/').status_code, 200)
+        self.assertEqual(self.client.post(f'/dashboard/wallet/{self.waiter.pk}/payout/').status_code, 403)
+
+        self.client.force_login(self.kitchen_user)
+        self.assertEqual(self.client.get('/dashboard/wallet/').status_code, 403)
+
+        # 4. Owner settles payout -> wallet balance becomes 0 and payout logged
+        self.client.force_login(self.owner)
+        resp = self.client.post(f'/dashboard/wallet/{self.waiter.pk}/payout/')
+        self.assertEqual(resp.status_code, 302)
+        self.waiter.refresh_from_db()
+        self.assertEqual(float(self.waiter.wallet_balance), 0.0)
+        self.assertEqual(WaiterWalletTransaction.objects.filter(staff=self.waiter, tx_type='payout').count(), 1)
+
+
+
 

@@ -115,6 +115,14 @@
             </a>
             {% endif %}
 
+            <!-- Tip Wallet -->
+            {% if request.staff_role == 'owner' or request.staff_role == 'manager' or request.staff_role == 'cashier' or request.staff_role == 'waiter' %}
+            <a href="{% url 'dashboard:wallet' %}" title="Tip Wallet" class="nl{% if 'wallet' in request.resolver_match.url_name %} on{% endif %}">
+                <svg class="ic shrink-0" fill="none" stroke="currentColor"><use href="#i-coin"/></svg>
+                <span class="nav-text truncate">{% if request.staff_role == 'waiter' %}My Tip Wallet{% else %}Tip Wallets{% endif %}</span>
+            </a>
+            {% endif %}
+
             {% if request.staff_role == 'owner' %}
             <p class="nh">Account & Store</p>
 

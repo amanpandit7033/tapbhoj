@@ -334,6 +334,16 @@ def log_public_order(request, slug):
     })
 
 
+def _build_upi_url(restaurant, table_number, amount):
+    """Build UPI deep-link URI for the given restaurant, table, and payable amount."""
+    if not restaurant.upi_id:
+        return ''
+    import urllib.parse
+    payee = urllib.parse.quote(restaurant.upi_payee_name or restaurant.name)
+    note = urllib.parse.quote(f"Table {table_number} {restaurant.name}")
+    return f"upi://pay?pa={urllib.parse.quote(restaurant.upi_id)}&pn={payee}&am={amount:.2f}&cu=INR&tn={note}"
+
+
 def order_tracking(request, slug, order_id):
     """
     Live order tracking page for customer.
@@ -368,17 +378,14 @@ def order_tracking(request, slug, order_id):
                 'round': o.id,
             })
 
-    # Build UPI intent URI with combined running total
-    upi_url = ''
-    if restaurant.upi_id:
-        import urllib.parse
-        payee = urllib.parse.quote(restaurant.upi_payee_name or restaurant.name)
-        note = urllib.parse.quote(f"Table {order.table_number} {restaurant.name}")
-        upi_url = f"upi://pay?pa={urllib.parse.quote(restaurant.upi_id)}&pn={payee}&am={combined_total:.2f}&cu=INR&tn={note}"
+    tip_amount = Decimal(str(order.tip_amount or 0))
+    grand_total = combined_total + tip_amount
+    upi_url = _build_upi_url(restaurant, order.table_number, grand_total)
 
     from restaurants.utils import encode_table_token
     table_token = encode_table_token(restaurant, order.table_number)
     total_items_count = sum(int(it.get('quantity', 1)) for it in combined_items)
+    waiters = restaurant.staff_members.filter(role='waiter', is_active=True).order_by('name')
 
     return render(request, 'public/track_order.html', {
         'restaurant': restaurant,
@@ -388,7 +395,57 @@ def order_tracking(request, slug, order_id):
         'combined_items': combined_items,
         'total_items_count': total_items_count,
         'combined_total': combined_total,
+        'tip_amount': tip_amount,
+        'grand_total': grand_total,
+        'waiters': waiters,
         'upi_url': upi_url,
+    })
+
+
+@require_POST
+def save_order_tip(request, slug):
+    """Save customer's selected waiter tip on the order and return updated UPI payment URL."""
+    restaurant = get_object_or_404(Restaurant, slug=slug)
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+    except Exception:
+        return HttpResponseBadRequest("Invalid JSON data.")
+
+    order = get_object_or_404(restaurant.orders, pk=data.get('order_id'))
+    if order.payment_status == 'paid':
+        return JsonResponse({'status': 'error', 'message': 'Order is already paid.'}, status=400)
+
+    try:
+        tip_amount = Decimal(str(data.get('tip_amount', 0) or 0))
+    except Exception:
+        return JsonResponse({'status': 'error', 'message': 'Invalid tip amount.'}, status=400)
+
+    if tip_amount < 0 or tip_amount > Decimal('50000'):
+        return JsonResponse({'status': 'error', 'message': 'Invalid tip amount.'}, status=400)
+
+    staff_id = data.get('staff_id')
+    tipped_staff = None
+    if tip_amount > 0 and staff_id:
+        tipped_staff = restaurant.staff_members.filter(pk=staff_id, role='waiter', is_active=True).first()
+
+    order.tip_amount = tip_amount
+    order.tipped_staff = tipped_staff
+    order.save(update_fields=['tip_amount', 'tipped_staff'])
+
+    if order.session:
+        session_orders = order.session.orders.filter(~models.Q(status='cancelled'))
+    else:
+        session_orders = [order]
+    combined_total = sum(Decimal(str(o.total_amount)) for o in session_orders)
+    grand_total = combined_total + tip_amount
+
+    return JsonResponse({
+        'status': 'ok',
+        'tip_amount': float(tip_amount),
+        'combined_total': float(combined_total),
+        'grand_total': float(grand_total),
+        'staff_id': tipped_staff.id if tipped_staff else None,
+        'upi_url': _build_upi_url(restaurant, order.table_number, grand_total),
     })
 
 

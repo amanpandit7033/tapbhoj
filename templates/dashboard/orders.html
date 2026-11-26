@@ -272,6 +272,11 @@
                 Unpaid
               </span>
             {% endif %}
+            {% if order.tip_amount > 0 %}
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-teal-50 text-teal-800 border border-teal-200/70">
+                Tip ₹{{ order.tip_amount|floatformat:0 }}{% if order.tipped_staff %} &bull; {{ order.tipped_staff.name }}{% endif %}
+              </span>
+            {% endif %}
           </div>
 
           <!-- Action Buttons -->

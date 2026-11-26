@@ -305,3 +305,63 @@ def staff_delete(request, pk):
             linked_user.delete()
         messages.success(request, f'Staff member "{staff_name}" removed.')
     return redirect('dashboard:staff')
+
+
+@role_required('owner', 'manager', 'cashier', 'waiter')
+def dashboard_wallet(request):
+    """Waiter Tip Wallet: shows tip balances and ledger (waiter sees own; owner/manager/cashier see all)."""
+    from django.db.models import Sum
+    from accounts.models import StaffMember, WaiterWalletTransaction
+
+    restaurant = request.restaurant
+    is_waiter_view = (request.staff_role == 'waiter')
+
+    if is_waiter_view:
+        waiters = StaffMember.objects.filter(pk=request.user.staff_profile.pk)
+        transactions = WaiterWalletTransaction.objects.filter(
+            restaurant=restaurant, staff=request.user.staff_profile
+        ).select_related('staff', 'order')[:40]
+    else:
+        waiters = StaffMember.objects.filter(restaurant=restaurant, role='waiter').order_by('-wallet_balance', 'name')
+        transactions = WaiterWalletTransaction.objects.filter(
+            restaurant=restaurant
+        ).select_related('staff', 'order')[:40]
+
+    total_unsettled = waiters.aggregate(total=Sum('wallet_balance'))['total'] or 0
+
+    return render(request, 'dashboard/wallet.html', {
+        'restaurant': restaurant,
+        'waiters': waiters,
+        'transactions': transactions,
+        'total_unsettled': total_unsettled,
+        'is_waiter_view': is_waiter_view,
+    })
+
+
+@role_required('owner', 'manager', 'cashier')
+def wallet_payout(request, staff_id):
+    """Settle a waiter's accumulated tip wallet balance (cash/UPI payout)."""
+    if request.method == 'POST':
+        from decimal import Decimal
+        from django.db import transaction
+        from django.db.models import F
+        from accounts.models import StaffMember, WaiterWalletTransaction
+
+        staff = get_object_or_404(StaffMember, pk=staff_id, restaurant=request.restaurant, role='waiter')
+        with transaction.atomic():
+            staff_locked = StaffMember.objects.select_for_update().get(pk=staff.pk)
+            if staff_locked.wallet_balance > 0:
+                payout_amount = Decimal(str(staff_locked.wallet_balance))
+                StaffMember.objects.filter(pk=staff_locked.pk).update(wallet_balance=F('wallet_balance') - payout_amount)
+                WaiterWalletTransaction.objects.create(
+                    restaurant=request.restaurant,
+                    staff=staff_locked,
+                    tx_type='payout',
+                    amount=payout_amount,
+                    note=f"Settled by {request.user.username}",
+                    created_by=request.user,
+                )
+                messages.success(request, f'Settled ₹{payout_amount:.0f} tip payout for {staff_locked.name}.')
+            else:
+                messages.info(request, f'{staff_locked.name} has ₹0 balance to settle.')
+    return redirect('dashboard:wallet')
