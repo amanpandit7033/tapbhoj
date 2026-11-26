@@ -802,6 +802,40 @@
     </div>
   </div>
 
+  <!-- Branded In-App Alert / Location Notice Modal -->
+  <div 
+    x-show="alertModalOpen" 
+    x-cloak
+    class="fixed inset-0 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity"
+    style="z-index: 9999;"
+    @keydown.escape.window="if (alertModalOpen) closeAlert()"
+  >
+    <div 
+      @click.away="closeAlert()" 
+      class="w-full max-w-sm bg-tapbhoj-surface dark:bg-tapbhoj-surface-dark rounded-3xl p-6 border border-black/10 dark:border-white/10 shadow-2xl text-center space-y-4 transform transition-all"
+    >
+      <div class="w-12 h-12 mx-auto rounded-2xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 border border-amber-200/70 dark:border-amber-800/60 flex items-center justify-center">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+      </div>
+
+      <div class="space-y-1.5">
+        <h3 class="text-base font-extrabold font-heading text-tapbhoj-ink dark:text-tapbhoj-ink-dark" x-text="alertModalTitle"></h3>
+        <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark leading-relaxed" x-text="alertModalMessage"></p>
+      </div>
+
+      <button 
+        type="button" 
+        @click="closeAlert()" 
+        class="w-full min-h-[42px] py-2.5 px-4 rounded-xl bg-tapbhoj-brand dark:bg-tapbhoj-accent text-tapbhoj-surface dark:text-tapbhoj-bg-dark font-bold font-heading text-sm shadow-sm hover:opacity-95 active:scale-95 transition-all cursor-pointer"
+      >
+        Got it
+      </button>
+    </div>
+  </div>
+
   <!-- Order Placed Celebratory Animation Modal -->
   <div 
     x-show="orderSuccessModalOpen" 
@@ -875,6 +909,10 @@ document.addEventListener('alpine:init', () => {
     activeOrderId: null,
     paymentModalOpen: false,
     orderSuccessModalOpen: false,
+    alertModalOpen: false,
+    alertModalTitle: 'Notice',
+    alertModalMessage: '',
+    alertModalCallback: null,
     isPlacingOrder: false,
     isReturnedFromUpi: false,
     upiUtrInput: '',
@@ -985,6 +1023,20 @@ document.addEventListener('alpine:init', () => {
       this.toastTimer = setTimeout(() => {
         this.toastMessage = '';
       }, 3500);
+    },
+
+    showAlert(title, message, callback = null) {
+      this.alertModalTitle = title || 'Notice';
+      this.alertModalMessage = message || '';
+      this.alertModalCallback = callback;
+      this.alertModalOpen = true;
+    },
+
+    closeAlert() {
+      this.alertModalOpen = false;
+      const cb = this.alertModalCallback;
+      this.alertModalCallback = null;
+      if (typeof cb === 'function') cb();
     },
 
     initWebSocket() {
@@ -1173,11 +1225,11 @@ document.addEventListener('alpine:init', () => {
 
     async sendOrder() {
       if (!this.tableToken || !this.tableNumber.trim()) {
-        alert('Please scan the QR code on your table to place an order.');
+        this.showAlert('Table QR Required', 'Please scan the QR code on your table to place an order.');
         return;
       }
       if (this.totalItems === 0) {
-        alert('Please add at least one item to your cart.');
+        this.showAlert('Empty Cart', 'Please add at least one item to your cart.');
         return;
       }
 
@@ -1239,17 +1291,21 @@ document.addEventListener('alpine:init', () => {
           // Fallback: Open Order Placed celebratory animation modal
           this.orderSuccessModalOpen = true;
         } else if (result.code === 'BILL_ALREADY_REQUESTED' && result.tracking_url) {
-          alert(result.message || 'The bill for this table is being settled. Redirecting to payment screen.');
-          window.location.href = result.tracking_url;
+          this.showAlert('Bill in Progress', result.message || 'The bill for this table is being settled. Redirecting to payment screen.', () => {
+            window.location.href = result.tracking_url;
+          });
         } else if (result.code === 'SESSION_EXPIRED') {
-          alert(result.message || 'Your table session has ended. Please scan the table QR code again.');
-          window.location.reload();
+          this.showAlert('Session Ended', result.message || 'Your table session has ended. Please scan the table QR code again.', () => {
+            window.location.reload();
+          });
+        } else if (result.code === 'OUT_OF_RANGE' || result.code === 'LOCATION_REQUIRED') {
+          this.showAlert('Location Check', result.message || 'Please make sure you are seated inside the restaurant.');
         } else {
-          alert(result.message || 'Could not place order. Please try again.');
+          this.showAlert('Could Not Place Order', result.message || 'Could not place order. Please try again.');
         }
       } catch (err) {
         console.error('Order submission error:', err);
-        alert('Failed to connect to restaurant. Please check your connection and try again.');
+        this.showAlert('Connection Issue', 'Failed to connect to restaurant. Please check your connection and try again.');
       } finally {
         this.isPlacingOrder = false;
       }
@@ -1265,11 +1321,11 @@ document.addEventListener('alpine:init', () => {
 
     async payWithUpi() {
       if (!this.tableToken || !this.tableNumber.trim()) {
-        alert('Please scan the QR code on your table before proceeding with payment.');
+        this.showAlert('Table QR Required', 'Please scan the QR code on your table before proceeding with payment.');
         return;
       }
       if (this.totalItems === 0) {
-        alert('Please add at least one item to cart.');
+        this.showAlert('Empty Cart', 'Please add at least one item to cart.');
         return;
       }
 
@@ -1387,7 +1443,7 @@ document.addEventListener('alpine:init', () => {
           } else if (data.payment_status === 'rejected') {
             clearInterval(this.paymentPollTimer);
             this.paymentPollTimer = null;
-            alert('The restaurant counter marked this payment as unverified. Please check with your server or pay at the counter.');
+            this.showAlert('Payment Unverified', 'The restaurant counter marked this payment as unverified. Please check with your server or pay at the counter.');
           }
         } catch (e) {
           // Silent polling retry
