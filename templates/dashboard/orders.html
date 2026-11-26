@@ -125,6 +125,16 @@
             <span class="px-2.5 py-1 rounded-xl bg-primary-50 text-primary-800 border border-primary-100 text-xs font-bold font-mono shadow-2xs">
               Table {{ order.table_number }}
             </span>
+            <!-- Live Seated Diners Badge -->
+            <div class="table-diners-badge-{{ order.table_number }} inline-flex items-center">
+              {% if order.live_diners %}
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/80">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span>{{ order.live_diners|length }} Diners:</span>
+                  <span class="font-medium text-slate-700 truncate max-w-[200px]" title="{{ order.live_diners|join:', ' }}">{{ order.live_diners|join:', ' }}</span>
+                </span>
+              {% endif %}
+            </div>
             <!-- Order ID -->
             <span class="text-xs font-mono font-bold text-slate-500">
               #{{ order.id }}
@@ -477,6 +487,15 @@
           <span class="px-2.5 py-1 rounded-xl bg-primary-50 text-primary-800 border border-primary-100 text-xs font-bold font-mono">
             Table ${order.table_number}
           </span>
+          <div class="table-diners-badge-${order.table_number} inline-flex items-center">
+            ${order.diners && order.diners.length ? `
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/80">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>${order.diners.length} Diners:</span>
+                <span class="font-medium text-slate-700 truncate max-w-[200px]" title="${order.diners.join(', ')}">${order.diners.join(', ')}</span>
+              </span>
+            ` : ''}
+          </div>
           <span class="inline-flex items-center gap-1 text-xs text-slate-400 font-mono">
             <span>${order.created_at || 'Just now'}</span>
           </span>
@@ -542,6 +561,23 @@
             window.showDashboardOrderToast(data, { type: 'payment' });
           }
           setTimeout(() => window.location.reload(), 1500);
+        } else if (data.type === 'table_presence_event') {
+          const tableNum = String(data.table_number);
+          const count = data.count || (data.diners ? data.diners.length : 0);
+          const diners = data.diners || [];
+          document.querySelectorAll(`.table-diners-badge-${tableNum}`).forEach(badge => {
+            if (count > 0) {
+              badge.innerHTML = `
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/80">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span>${count} Diners:</span>
+                  <span class="font-medium text-slate-700 truncate max-w-[200px]" title="${diners.join(', ')}">${diners.join(', ')}</span>
+                </span>
+              `;
+            } else {
+              badge.innerHTML = '';
+            }
+          });
         }
       } catch (e) {
         console.error('Error handling dashboard WS order message:', e);

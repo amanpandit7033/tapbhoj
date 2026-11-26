@@ -83,22 +83,50 @@ def dashboard_toggle_status(request):
 
 @owner_required
 def dashboard_tables(request):
-    """View and download QR codes and links for each table."""
+    """View and download QR codes and links for each table, with live seated diner presence."""
     restaurant = request.restaurant
     base_url = request.build_absolute_uri(reverse('public:menu', kwargs={'slug': restaurant.slug}))
     
+    from orders.models import TableSession
+    from public.consumers import get_table_diners
+
+    active_sessions = {
+        str(s.table_number): s
+        for s in TableSession.objects.filter(restaurant=restaurant, is_active=True)
+    }
+
     tables = []
+    occupied_tables_count = 0
+    total_active_diners = 0
+
     for num in range(1, restaurant.number_of_tables + 1):
+        t_num = str(num)
         table_url = f"{base_url}?table={num}"
+        session = active_sessions.get(t_num)
+
+        live_diners = get_table_diners(restaurant.slug, t_num)
+        if not live_diners and session:
+            live_diners = session.active_diners or []
+
+        diners_count = len(live_diners)
+        if diners_count > 0:
+            occupied_tables_count += 1
+            total_active_diners += diners_count
+
         tables.append({
             'number': num,
             'url': table_url,
+            'is_active': bool(session or diners_count > 0),
+            'diners': live_diners,
+            'diners_count': diners_count,
         })
 
     return render(request, 'dashboard/tables.html', {
         'restaurant': restaurant,
         'tables': tables,
         'base_url': base_url,
+        'occupied_tables_count': occupied_tables_count,
+        'total_active_diners': total_active_diners,
     })
 
 

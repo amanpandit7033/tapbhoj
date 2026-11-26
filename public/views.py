@@ -275,6 +275,7 @@ def log_public_order(request, slug):
                         'payment_status': order.payment_status,
                         'payment_method': order.payment_method,
                         'status': order.status,
+                        'diners': active_session.active_diners if active_session else [],
                         'created_at': order.created_at.strftime('%I:%M %p, %d %b'),
                     }
                 }

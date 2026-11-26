@@ -119,6 +119,11 @@ class TableSession(models.Model):
         help_text='4-digit daily passcode for waiter verification or table opening.'
     )
     is_active = models.BooleanField(default=True, db_index=True)
+    active_diners = models.JSONField(
+        default=list,
+        blank=True,
+        help_text='List of active diner names seated at this table.'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

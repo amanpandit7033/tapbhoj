@@ -128,6 +128,19 @@ def dashboard_orders(request):
     except EmptyPage:
         page_obj = paginator.page(paginator.num_pages)
 
+    # Attach live seated diners to each order on this page
+    from orders.models import TableSession
+    from public.consumers import get_table_diners
+
+    active_sessions = {
+        str(s.table_number): s.active_diners or []
+        for s in TableSession.objects.filter(restaurant=restaurant, is_active=True)
+    }
+    for o in page_obj:
+        t_num = str(o.table_number).strip()
+        live = get_table_diners(restaurant.slug, t_num)
+        o.live_diners = live if live else active_sessions.get(t_num, [])
+
     context = {
         'restaurant': restaurant,
         'orders': page_obj,
@@ -249,9 +262,14 @@ def table_clear_session(request, table_number):
             table_number=clean_table,
             is_active=True
         )
+        # Clear in-memory presence tracking for this table
+        from public.consumers import CONNECTED_TABLE_DINERS
+        CONNECTED_TABLE_DINERS.pop((restaurant.slug, clean_table), None)
+
         for s in active_sessions:
             s.is_active = False
-            s.save(update_fields=['is_active', 'updated_at'])
+            s.active_diners = []
+            s.save(update_fields=['is_active', 'active_diners', 'updated_at'])
             s.cart_items.all().delete()
 
         # Broadcast table cleared event over table WebSocket group
@@ -266,6 +284,15 @@ def table_clear_session(request, table_number):
                         'type': 'table_cleared_broadcast',
                         'table_number': clean_table,
                         'message': 'Table session ended by cashier.',
+                    }
+                )
+                async_to_sync(channel_layer.group_send)(
+                    f"restaurant_orders_{restaurant.slug}",
+                    {
+                        'type': 'table_presence_event',
+                        'table_number': clean_table,
+                        'diners': [],
+                        'count': 0,
                     }
                 )
         except Exception:

@@ -47,13 +47,20 @@
                class="w-full !pl-10 pr-4 py-2 text-xs rounded-xl bg-white border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all shadow-2xs">
       </div>
 
-      <div class="flex items-center gap-3 text-xs text-slate-500 font-medium">
-        <span class="inline-flex items-center gap-1.5 font-mono">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          All QR Codes Live
+      <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-xs font-medium">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-100 text-slate-700 font-mono">
+          <span>Stands:</span>
+          <strong>{{ restaurant.number_of_tables }}</strong>
         </span>
-        <span class="text-slate-300">&bull;</span>
-        <span class="font-mono">{{ restaurant.number_of_tables }} Registered Stands</span>
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200/80 font-mono">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Occupied:</span>
+          <strong id="stat-occupied-tables">{{ occupied_tables_count }}</strong>
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-blue-50 text-blue-800 border border-blue-200/80 font-mono">
+          <span>Live Diners:</span>
+          <strong id="stat-total-diners">{{ total_active_diners }}</strong>
+        </span>
       </div>
     </div>
 
@@ -63,7 +70,7 @@
         <thead>
           <tr class="bg-slate-50/80 border-b border-slate-200/80 text-[11px] font-extrabold uppercase tracking-wider text-slate-500 font-mono">
             <th class="py-3.5 px-4 sm:px-6">Table</th>
-            <th class="py-3.5 px-4">Status</th>
+            <th class="py-3.5 px-4">Live Diners</th>
             <th class="py-3.5 px-4">QR Preview</th>
             <th class="py-3.5 px-4">NFC &amp; QR Direct URL</th>
             <th class="py-3.5 px-4 sm:px-6 text-right">Actions</th>
@@ -87,12 +94,26 @@
               </div>
             </td>
 
-            <!-- Status Column -->
-            <td class="py-3.5 px-4 whitespace-nowrap">
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60 font-mono">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                Active Target
-              </span>
+            <!-- Live Diners Column (Requirement 3) -->
+            <td class="py-3.5 px-4" id="table-diners-col-{{ table.number }}">
+              <div class="table-diners-wrapper" data-table="{{ table.number }}" data-count="{{ table.diners_count }}">
+                {% if table.diners_count > 0 %}
+                  <div class="space-y-1">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/70 font-mono">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                      <span>{{ table.diners_count }} Seated</span>
+                    </span>
+                    <div class="text-[11px] font-medium text-slate-700 truncate max-w-[200px]" title="{{ table.diners|join:', ' }}">
+                      {{ table.diners|join:', ' }}
+                    </div>
+                  </div>
+                {% else %}
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-500 border border-slate-200 font-mono">
+                    <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                    <span>0 Diners (Empty)</span>
+                  </span>
+                {% endif %}
+              </div>
             </td>
 
             <!-- QR Preview Column -->
@@ -151,6 +172,17 @@
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                   <span>Download QR</span>
                 </a>
+
+                <!-- Quick Clear Table Session Button -->
+                {% if table.diners_count > 0 or table.is_active %}
+                  <form method="post" action="{% url 'dashboard:table_clear_session' table_number=table.number %}" class="inline" onsubmit="return confirm('Clear Table {{ table.number }} and reset active session?');">
+                    {% csrf_token %}
+                    <button type="submit" class="px-2.5 py-1.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold inline-flex items-center gap-1 transition-colors cursor-pointer" title="Reset table for next guests">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                      <span>Clear</span>
+                    </button>
+                  </form>
+                {% endif %}
               </div>
             </td>
 
@@ -169,4 +201,78 @@
   </div>
 
 </div>
+
+<!-- Real-time Live Diners WebSocket Push Listener -->
+<script>
+(function() {
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const wsUrl = `${protocol}//${window.location.host}/ws/dashboard/{{ restaurant.slug }}/orders/`;
+  let ws;
+
+  function connectWs() {
+    try {
+      ws = new WebSocket(wsUrl);
+      ws.onmessage = function(event) {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'table_presence_event') {
+            const tableNum = String(data.table_number);
+            const count = data.count || (data.diners ? data.diners.length : 0);
+            const diners = data.diners || [];
+            const col = document.getElementById(`table-diners-col-${tableNum}`);
+            if (col) {
+              if (count > 0) {
+                col.innerHTML = `
+                  <div class="table-diners-wrapper space-y-1" data-table="${tableNum}" data-count="${count}">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/70 font-mono">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                      <span>${count} Seated</span>
+                    </span>
+                    <div class="text-[11px] font-medium text-slate-700 truncate max-w-[200px]" title="${diners.join(', ')}">
+                      ${diners.join(', ')}
+                    </div>
+                  </div>
+                `;
+              } else {
+                col.innerHTML = `
+                  <div class="table-diners-wrapper" data-table="${tableNum}" data-count="0">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-500 border border-slate-200 font-mono">
+                      <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                      <span>0 Diners (Empty)</span>
+                    </span>
+                  </div>
+                `;
+              }
+              recalculateSummaryStats();
+            }
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      };
+      ws.onclose = function() {
+        setTimeout(connectWs, 3000);
+      };
+    } catch (e) {}
+  }
+
+  function recalculateSummaryStats() {
+    let occupied = 0;
+    let totalDiners = 0;
+    document.querySelectorAll('.table-diners-wrapper').forEach(el => {
+      const cnt = parseInt(el.getAttribute('data-count') || '0', 10);
+      if (cnt > 0) {
+        occupied += 1;
+        totalDiners += cnt;
+      }
+    });
+    const occEl = document.getElementById('stat-occupied-tables');
+    const dinEl = document.getElementById('stat-total-diners');
+    if (occEl) occEl.textContent = occupied;
+    if (dinEl) dinEl.textContent = totalDiners;
+  }
+
+  connectWs();
+})();
+</script>
 {% endblock %}
