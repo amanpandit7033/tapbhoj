@@ -262,6 +262,13 @@ def log_public_order(request, slug):
         channel_layer = get_channel_layer()
         if channel_layer:
             # Broadcast to Kitchen & Dashboard
+            from menu.models import MenuItem
+            item_ids = [it.get('id') for it in (order.items_json or []) if it.get('id')]
+            photo_map = {str(m.id): (m.photo.url if m.photo else '') for m in MenuItem.objects.filter(id__in=item_ids)}
+            ws_items = [
+                {**it, 'photo': it.get('photo') or photo_map.get(str(it.get('id')), '')}
+                for it in (order.items_json or [])
+            ]
             async_to_sync(channel_layer.group_send)(
                 f"restaurant_orders_{restaurant.slug}",
                 {
@@ -271,6 +278,7 @@ def log_public_order(request, slug):
                         'table_number': order.table_number,
                         'total_amount': float(order.total_amount),
                         'items_summary': order.items_summary,
+                        'items': ws_items,
                         'customer_note': order.customer_note,
                         'payment_status': order.payment_status,
                         'payment_method': order.payment_method,

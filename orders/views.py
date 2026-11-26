@@ -128,9 +128,17 @@ def dashboard_orders(request):
     except EmptyPage:
         page_obj = paginator.page(paginator.num_pages)
 
-    # Attach live seated diners to each order on this page
+    # Attach live seated diners & enriched item details (with photos) to each order
+    import json
+    from menu.models import MenuItem
     from orders.models import TableSession
     from public.consumers import get_table_diners
+
+    menu_lookup = {}
+    for m in MenuItem.objects.filter(restaurant=restaurant).only('id', 'name', 'photo', 'is_veg'):
+        photo_url = m.photo.url if m.photo else ''
+        menu_lookup[str(m.id)] = {'photo': photo_url, 'is_veg': m.is_veg}
+        menu_lookup[m.name.lower()] = {'photo': photo_url, 'is_veg': m.is_veg}
 
     active_sessions = {
         str(s.table_number): s.active_diners or []
@@ -140,6 +148,26 @@ def dashboard_orders(request):
         t_num = str(o.table_number).strip()
         live = get_table_diners(restaurant.slug, t_num)
         o.live_diners = live if live else active_sessions.get(t_num, [])
+
+        enriched_items = []
+        for it in (o.items_json or []):
+            item_id = str(it.get('id', ''))
+            item_name = str(it.get('name', 'Item'))
+            qty = int(it.get('quantity', 1))
+            price = float(it.get('price', 0))
+            meta = menu_lookup.get(item_id) or menu_lookup.get(item_name.lower()) or {}
+            enriched_items.append({
+                'id': item_id,
+                'name': item_name,
+                'quantity': qty,
+                'price': price,
+                'item_total': float(it.get('item_total', price * qty)),
+                'photo': it.get('photo') or meta.get('photo', ''),
+                'is_veg': it.get('is_veg', meta.get('is_veg', True)),
+                'added_by': it.get('added_by', ''),
+            })
+        o.enriched_items = enriched_items
+        o.enriched_items_json = json.dumps(enriched_items)
 
     context = {
         'restaurant': restaurant,

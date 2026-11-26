@@ -7,15 +7,20 @@
 <div class="space-y-5">
 
   <!-- Header with Primary Actions -->
-  <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <div
+    class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div class="flex items-center space-x-3">
-      <div class="w-10 h-10 rounded-xl bg-primary-50 border border-primary-100 text-primary-700 flex items-center justify-center shrink-0">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor"><use href="#i-orders"/></svg>
+      <div
+        class="w-10 h-10 rounded-xl bg-primary-50 border border-primary-100 text-primary-700 flex items-center justify-center shrink-0">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor">
+          <use href="#i-orders" />
+        </svg>
       </div>
       <div>
         <div class="flex items-center gap-2">
           <h1 class="text-xl font-bold text-slate-900 tracking-tight">Orders</h1>
-          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold font-mono bg-primary-50 text-primary-700 border border-primary-200">
+          <span
+            class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold font-mono bg-primary-50 text-primary-700 border border-primary-200">
             {{ total_orders_count }} total
           </span>
         </div>
@@ -26,7 +31,8 @@
     </div>
 
     <!-- Live indicator badge -->
-    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 shadow-2xs self-start sm:self-auto">
+    <div
+      class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 shadow-2xs self-start sm:self-auto">
       <span class="relative flex h-2.5 w-2.5">
         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
         <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
@@ -37,21 +43,23 @@
 
   <!-- Filter Bar: Search, Dates, Status & Actions -->
   <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-2xs">
-    <form method="get" action="{% url 'dashboard:orders' %}" class="flex flex-col md:flex-row md:items-end gap-3 sm:gap-4">
-      
+    <form method="get" action="{% url 'dashboard:orders' %}"
+      class="flex flex-col md:flex-row md:items-end gap-3 sm:gap-4">
+
       <!-- Search Input (Order #, Table, Dish) -->
       <div class="flex-1 min-w-[200px]">
         <label for="order_search" class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
           Search Orders
         </label>
         <div class="relative flex items-center">
-          <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-          <input type="text" 
-                 name="q" 
-                 id="order_search" 
-                 value="{{ search_query }}"
-                 placeholder="Order #, Table, dish name..."
-                 class="w-full h-10 !pl-10 pr-4 text-xs rounded-xl bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-600/20 focus:border-primary-600 transition-all shadow-2xs">
+          <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none"
+            stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input type="text" name="q" id="order_search" value="{{ search_query }}"
+            placeholder="Order #, Table, dish name..."
+            class="w-full h-10 !pl-10 pr-4 text-xs rounded-xl bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-600/20 focus:border-primary-600 transition-all shadow-2xs">
         </div>
       </div>
 
@@ -60,11 +68,8 @@
         <label for="from_date" class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
           From Date
         </label>
-        <input type="date" 
-               name="from_date" 
-               id="from_date" 
-               value="{{ from_date }}"
-               class="w-full h-10 bg-white border border-slate-200 text-slate-900 rounded-xl px-3 text-xs font-medium focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20 transition-all shadow-2xs">
+        <input type="date" name="from_date" id="from_date" value="{{ from_date }}"
+          class="w-full h-10 bg-white border border-slate-200 text-slate-900 rounded-xl px-3 text-xs font-medium focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20 transition-all shadow-2xs">
       </div>
 
       <!-- To Date -->
@@ -72,11 +77,8 @@
         <label for="to_date" class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
           To Date
         </label>
-        <input type="date" 
-               name="to_date" 
-               id="to_date" 
-               value="{{ to_date }}"
-               class="w-full h-10 bg-white border border-slate-200 text-slate-900 rounded-xl px-3 text-xs font-medium focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20 transition-all shadow-2xs">
+        <input type="date" name="to_date" id="to_date" value="{{ to_date }}"
+          class="w-full h-10 bg-white border border-slate-200 text-slate-900 rounded-xl px-3 text-xs font-medium focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20 transition-all shadow-2xs">
       </div>
 
       <!-- Status Filter Dropdown -->
@@ -84,7 +86,8 @@
         <label for="status" class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
           Status
         </label>
-        <select name="status" id="status" class="w-full !h-10 text-xs rounded-xl bg-white border border-slate-200 text-slate-900 px-3.5 focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20 transition-all shadow-2xs">
+        <select name="status" id="status"
+          class="w-full !h-10 text-xs rounded-xl bg-white border border-slate-200 text-slate-900 px-3.5 focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20 transition-all shadow-2xs">
           <option value="">All Statuses</option>
           <option value="sent" {% if status_filter == 'sent' %}selected{% endif %}>Received (New)</option>
           <option value="preparing" {% if status_filter == 'preparing' %}selected{% endif %}>Preparing</option>
@@ -97,17 +100,20 @@
       <!-- Action Buttons -->
       <div class="flex items-center gap-2 pt-1 md:pt-0 shrink-0">
         <!-- Filter / Search Button -->
-        <button type="submit" 
-                class="inline-flex items-center justify-center gap-2 h-10 px-5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold text-xs shadow-xs hover:shadow-sm transition-all cursor-pointer">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <button type="submit"
+          class="inline-flex items-center justify-center gap-2 h-10 px-5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold text-xs shadow-xs hover:shadow-sm transition-all cursor-pointer">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
           <span>Search</span>
         </button>
 
         <!-- Clear Filter Link -->
         {% if from_date or to_date or status_filter or date_filter or search_query %}
-        <a href="{% url 'dashboard:orders' %}" 
-           class="inline-flex items-center justify-center h-10 px-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors"
-           title="Clear all filters">
+        <a href="{% url 'dashboard:orders' %}"
+          class="inline-flex items-center justify-center h-10 px-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors"
+          title="Clear all filters">
           Clear
         </a>
         {% endif %}
@@ -118,215 +124,215 @@
   <!-- Orders List Container -->
   <div id="orders-list-container" class="space-y-3">
     {% for order in orders %}
-      <div id="order-card-{{ order.id }}" class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all hover:border-slate-300">
-        <div class="space-y-2 flex-1 min-w-0">
-          <div class="flex flex-wrap items-center gap-2">
-            <!-- Table Number Pill -->
-            <span class="px-2.5 py-1 rounded-xl bg-primary-50 text-primary-800 border border-primary-100 text-xs font-bold font-mono shadow-2xs">
-              Table {{ order.table_number }}
-            </span>
-            <!-- Live Seated Diners Badge -->
-            <div class="table-diners-badge-{{ order.table_number }} inline-flex items-center">
-              {% if order.live_diners %}
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/80">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span>{{ order.live_diners|length }} Diners:</span>
-                  <span class="font-medium text-slate-700 truncate max-w-[200px]" title="{{ order.live_diners|join:', ' }}">{{ order.live_diners|join:', ' }}</span>
+      <div id="order-card-{{ order.id }}"
+           class="bg-white rounded-2xl p-4 sm:px-5 sm:py-4 border border-slate-200/80 shadow-xs hover:shadow-md hover:border-slate-300 transition-all space-y-3">
+
+        <!-- Top Row: Table + #ID + Diners + Timestamp (Left) & Total Bill (Right) -->
+        <div class="flex items-start justify-between gap-4">
+          <div class="space-y-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-base font-extrabold text-slate-900 tracking-tight">
+                Table {{ order.table_number }}
+              </span>
+              <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[11px] font-mono font-bold">
+                #{{ order.id }}
+              </span>
+              <!-- Live Seated Diners Badge -->
+              <div class="table-diners-badge-{{ order.table_number }} inline-flex items-center">
+                {% if order.live_diners %}
+                  <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/80">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>{{ order.live_diners|length }} Diners:</span>
+                    <span class="font-medium text-slate-700 truncate max-w-[180px]" title="{{ order.live_diners|join:', ' }}">{{ order.live_diners|join:', ' }}</span>
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2 text-xs text-slate-400">
+              <span class="inline-flex items-center gap-1 font-medium">
+                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>{{ order.created_at|date:"M d, h:i A" }}</span>
+              </span>
+              {% if order.customer_note %}
+                <span class="text-slate-300">&bull;</span>
+                <span class="text-[11px] text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/60 font-medium truncate max-w-[260px]" title="{{ order.customer_note }}">
+                  Note: "{{ order.customer_note }}"
                 </span>
               {% endif %}
             </div>
-            <!-- Order ID -->
-            <span class="text-xs font-mono font-bold text-slate-500">
-              #{{ order.id }}
-            </span>
-            <!-- Timestamp -->
-            <span class="inline-flex items-center gap-1 text-xs text-slate-400 font-mono">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              <span>{{ order.created_at|date:"M d, h:i A" }}</span>
-            </span>
+          </div>
 
-            <!-- Order Status Badge -->
+          <div class="text-right shrink-0">
+            <span class="text-[11px] font-medium text-slate-400 block leading-tight">Total bill</span>
+            <span class="text-xl font-extrabold font-mono text-slate-900 tracking-tight">
+              ₹{{ order.total_amount|floatformat:0 }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Cashier UPI Payment Verification Box (Only when pending) -->
+        {% if order.payment_status == 'pending' %}
+          <div class="p-3 rounded-xl bg-amber-50 border border-amber-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="space-y-0.5">
+              <p class="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                <span>Diner initiated UPI Payment of ₹{{ order.total_amount|floatformat:0 }}</span>
+              </p>
+              <p class="text-[11px] text-amber-800/80">
+                {% if order.upi_utr %}
+                  Submitted UTR / Ref: <span class="font-mono font-bold">{{ order.upi_utr }}</span>
+                {% else %}
+                  No UTR entered. Please verify in your Soundbox or UPI bank app for ₹{{ order.total_amount|floatformat:0 }}.
+                {% endif %}
+              </p>
+            </div>
+
+            <div class="flex items-center space-x-2 shrink-0">
+              <form method="post" action="{% url 'dashboard:order_payment_status' pk=order.pk %}">
+                {% csrf_token %}
+                <input type="hidden" name="payment_status" value="paid">
+                <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-colors cursor-pointer">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                  <span>Confirm Received</span>
+                </button>
+              </form>
+
+              <form method="post" action="{% url 'dashboard:order_payment_status' pk=order.pk %}">
+                {% csrf_token %}
+                <input type="hidden" name="payment_status" value="rejected">
+                <button type="submit" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold transition-colors cursor-pointer">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                  <span>Reject</span>
+                </button>
+              </form>
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Bottom Row: Status Badges (Left) & Action Buttons (Right) -->
+        <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <!-- Status & Payment Pills -->
+          <div class="flex flex-wrap items-center gap-2">
             {% if order.status == 'sent' %}
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
-                New (Received)
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-blue-50 text-blue-700">
+                <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                New
               </span>
             {% elif order.status == 'preparing' %}
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-50 text-amber-700">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                 Preparing
               </span>
             {% elif order.status == 'served' %}
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
-                Served to Table
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-purple-50 text-purple-700">
+                Served
               </span>
             {% elif order.status == 'completed' %}
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                 Completed
               </span>
             {% else %}
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-rose-50 text-rose-700">
                 {{ order.get_status_display }}
               </span>
             {% endif %}
 
-            <!-- Payment Status Badge -->
             {% if order.payment_status == 'paid' %}
-              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700">
                 Paid ({{ order.payment_method|upper }})
               </span>
               <a href="{% url 'public:receipt' slug=restaurant.slug order_id=order.id %}" target="_blank"
-                 class="inline-flex items-center gap-1 text-[11px] font-bold text-primary-600 hover:underline">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                 class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold text-primary-700 hover:bg-primary-50 transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                 <span>e-Receipt</span>
               </a>
               <form method="post" action="{% url 'dashboard:order_payment_status' pk=order.pk %}" class="inline" onsubmit="return confirm('Revert Table {{ order.table_number }} order back to Unpaid?');">
                 {% csrf_token %}
                 <input type="hidden" name="payment_status" value="unpaid">
-                <button type="submit" class="text-[10px] text-slate-400 hover:text-rose-600 underline ml-1 cursor-pointer" title="Revert to Unpaid">
+                <button type="submit" class="text-[11px] text-slate-400 hover:text-rose-600 underline cursor-pointer" title="Revert to Unpaid">
                   Revert
                 </button>
               </form>
             {% elif order.payment_status == 'pending' %}
-              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200/70 animate-pulse">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                Payment Verification Pending
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-50 text-amber-800 animate-pulse">
+                UPI Pending
               </span>
             {% elif order.payment_status == 'rejected' %}
-              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
-                Payment Rejected
+              <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-rose-50 text-rose-700">
+                Rejected
               </span>
             {% else %}
-              <div class="inline-flex items-center gap-1.5">
-                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium text-slate-500 bg-slate-100">
-                  Unpaid
-                </span>
-                <form method="post" action="{% url 'dashboard:order_payment_status' pk=order.pk %}" class="inline">
-                  {% csrf_token %}
-                  <input type="hidden" name="payment_status" value="paid">
-                  <button type="submit" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white border border-emerald-300 transition-colors cursor-pointer" title="Quickly confirm payment received">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                    <span>Mark Paid</span>
-                  </button>
-                </form>
-              </div>
+              <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-50/90 text-amber-700">
+                Unpaid
+              </span>
             {% endif %}
           </div>
 
-          <!-- Items Breakdown -->
-          <div class="text-xs text-slate-800 space-y-1">
-            <p class="font-medium leading-relaxed">{{ order.items_summary }}</p>
-            {% if order.customer_note %}
-              <p class="text-[11px] text-amber-800 bg-amber-50 px-2.5 py-1 rounded-lg inline-flex items-center gap-1.5 border border-amber-200/60">
-                <span>Note: "{{ order.customer_note }}"</span>
-              </p>
-            {% endif %}
-          </div>
-
-          <!-- Cashier UPI Payment Verification Box -->
-          {% if order.payment_status == 'pending' %}
-            <div class="mt-2 p-3.5 rounded-xl bg-amber-50 border border-amber-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div class="space-y-0.5">
-                <p class="text-xs font-bold text-amber-900 flex items-center gap-1.5">
-                  <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                  <span>Diner initiated UPI Payment of ₹{{ order.total_amount|floatformat:0 }}</span>
-                </p>
-                <p class="text-[11px] text-amber-800/80">
-                  {% if order.upi_utr %}
-                    Submitted UTR / Ref: <span class="font-mono font-bold">{{ order.upi_utr }}</span>
-                  {% else %}
-                    No UTR entered. Please verify in your Soundbox or UPI bank app for ₹{{ order.total_amount|floatformat:0 }}.
-                  {% endif %}
-                </p>
-              </div>
-
-              <div class="flex items-center space-x-2 shrink-0">
-                <form method="post" action="{% url 'dashboard:order_payment_status' pk=order.pk %}">
-                  {% csrf_token %}
-                  <input type="hidden" name="payment_status" value="paid">
-                  <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-colors cursor-pointer">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                    <span>Confirm Received</span>
-                  </button>
-                </form>
-
-                <form method="post" action="{% url 'dashboard:order_payment_status' pk=order.pk %}">
-                  {% csrf_token %}
-                  <input type="hidden" name="payment_status" value="rejected">
-                  <button type="submit" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold transition-colors cursor-pointer">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                    <span>Reject</span>
-                  </button>
-                </form>
-              </div>
-            </div>
-          {% endif %}
-        </div>
-
-        <!-- Total Amount & Status Actions -->
-        <div class="flex items-center justify-between sm:justify-end sm:flex-col sm:items-end gap-2.5 pt-3 sm:pt-0 border-t sm:border-0 border-slate-100 shrink-0">
-          <span class="text-xl font-extrabold font-mono text-slate-900">
-            ₹{{ order.total_amount|floatformat:0 }}
-          </span>
-
+          <!-- Action Buttons -->
           <div class="flex flex-wrap items-center justify-end gap-2">
-            <!-- Kitchen Order Status Form -->
-            <form method="post" action="{% url 'dashboard:order_status' pk=order.pk %}" class="flex items-center space-x-1.5">
-              {% csrf_token %}
-              {% if order.status == 'sent' %}
-                <input type="hidden" name="status" value="preparing">
-                <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-xs font-semibold hover:bg-amber-100 transition-colors shadow-2xs cursor-pointer">
-                  <span>Mark Preparing</span>
-                </button>
-              {% elif order.status == 'preparing' %}
-                <input type="hidden" name="status" value="served">
-                <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-purple-50 text-purple-800 border border-purple-200 text-xs font-semibold hover:bg-purple-100 transition-colors shadow-2xs cursor-pointer">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                  <span>Mark Served</span>
-                </button>
-              {% elif order.status == 'served' %}
-                <input type="hidden" name="status" value="completed">
-                <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold hover:bg-emerald-100 transition-colors shadow-2xs cursor-pointer">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                  <span>Mark Completed</span>
-                </button>
-              {% elif order.status == 'completed' %}
-                <span class="inline-flex items-center gap-1 text-xs text-emerald-600 font-bold px-2 py-1 bg-emerald-50/70 rounded-lg">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                  <span>Completed</span>
-                </span>
-              {% endif %}
-            </form>
+            <!-- View Items Button -->
+            <script type="application/json" id="order-items-data-{{ order.id }}">{{ order.enriched_items_json|safe }}</script>
+            <button type="button"
+                    onclick="openOrderItemsModal('{{ order.id }}', '{{ order.table_number|escapejs }}', '{{ order.total_amount|floatformat:0 }}', '{{ order.customer_note|default:""|escapejs }}')"
+                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold transition-all shadow-2xs cursor-pointer"
+                    title="View ordered dishes, images &amp; quantities">
+              <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              <span>View Items</span>
+            </button>
 
-            <!-- Request Payment Prompt Button (When served and not paid yet) -->
+            <!-- Kitchen Progression Button (only when not yet completed) -->
+            {% if order.status == 'sent' or order.status == 'preparing' or order.status == 'served' %}
+              <form method="post" action="{% url 'dashboard:order_status' pk=order.pk %}" class="inline">
+                {% csrf_token %}
+                {% if order.status == 'sent' %}
+                  <input type="hidden" name="status" value="preparing">
+                  <button type="submit" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-semibold transition-colors cursor-pointer">
+                    <span>Mark Preparing</span>
+                  </button>
+                {% elif order.status == 'preparing' %}
+                  <input type="hidden" name="status" value="served">
+                  <button type="submit" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 text-xs font-semibold transition-colors cursor-pointer">
+                    <span>Mark Served</span>
+                  </button>
+                {% elif order.status == 'served' %}
+                  <input type="hidden" name="status" value="completed">
+                  <button type="submit" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-semibold transition-colors cursor-pointer">
+                    <span>Mark Completed</span>
+                  </button>
+                {% endif %}
+              </form>
+            {% endif %}
+
+            <!-- Payment Actions -->
             {% if order.payment_status != 'paid' %}
               {% if order.status == 'served' or order.status == 'completed' or order.status == 'preparing' %}
                 <form method="post" action="{% url 'dashboard:order_request_payment' pk=order.pk %}" class="inline">
                   {% csrf_token %}
                   <button type="submit"
-                          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl {% if order.payment_requested %}bg-teal-50 text-teal-800 border border-teal-200{% else %}bg-primary-50 text-primary-800 border border-primary-200 hover:bg-primary-100{% endif %} text-xs font-bold shadow-2xs transition-all cursor-pointer"
+                          class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl {% if order.payment_requested %}bg-teal-50 text-teal-800 border border-teal-200{% else %}bg-white hover:bg-slate-50 text-slate-700 border border-slate-200{% endif %} text-xs font-semibold shadow-2xs transition-all cursor-pointer"
                           title="Show payment dialog on customer phone">
-                    <svg class="w-3.5 h-3.5 text-primary-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    <span>{% if order.payment_requested %}Payment Requested{% else %}Request Payment{% endif %}</span>
+                    <svg class="w-4 h-4 {% if order.payment_requested %}text-teal-600{% else %}text-slate-500{% endif %}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                    <span>{% if order.payment_requested %}Requested{% else %}Request Payment{% endif %}</span>
                   </button>
                 </form>
               {% endif %}
 
-              <!-- Prominent Cashier Mark Paid Action Button -->
               <form method="post" action="{% url 'dashboard:order_payment_status' pk=order.pk %}" class="inline">
                 {% csrf_token %}
                 <input type="hidden" name="payment_status" value="paid">
-                <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-all cursor-pointer hover:shadow" title="Confirm payment collected (Cash, UPI or Card)">
+                <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-xs transition-all cursor-pointer" title="Confirm payment collected (Cash, UPI or Card)">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                   <span>Mark Paid</span>
                 </button>
               </form>
             {% else %}
-              <!-- Clear Table / End Session Button (when paid) -->
               <form method="post" action="{% url 'dashboard:table_clear_session' table_number=order.table_number %}" class="inline">
                 {% csrf_token %}
                 <button type="submit"
                         onclick="return confirm('Clear Table {{ order.table_number }} and end this dining session for new guests?');"
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all shadow-2xs cursor-pointer"
+                        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-all cursor-pointer"
                         title="Reset table session and disconnect past diner phones">
                   <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                   <span>Clear Table</span>
@@ -337,67 +343,75 @@
         </div>
       </div>
     {% empty %}
-      <div id="orders-empty-state" class="bg-white rounded-2xl p-12 border border-slate-200/90 text-center space-y-3 shadow-2xs">
-        <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center">
-          <svg class="w-7 h-7" fill="none" stroke="currentColor"><use href="#i-orders"/></svg>
-        </div>
-        <div class="space-y-1">
-          <p class="text-base font-bold text-slate-900">
-            No orders found
-          </p>
-          <p class="text-xs text-slate-500 max-w-sm mx-auto">
-            {% if search_query or from_date or to_date or status_filter %}
-              No orders matched your search or filters. Try adjusting your query or date range.
-            {% else %}
-              Orders sent by customers from table QR codes will appear here in real time.
-            {% endif %}
-          </p>
-        </div>
-        {% if search_query or from_date or to_date or status_filter %}
-        <div class="pt-2">
-          <a href="{% url 'dashboard:orders' %}" class="inline-flex items-center gap-1 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all">
-            Clear Filters
-          </a>
-        </div>
-        {% endif %}
+    <div id="orders-empty-state"
+      class="bg-white rounded-2xl p-12 border border-slate-200/90 text-center space-y-3 shadow-2xs">
+      <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor">
+          <use href="#i-orders" />
+        </svg>
       </div>
+      <div class="space-y-1">
+        <p class="text-base font-bold text-slate-900">
+          No orders found
+        </p>
+        <p class="text-xs text-slate-500 max-w-sm mx-auto">
+          {% if search_query or from_date or to_date or status_filter %}
+          No orders matched your search or filters. Try adjusting your query or date range.
+          {% else %}
+          Orders sent by customers from table QR codes will appear here in real time.
+          {% endif %}
+        </p>
+      </div>
+      {% if search_query or from_date or to_date or status_filter %}
+      <div class="pt-2">
+        <a href="{% url 'dashboard:orders' %}"
+          class="inline-flex items-center gap-1 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all">
+          Clear Filters
+        </a>
+      </div>
+      {% endif %}
+    </div>
     {% endfor %}
   </div>
 
   <!-- Pagination Controls -->
   {% if page_obj.paginator.num_pages > 1 %}
-  <div class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+  <div
+    class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
     <div class="text-slate-500 font-medium">
-      Showing <span class="font-bold text-slate-800 font-mono">{{ page_obj.start_index }}</span> to <span class="font-bold text-slate-800 font-mono">{{ page_obj.end_index }}</span> of <span class="font-bold text-slate-800 font-mono">{{ page_obj.paginator.count }}</span> orders
+      Showing <span class="font-bold text-slate-800 font-mono">{{ page_obj.start_index }}</span> to <span
+        class="font-bold text-slate-800 font-mono">{{ page_obj.end_index }}</span> of <span
+        class="font-bold text-slate-800 font-mono">{{ page_obj.paginator.count }}</span> orders
     </div>
 
     <div class="flex items-center gap-1.5">
       <!-- Previous Page -->
       {% if page_obj.has_previous %}
-        <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if from_date %}&from_date={{ from_date }}{% endif %}{% if to_date %}&to_date={{ to_date }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if date_filter %}&range={{ date_filter }}{% endif %}"
-           class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all shadow-2xs">
-          &larr; Prev
-        </a>
+      <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if from_date %}&from_date={{ from_date }}{% endif %}{% if to_date %}&to_date={{ to_date }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if date_filter %}&range={{ date_filter }}{% endif %}"
+        class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all shadow-2xs">
+        &larr; Prev
+      </a>
       {% else %}
-        <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-slate-100 bg-slate-50 text-slate-300 font-bold cursor-not-allowed">
-          &larr; Prev
-        </span>
+      <span
+        class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-slate-100 bg-slate-50 text-slate-300 font-bold cursor-not-allowed">
+        &larr; Prev
+      </span>
       {% endif %}
 
       <!-- Page Indicator / Numbered Pills -->
       <div class="hidden sm:flex items-center gap-1 font-mono">
         {% for num in page_obj.paginator.page_range %}
-          {% if num == page_obj.number %}
-            <span class="w-8 h-8 rounded-xl bg-primary text-white font-bold flex items-center justify-center shadow-2xs">
-              {{ num }}
-            </span>
-          {% elif num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
-            <a href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if from_date %}&from_date={{ from_date }}{% endif %}{% if to_date %}&to_date={{ to_date }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if date_filter %}&range={{ date_filter }}{% endif %}"
-               class="w-8 h-8 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold flex items-center justify-center transition-colors shadow-2xs">
-              {{ num }}
-            </a>
+        {% if num == page_obj.number %}
+        <span class="w-8 h-8 rounded-xl bg-primary text-white font-bold flex items-center justify-center shadow-2xs">
+          {{ num }}
+        </span>
+        {% elif num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %} <a
+          href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if from_date %}&from_date={{ from_date }}{% endif %}{% if to_date %}&to_date={{ to_date }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if date_filter %}&range={{ date_filter }}{% endif %}"
+          class="w-8 h-8 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold flex items-center justify-center transition-colors shadow-2xs">
+          {{ num }}
+          </a>
           {% endif %}
-        {% endfor %}
+          {% endfor %}
       </div>
 
       <span class="sm:hidden font-mono font-bold text-slate-700 px-2">
@@ -406,14 +420,15 @@
 
       <!-- Next Page -->
       {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if from_date %}&from_date={{ from_date }}{% endif %}{% if to_date %}&to_date={{ to_date }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if date_filter %}&range={{ date_filter }}{% endif %}"
-           class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all shadow-2xs">
-          Next &rarr;
-        </a>
+      <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if from_date %}&from_date={{ from_date }}{% endif %}{% if to_date %}&to_date={{ to_date }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if date_filter %}&range={{ date_filter }}{% endif %}"
+        class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all shadow-2xs">
+        Next &rarr;
+      </a>
       {% else %}
-        <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-slate-100 bg-slate-50 text-slate-300 font-bold cursor-not-allowed">
-          Next &rarr;
-        </span>
+      <span
+        class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-slate-100 bg-slate-50 text-slate-300 font-bold cursor-not-allowed">
+        Next &rarr;
+      </span>
       {% endif %}
     </div>
   </div>
@@ -423,111 +438,129 @@
 
 <!-- Real-time Dashboard Order Push WebSocket & Notification Chime -->
 <script>
-(function() {
-  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const wsUrl = `${protocol}//${window.location.host}/ws/dashboard/{{ restaurant.slug }}/orders/`;
-  let ws;
+  (function () {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws/dashboard/{{ restaurant.slug }}/orders/`;
+    let ws;
 
-  function playNotificationChime() {
-    try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const ctx = new AudioCtx();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(523.25, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(783.99, ctx.currentTime + 0.12);
-      gain.gain.setValueAtTime(0.4, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.6);
-    } catch (e) {}
-  }
+    function playNotificationChime() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(783.99, ctx.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.4, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.6);
+      } catch (e) { }
+    }
 
-  function showDashboardNotification(msg, orderData = null) {
-    if (window.showDashboardOrderToast) {
-      if (orderData) {
-        window.showDashboardOrderToast(orderData, { type: 'new_order' });
-      } else {
-        window.showDashboardOrderToast({ items_summary: msg, total_amount: 0 }, { type: 'new_order' });
+    function showDashboardNotification(msg, orderData = null) {
+      if (window.showDashboardOrderToast) {
+        if (orderData) {
+          window.showDashboardOrderToast(orderData, { type: 'new_order' });
+        } else {
+          window.showDashboardOrderToast({ items_summary: msg, total_amount: 0 }, { type: 'new_order' });
+        }
       }
     }
-  }
 
   function insertOrderCard(order) {
+    window.__liveOrderItems = window.__liveOrderItems || {};
+    if (order.items && Array.isArray(order.items)) {
+      window.__liveOrderItems[String(order.id)] = order.items;
+    }
+
     const container = document.getElementById('orders-list-container');
     const emptyState = document.getElementById('orders-empty-state');
     if (emptyState) emptyState.remove();
 
-    if (!container) return;
+      if (!container) return;
 
     // If card for this order already exists (e.g. extra items added), update existing card!
     const existingCard = document.getElementById(`order-card-${order.id}`);
     if (existingCard) {
-      existingCard.classList.add('border-2', 'border-emerald-500', 'animate-pulse');
-      // Update items summary and price
-      const summaryEl = existingCard.querySelector('.text-xs.text-slate-800 p.font-medium');
-      if (summaryEl) summaryEl.textContent = order.items_summary;
-      const priceEl = existingCard.querySelector('.font-mono.text-slate-900, .font-mono.text-emerald-600');
-      if (priceEl) priceEl.textContent = `₹${order.total_amount.toFixed(0)}`;
-      setTimeout(() => existingCard.classList.remove('animate-pulse', 'border-2', 'border-emerald-500'), 4000);
+      existingCard.classList.add('ring-2', 'ring-emerald-500', 'animate-pulse');
+      const priceEl = existingCard.querySelector('.text-xl.font-mono');
+      if (priceEl) priceEl.textContent = `₹${Number(order.total_amount).toFixed(0)}`;
+      setTimeout(() => existingCard.classList.remove('animate-pulse', 'ring-2', 'ring-emerald-500'), 4000);
       return;
     }
 
     const card = document.createElement('div');
     card.id = `order-card-${order.id}`;
-    card.className = 'bg-white rounded-2xl p-4 sm:p-5 border-2 border-emerald-500 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-500 animate-pulse';
+    card.className = 'bg-white rounded-2xl p-4 sm:px-5 sm:py-4 border-2 border-emerald-500 shadow-md transition-all duration-500 animate-pulse space-y-3';
+
+    const safeTable = String(order.table_number).replace(/'/g, "\\'");
+    const safeNote = String(order.customer_note || '').replace(/'/g, "\\'").replace(/\n/g, ' ');
+    const totalAmtStr = Number(order.total_amount).toFixed(0);
 
     card.innerHTML = `
-      <div class="space-y-2 flex-1">
-        <div class="flex flex-wrap items-center gap-2">
-          <span class="px-2.5 py-1 rounded-xl bg-primary-50 text-primary-800 border border-primary-100 text-xs font-bold font-mono">
-            Table ${order.table_number}
-          </span>
-          <div class="table-diners-badge-${order.table_number} inline-flex items-center">
-            ${order.diners && order.diners.length ? `
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/80">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>${order.diners.length} Diners:</span>
-                <span class="font-medium text-slate-700 truncate max-w-[200px]" title="${order.diners.join(', ')}">${order.diners.join(', ')}</span>
-              </span>
-            ` : ''}
+      <div class="flex items-start justify-between gap-4">
+        <div class="space-y-1 min-w-0">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-base font-extrabold text-slate-900 tracking-tight">Table ${order.table_number}</span>
+            <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[11px] font-mono font-bold">#${order.id}</span>
+            <div class="table-diners-badge-${order.table_number} inline-flex items-center">
+              ${order.diners && order.diners.length ? `
+                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/80">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span>${order.diners.length} Diners:</span>
+                  <span class="font-medium text-slate-700 truncate max-w-[180px]" title="${order.diners.join(', ')}">${order.diners.join(', ')}</span>
+                </span>
+              ` : ''}
+            </div>
           </div>
-          <span class="inline-flex items-center gap-1 text-xs text-slate-400 font-mono">
-            <span>${order.created_at || 'Just now'}</span>
-          </span>
-          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
-            New Order (Live)
-          </span>
-          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium text-slate-500 bg-slate-100">
-            ${order.payment_status === 'pending' ? 'Payment Pending' : 'Unpaid'}
-          </span>
+          <div class="flex flex-wrap items-center gap-2 text-xs text-slate-400">
+            <span class="inline-flex items-center gap-1 font-medium">
+              <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <span>${order.created_at || 'Just now'}</span>
+            </span>
+            ${order.customer_note ? `<span class="text-slate-300">&bull;</span><span class="text-[11px] text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/60 font-medium truncate max-w-[260px]">Note: "${order.customer_note}"</span>` : ''}
+          </div>
         </div>
-        <div class="text-xs text-slate-800 space-y-1">
-          <p class="font-medium leading-relaxed">${order.items_summary}</p>
-          ${order.customer_note ? `<p class="text-[11px] text-amber-800 bg-amber-50 px-2.5 py-1 rounded-lg">Note: "${order.customer_note}"</p>` : ''}
+        <div class="text-right shrink-0">
+          <span class="text-[11px] font-medium text-slate-400 block leading-tight">Total bill</span>
+          <span class="text-xl font-extrabold font-mono text-emerald-600 tracking-tight">₹${totalAmtStr}</span>
         </div>
       </div>
-      <div class="flex items-center justify-between sm:justify-end sm:flex-col sm:items-end gap-2.5 pt-3 sm:pt-0 border-t sm:border-0 border-slate-100">
-        <span class="text-xl font-extrabold font-mono text-emerald-600">
-          ₹${order.total_amount.toFixed(0)}
-        </span>
+
+      <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
         <div class="flex flex-wrap items-center gap-2">
-          <form method="post" action="/dashboard/orders/${order.id}/status/" class="flex items-center space-x-1.5">
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-blue-50 text-blue-700">
+            <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping"></span>
+            New Order (Live)
+          </span>
+          <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-50/90 text-amber-700">
+            ${order.payment_status === 'pending' ? 'UPI Pending' : 'Unpaid'}
+          </span>
+        </div>
+        <div class="flex flex-wrap items-center justify-end gap-2">
+          <button type="button"
+                  onclick="openOrderItemsModal('${order.id}', '${safeTable}', '${totalAmtStr}', '${safeNote}')"
+                  class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold transition-all shadow-2xs cursor-pointer"
+                  title="View ordered dishes, images &amp; quantities">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            <span>View Items</span>
+          </button>
+          <form method="post" action="/dashboard/orders/${order.id}/status/" class="inline">
             <input type="hidden" name="csrfmiddlewaretoken" value="${getCsrfToken()}">
             <input type="hidden" name="status" value="preparing">
-            <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-xs font-semibold hover:bg-amber-100 transition-colors shadow-2xs cursor-pointer">
+            <button type="submit" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-semibold transition-colors cursor-pointer">
               <span>Mark Preparing</span>
             </button>
           </form>
           <form method="post" action="/dashboard/orders/${order.id}/payment-status/" class="inline">
             <input type="hidden" name="csrfmiddlewaretoken" value="${getCsrfToken()}">
             <input type="hidden" name="payment_status" value="paid">
-            <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-all cursor-pointer">
+            <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-xs transition-all cursor-pointer">
               <span>Mark Paid</span>
             </button>
           </form>
@@ -535,60 +568,187 @@
       </div>
     `;
 
-    container.prepend(card);
-    setTimeout(() => card.classList.remove('animate-pulse'), 3500);
-  }
+      container.prepend(card);
+      setTimeout(() => card.classList.remove('animate-pulse'), 3500);
+    }
 
-  function getCsrfToken() {
-    const el = document.querySelector('[name=csrfmiddlewaretoken]');
-    return el ? el.value : '';
-  }
+    function getCsrfToken() {
+      const el = document.querySelector('[name=csrfmiddlewaretoken]');
+      return el ? el.value : '';
+    }
 
-  function connect() {
-    ws = new WebSocket(wsUrl);
-    ws.onmessage = function(event) {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.type === 'new_order_event' && data.order) {
-          playNotificationChime();
-          if (window.showDashboardOrderToast) {
-            window.showDashboardOrderToast(data.order, { type: 'new_order' });
-          }
-          insertOrderCard(data.order);
-        } else if (data.type === 'payment_update_event') {
-          playNotificationChime();
-          if (window.showDashboardOrderToast) {
-            window.showDashboardOrderToast(data, { type: 'payment' });
-          }
-          setTimeout(() => window.location.reload(), 1500);
-        } else if (data.type === 'table_presence_event') {
-          const tableNum = String(data.table_number);
-          const count = data.count || (data.diners ? data.diners.length : 0);
-          const diners = data.diners || [];
-          document.querySelectorAll(`.table-diners-badge-${tableNum}`).forEach(badge => {
-            if (count > 0) {
-              badge.innerHTML = `
+    function connect() {
+      ws = new WebSocket(wsUrl);
+      ws.onmessage = function (event) {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'new_order_event' && data.order) {
+            playNotificationChime();
+            if (window.showDashboardOrderToast) {
+              window.showDashboardOrderToast(data.order, { type: 'new_order' });
+            }
+            insertOrderCard(data.order);
+          } else if (data.type === 'payment_update_event') {
+            playNotificationChime();
+            if (window.showDashboardOrderToast) {
+              window.showDashboardOrderToast(data, { type: 'payment' });
+            }
+            setTimeout(() => window.location.reload(), 1500);
+          } else if (data.type === 'table_presence_event') {
+            const tableNum = String(data.table_number);
+            const count = data.count || (data.diners ? data.diners.length : 0);
+            const diners = data.diners || [];
+            document.querySelectorAll(`.table-diners-badge-${tableNum}`).forEach(badge => {
+              if (count > 0) {
+                badge.innerHTML = `
                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/80">
                   <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                   <span>${count} Diners:</span>
                   <span class="font-medium text-slate-700 truncate max-w-[200px]" title="${diners.join(', ')}">${diners.join(', ')}</span>
                 </span>
               `;
-            } else {
-              badge.innerHTML = '';
-            }
-          });
+              } else {
+                badge.innerHTML = '';
+              }
+            });
+          }
+        } catch (e) {
+          console.error('Error handling dashboard WS order message:', e);
         }
-      } catch (e) {
-        console.error('Error handling dashboard WS order message:', e);
-      }
-    };
-    ws.onclose = function() {
-      setTimeout(connect, 3000);
-    };
+      };
+      ws.onclose = function () {
+        setTimeout(connect, 3000);
+      };
+    }
+
+    connect();
+  })();
+
+function openOrderItemsModal(orderId, tableNumber, totalAmount, customerNote) {
+  let items = [];
+  const dataEl = document.getElementById(`order-items-data-${orderId}`);
+  if (dataEl) {
+    try { items = JSON.parse(dataEl.textContent || '[]'); } catch (e) {}
+  } else if (window.__liveOrderItems && window.__liveOrderItems[String(orderId)]) {
+    items = window.__liveOrderItems[String(orderId)];
   }
 
-  connect();
-})();
+  document.getElementById('modal-order-title').textContent = `Order #${orderId} • Table ${tableNumber}`;
+  const totalQty = items.reduce((sum, it) => sum + (parseInt(it.quantity, 10) || 1), 0);
+  document.getElementById('modal-order-subtitle').textContent = `${totalQty} ${totalQty === 1 ? 'dish' : 'dishes'} ordered`;
+  document.getElementById('modal-order-total').textContent = `₹${totalAmount}`;
+
+  const noteBox = document.getElementById('modal-order-note-box');
+  const noteText = document.getElementById('modal-order-note-text');
+  if (customerNote && customerNote.trim()) {
+    noteText.textContent = `"${customerNote}"`;
+    noteBox.classList.remove('hidden');
+  } else {
+    noteBox.classList.add('hidden');
+  }
+
+  const listEl = document.getElementById('modal-order-items-list');
+  if (!items.length) {
+    listEl.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">No item details available.</p>`;
+  } else {
+    listEl.innerHTML = items.map(it => {
+      const qty = parseInt(it.quantity, 10) || 1;
+      const price = Number(it.price || 0);
+      const subtotal = Number(it.item_total || (price * qty)).toFixed(0);
+      const vegDot = it.is_veg === false
+        ? `<span class="w-3.5 h-3.5 rounded-sm border border-rose-600 flex items-center justify-center shrink-0" title="Non-Veg"><span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span></span>`
+        : `<span class="w-3.5 h-3.5 rounded-sm border border-emerald-600 flex items-center justify-center shrink-0" title="Veg"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span></span>`;
+
+      const imgHtml = it.photo
+        ? `<img src="${it.photo}" alt="${it.name}" class="w-14 h-14 rounded-xl object-cover border border-slate-200 shrink-0 shadow-2xs">`
+        : `<div class="w-14 h-14 rounded-xl bg-amber-50 border border-amber-200/70 text-amber-600 flex items-center justify-center shrink-0">
+             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+           </div>`;
+
+      return `
+        <div class="flex items-center justify-between gap-3 p-3 rounded-2xl bg-slate-50/80 border border-slate-200/70 hover:bg-slate-50 transition-colors">
+          <div class="flex items-center gap-3 min-w-0">
+            ${imgHtml}
+            <div class="min-w-0 space-y-1">
+              <div class="flex items-center gap-1.5">
+                ${vegDot}
+                <p class="text-sm font-bold text-slate-900 truncate">${it.name}</p>
+              </div>
+              <div class="flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+                <span class="font-mono">₹${price.toFixed(0)} each</span>
+                ${it.added_by ? `<span class="px-1.5 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600 font-medium">by ${it.added_by}</span>` : ''}
+              </div>
+            </div>
+          </div>
+          <div class="text-right shrink-0 space-y-1">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-primary-50 text-primary-800 border border-primary-200 font-mono text-xs font-extrabold">
+              &times; ${qty}
+            </span>
+            <p class="text-xs font-bold font-mono text-slate-900">₹${subtotal}</p>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  const modal = document.getElementById('order-items-modal');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+
+function closeOrderItemsModal() {
+  const modal = document.getElementById('order-items-modal');
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeOrderItemsModal();
+});
 </script>
+
+<!-- Order Items Visual Dialog Modal -->
+<div id="order-items-modal"
+     onclick="if (event.target === this) closeOrderItemsModal()"
+     class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+  <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[85vh]">
+    <!-- Modal Header -->
+    <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-primary-50 border border-primary-100 text-primary-700 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        </div>
+        <div>
+          <h3 id="modal-order-title" class="text-sm font-extrabold text-slate-900 font-mono">Order #</h3>
+          <p id="modal-order-subtitle" class="text-[11px] text-slate-500 font-medium">0 dishes ordered</p>
+        </div>
+      </div>
+      <button type="button" onclick="closeOrderItemsModal()" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors cursor-pointer">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- Modal Body: Dish Cards -->
+    <div class="p-5 overflow-y-auto space-y-3 flex-1">
+      <div id="modal-order-items-list" class="space-y-2.5"></div>
+
+      <!-- Optional Customer Note -->
+      <div id="modal-order-note-box" class="hidden p-3 rounded-xl bg-amber-50 border border-amber-200/70 text-xs text-amber-900">
+        <span class="font-bold block text-[10px] uppercase tracking-wider text-amber-700 mb-0.5">Customer Note</span>
+        <span id="modal-order-note-text" class="font-medium"></span>
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="px-5 py-4 border-t border-slate-100 bg-slate-50/70 flex items-center justify-between">
+      <div>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Total Amount</span>
+        <span id="modal-order-total" class="text-lg font-extrabold font-mono text-slate-900">₹0</span>
+      </div>
+      <button type="button" onclick="closeOrderItemsModal()" class="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-colors cursor-pointer">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
 {% endblock %}
