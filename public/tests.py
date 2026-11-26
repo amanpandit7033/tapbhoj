@@ -80,11 +80,11 @@ class PublicMenuTests(TestCase):
         self.assertContains(response, "tableNumber: '7'")
 
     def test_sold_out_item_display(self):
-        """Sold out item should show 'Sold Out' marker."""
+        """Unavailable item should show 'Unavailable' marker."""
         url = reverse('public:menu', kwargs={'slug': 'test-dhaba'})
         response = self.client.get(url)
         self.assertContains(response, 'Garlic Naan')
-        self.assertContains(response, 'Sold Out')
+        self.assertContains(response, 'Unavailable')
 
     def test_paused_restaurant_shows_friendly_notice(self):
         """Paused restaurant must return HTTP 503 and friendly paused template (Requirement C9)."""
