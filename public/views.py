@@ -14,7 +14,7 @@ def restaurant_menu(request, slug):
     """
     Public menu view for a restaurant.
     Renders the live menu if active, or a paused notice if inactive.
-    Pre-fills table number from URL parameter `?table=N`.
+    Decodes verified table number from signed URL parameter `?t=<token>`.
     """
     restaurant = get_object_or_404(Restaurant, slug=slug)
 
@@ -24,8 +24,10 @@ def restaurant_menu(request, slug):
             'restaurant': restaurant
         }, status=503)
 
-    # Pre-fill table number from query parameter (Requirement C2)
-    table_number = request.GET.get('table', '').strip()
+    # Decode verified table number from signed `?t=<token>` URL parameter (never plain ?table=1)
+    from restaurants.utils import decode_table_token
+    table_token = request.GET.get('t', '').strip()
+    table_number = decode_table_token(restaurant, table_token)
 
     # If this table already has an order where bill has been requested or payment is pending/paid,
     # redirect directly to the tracking/payment screen to prevent ordering on a finalized bill!
@@ -75,6 +77,7 @@ def restaurant_menu(request, slug):
         'restaurant': restaurant,
         'categories': categories,
         'table_number': table_number,
+        'table_token': table_token if table_number else '',
     }
     response = render(request, 'public/menu.html', context)
     if session_obj and session_obj.session_token:
@@ -104,13 +107,20 @@ def log_public_order(request, slug):
     except Exception:
         return HttpResponseBadRequest("Invalid JSON data.")
 
-    table_number = str(data.get('table_number', '')).strip()
+    # Verify signed table token — reject forged or manual table numbers
+    from restaurants.utils import decode_table_token
+    table_token = str(data.get('table_token', '')).strip()
+    table_number = decode_table_token(restaurant, table_token)
     items = data.get('items', [])
     total_amount = Decimal(str(data.get('total_amount', '0.00')))
     customer_note = str(data.get('customer_note', '')).strip()
 
     if not table_number:
-        return HttpResponseBadRequest("Table number is required.")
+        return JsonResponse({
+            'status': 'error',
+            'code': 'INVALID_TABLE_URL',
+            'message': 'Please scan the QR code on your table to place an order.',
+        }, status=403)
 
     # Geofence Validation: Circular Radius from Restaurant Coordinates
     has_geofence = bool(restaurant.latitude is not None and restaurant.longitude is not None)
@@ -353,9 +363,13 @@ def order_tracking(request, slug, order_id):
         note = urllib.parse.quote(f"Table {order.table_number} {restaurant.name}")
         upi_url = f"upi://pay?pa={urllib.parse.quote(restaurant.upi_id)}&pn={payee}&am={combined_total:.2f}&cu=INR&tn={note}"
 
+    from restaurants.utils import encode_table_token
+    table_token = encode_table_token(restaurant, order.table_number)
+
     return render(request, 'public/track_order.html', {
         'restaurant': restaurant,
         'order': order,
+        'table_token': table_token,
         'session_orders': session_orders,
         'combined_items': combined_items,
         'combined_total': combined_total,

@@ -47,7 +47,7 @@
 
   <!-- Top Navigation Bar -->
   <header class="w-full max-w-lg pt-4 pb-3 flex items-center justify-between">
-    <a href="{% url 'public:menu' slug=restaurant.slug %}?table={{ order.table_number }}"
+    <a href="{% url 'public:menu' slug=restaurant.slug %}?t={{ table_token }}"
        class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-white px-3.5 py-2 rounded-xl border border-slate-200/90 shadow-2xs hover:bg-slate-50 transition-colors">
       <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
       <span>Back to Menu</span>
@@ -252,7 +252,7 @@
 
     <!-- Actions & More Items -->
     <div class="flex items-center gap-3">
-      <a href="{% url 'public:menu' slug=restaurant.slug %}?table={{ order.table_number }}"
+      <a href="{% url 'public:menu' slug=restaurant.slug %}?t={{ table_token }}"
          class="flex-1 py-3 px-4 rounded-xl border border-slate-200 bg-white text-slate-700 text-xs font-bold hover:bg-slate-50 transition-colors shadow-2xs text-center flex items-center justify-center gap-1.5">
         <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15"/></svg>
         <span>Add Extra Dishes</span>

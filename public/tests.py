@@ -63,12 +63,21 @@ class PublicMenuTests(TestCase):
         self.assertContains(response, '₹20')
 
     def test_table_param_prefill(self):
-        """URL parameter ?table=7 should be pre-filled into the order view."""
-        url = reverse('public:menu', kwargs={'slug': 'test-dhaba'}) + '?table=7'
+        """Signed ?t=<token> should pre-fill table; plain ?table=7 must be ignored."""
+        from restaurants.utils import encode_table_token
+        # 1. Plain ?table=7 is rejected / ignored
+        plain_url = reverse('public:menu', kwargs={'slug': 'test-dhaba'}) + '?table=7'
+        plain_res = self.client.get(plain_url)
+        self.assertEqual(plain_res.status_code, 200)
+        self.assertEqual(plain_res.context['table_number'], '')
+
+        # 2. Signed ?t=<token> works cleanly
+        token = encode_table_token(self.active_restaurant, '7')
+        url = reverse('public:menu', kwargs={'slug': 'test-dhaba'}) + f'?t={token}'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['table_number'], '7')
-        self.assertContains(response, 'Table <span x-text="tableNumber" class="ml-1 font-bold"></span>')
+        self.assertContains(response, "tableNumber: '7'")
 
     def test_sold_out_item_display(self):
         """Sold out item should show 'Sold Out' marker."""

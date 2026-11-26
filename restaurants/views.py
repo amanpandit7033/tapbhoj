@@ -89,6 +89,7 @@ def dashboard_tables(request):
     
     from orders.models import TableSession
     from public.consumers import get_table_diners
+    from restaurants.utils import encode_table_token
 
     active_sessions = {
         str(s.table_number): s
@@ -101,7 +102,8 @@ def dashboard_tables(request):
 
     for num in range(1, restaurant.number_of_tables + 1):
         t_num = str(num)
-        table_url = f"{base_url}?table={num}"
+        token = encode_table_token(restaurant, t_num)
+        table_url = f"{base_url}?t={token}"
         session = active_sessions.get(t_num)
 
         live_diners = get_table_diners(restaurant.slug, t_num)
@@ -133,9 +135,11 @@ def dashboard_tables(request):
 @owner_required
 def table_qr_code(request, table_number):
     """Generate and stream a high-resolution PNG QR code for a specific table."""
+    from restaurants.utils import encode_table_token
     restaurant = request.restaurant
     base_url = request.build_absolute_uri(reverse('public:menu', kwargs={'slug': restaurant.slug}))
-    table_url = f"{base_url}?table={table_number}"
+    token = encode_table_token(restaurant, table_number)
+    table_url = f"{base_url}?t={token}"
 
     # Generate QR Code image
     qr = qrcode.QRCode(
@@ -162,14 +166,16 @@ def table_qr_code(request, table_number):
 @owner_required
 def table_print_sheet(request):
     """Printable sheet with table QR cards for table stands or sticker prints."""
+    from restaurants.utils import encode_table_token
     restaurant = request.restaurant
     base_url = request.build_absolute_uri(reverse('public:menu', kwargs={'slug': restaurant.slug}))
     
     tables = []
     for num in range(1, restaurant.number_of_tables + 1):
+        token = encode_table_token(restaurant, num)
         tables.append({
             'number': num,
-            'url': f"{base_url}?table={num}",
+            'url': f"{base_url}?t={token}",
             'qr_url': reverse('dashboard:table_qr', kwargs={'table_number': num}),
         })
 

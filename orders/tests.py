@@ -65,9 +65,11 @@ class OrdersAndInsightsTests(TestCase):
         )
 
     def test_public_log_order_endpoint(self):
-        """Diners can send order data to log_order endpoint and create an OrderLog entry."""
+        """Diners can send order data with a valid signed table_token to log_order."""
+        from restaurants.utils import encode_table_token
         url = reverse('public:log_order', kwargs={'slug': 'rasoi-a'})
         payload = {
+            'table_token': encode_table_token(self.restaurant_a, '7'),
             'table_number': '7',
             'items': [
                 {'name': 'Paneer Tikka', 'price': 260.0, 'quantity': 1, 'item_total': 260.0, 'is_veg': True}
@@ -91,6 +93,22 @@ class OrdersAndInsightsTests(TestCase):
         self.assertEqual(created_order.table_number, '7')
         self.assertEqual(created_order.total_amount, Decimal('260.00'))
         self.assertEqual(created_order.customer_note, 'Mild spicy')
+
+    def test_public_log_order_rejects_forged_or_missing_token(self):
+        """Orders without a valid signed table_token must be rejected with 403."""
+        url = reverse('public:log_order', kwargs={'slug': 'rasoi-a'})
+        res = self.client.post(
+            url,
+            data=json.dumps({
+                'table_number': '7',
+                'table_token': 'tampered-token',
+                'items': [{'name': 'Paneer Tikka', 'price': 260.0, 'quantity': 1}],
+                'total_amount': '260.00',
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res.json().get('code'), 'INVALID_TABLE_URL')
 
     def test_owner_orders_tenant_isolation(self):
         """Owner A dashboard must only show Restaurant A orders, never Restaurant B."""
@@ -144,10 +162,12 @@ class OrdersAndInsightsTests(TestCase):
     def test_free_direct_upi_flow_and_cashier_verification(self):
         """End-to-end Free Direct UPI payment flow, UTR submission, cashier verification, and receipt."""
         # 1. Diner creates order with UPI pending
+        from restaurants.utils import encode_table_token
         url_log = reverse('public:log_order', kwargs={'slug': 'rasoi-a'})
         log_res = self.client.post(
             url_log,
             data=json.dumps({
+                'table_token': encode_table_token(self.restaurant_a, '4'),
                 'table_number': '4',
                 'items': [{'id': 1, 'name': 'Dal Makhani', 'price': 280.0, 'quantity': 1, 'item_total': 280.0}],
                 'total_amount': '280.00',

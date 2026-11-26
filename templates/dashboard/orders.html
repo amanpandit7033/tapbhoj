@@ -692,6 +692,9 @@ function openOrderItemsModal(orderId, tableNumber, totalAmount, customerNote) {
   }
 
   const modal = document.getElementById('order-items-modal');
+  if (modal.parentElement !== document.body) {
+    document.body.appendChild(modal);
+  }
   modal.classList.remove('hidden');
   modal.classList.add('flex');
 }
@@ -710,7 +713,8 @@ document.addEventListener('keydown', function(e) {
 <!-- Order Items Visual Dialog Modal -->
 <div id="order-items-modal"
      onclick="if (event.target === this) closeOrderItemsModal()"
-     class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+     class="fixed inset-0 hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs"
+     style="margin: 0; z-index: 9999;">
   <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[85vh]">
     <!-- Modal Header -->
     <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
