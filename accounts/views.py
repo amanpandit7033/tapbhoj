@@ -47,4 +47,8 @@ class TapBhojLoginView(LoginView):
     def get_default_redirect_url(self):
         if self.request.user.is_authenticated and (self.request.user.is_staff or self.request.user.is_superuser):
             return reverse('platform:dashboard')
+        from core.decorators import get_store_role
+        role, _ = get_store_role(self.request.user)
+        if role in ('cashier', 'waiter', 'kitchen'):
+            return reverse('dashboard:orders')
         return reverse('dashboard:home')

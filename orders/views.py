@@ -5,7 +5,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Sum, Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from core.decorators import owner_required
+from core.decorators import owner_required, role_required
 from .models import OrderLog
 
 
@@ -189,7 +189,7 @@ def dashboard_orders(request):
     return render(request, 'dashboard/orders.html', context)
 
 
-@owner_required
+@role_required('owner', 'manager', 'kitchen', 'waiter')
 def order_update_status(request, pk):
     """Update order status (e.g. mark completed or cancelled)."""
     if request.method == 'POST':
@@ -205,7 +205,7 @@ def order_update_status(request, pk):
     return redirect(request.META.get('HTTP_REFERER', 'dashboard:orders'))
 
 
-@owner_required
+@role_required('owner', 'manager', 'cashier')
 def order_update_payment_status(request, pk):
     """
     Cashier confirmation for zero-fee direct UPI / cash payments.
@@ -256,7 +256,7 @@ def order_update_payment_status(request, pk):
     return redirect(request.META.get('HTTP_REFERER', 'dashboard:orders'))
 
 
-@owner_required
+@role_required('owner', 'manager', 'cashier')
 def order_request_payment(request, pk):
     """
     Triggered by admin/waiter to prompt the customer's live tracking screen
@@ -272,7 +272,7 @@ def order_request_payment(request, pk):
     return redirect(request.META.get('HTTP_REFERER', 'dashboard:orders'))
 
 
-@owner_required
+@role_required('owner', 'manager', 'cashier')
 def table_clear_session(request, table_number):
     """
     Clears an active table session once customers finish and leave.

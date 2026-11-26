@@ -83,10 +83,12 @@
             <p class="nh">Store Operations</p>
 
             <!-- Dashboard Overview -->
+            {% if request.staff_role == 'owner' or request.staff_role == 'manager' %}
             <a href="{% url 'dashboard:home' %}" title="Dashboard Overview" class="nl{% if request.resolver_match.url_name == 'home' %} on{% endif %}">
                 <svg class="ic shrink-0" fill="none" stroke="currentColor"><use href="#i-grid"/></svg>
                 <span class="nav-text truncate">Dashboard Overview</span>
             </a>
+            {% endif %}
 
             <!-- Orders -->
             <a href="{% url 'dashboard:orders' %}" title="Orders" class="nl{% if 'orders' in request.resolver_match.url_name %} on{% endif %}">
@@ -98,18 +100,29 @@
             </a>
 
             <!-- Menu Manager -->
+            {% if request.staff_role == 'owner' or request.staff_role == 'manager' or request.staff_role == 'waiter' or request.staff_role == 'kitchen' %}
             <a href="{% url 'dashboard:menu' %}" title="Menu Manager" class="nl{% if 'menu' in request.resolver_match.url_name %} on{% endif %}">
                 <svg class="ic shrink-0" fill="none" stroke="currentColor"><use href="#i-book"/></svg>
                 <span class="nav-text truncate">Menu Manager</span>
             </a>
+            {% endif %}
 
             <!-- Tables & QR Cards -->
+            {% if request.staff_role == 'owner' or request.staff_role == 'manager' or request.staff_role == 'waiter' %}
             <a href="{% url 'dashboard:tables' %}" title="Tables & QR Cards" class="nl{% if 'tables' in request.resolver_match.url_name %} on{% endif %}">
                 <svg class="ic shrink-0" fill="none" stroke="currentColor"><use href="#i-grid"/></svg>
                 <span class="nav-text truncate">Tables & QR Cards</span>
             </a>
+            {% endif %}
 
+            {% if request.staff_role == 'owner' %}
             <p class="nh">Account & Store</p>
+
+            <!-- Staff Members -->
+            <a href="{% url 'dashboard:staff' %}" title="Staff Members" class="nl{% if 'staff' in request.resolver_match.url_name %} on{% endif %}">
+                <svg class="ic shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <span class="nav-text truncate">Staff Members</span>
+            </a>
 
             <!-- Subscription & Plans -->
             <a href="{% url 'dashboard:subscription' %}" title="Subscription & Plans" class="nl{% if 'subscription' in request.resolver_match.url_name %} on{% endif %}">
@@ -122,6 +135,7 @@
                 <svg class="ic shrink-0" fill="none" stroke="currentColor"><use href="#i-cog"/></svg>
                 <span class="nav-text truncate">Store Profile</span>
             </a>
+            {% endif %}
         </div>
 
         <!-- Pinned Bottom User Bar -->
@@ -132,7 +146,9 @@
                 </span>
                 <div class="nav-text truncate">
                     <p class="text-xs font-bold text-slate-800 truncate leading-tight">{{ request.user.username }}</p>
-                    <p class="text-[10px] text-slate-400 font-medium">Store Owner</p>
+                    <p class="text-[10px] text-slate-400 font-medium">
+                        {% if request.user.owner_profile %}Store Owner{% elif request.user.staff_profile %}{{ request.user.staff_profile.get_role_display }}{% else %}Staff{% endif %}
+                    </p>
                 </div>
             </div>
             <form method="post" action="{% url 'logout' %}" class="shrink-0">

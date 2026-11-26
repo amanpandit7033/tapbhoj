@@ -68,12 +68,11 @@
     <div class="overflow-x-auto">
       <table class="w-full text-left border-collapse text-xs">
         <thead>
-          <tr class="bg-slate-50/80 border-b border-slate-200/80 text-[11px] font-extrabold uppercase tracking-wider text-slate-500 font-mono">
-            <th class="py-3.5 px-4 sm:px-6">Table</th>
-            <th class="py-3.5 px-4">Live Diners</th>
-            <th class="py-3.5 px-4">QR Preview</th>
-            <th class="py-3.5 px-4">NFC &amp; QR Direct URL</th>
-            <th class="py-3.5 px-4 sm:px-6 text-right">Actions</th>
+          <tr class="bg-slate-50/90 border-b border-slate-200/80 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            <th class="py-3 px-4 sm:px-6">Table</th>
+            <th class="py-3 px-4">Occupancy</th>
+            <th class="py-3 px-4">NFC / Table Link</th>
+            <th class="py-3 px-4 sm:px-6 text-right">QR &amp; Actions</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
@@ -82,75 +81,51 @@
               x-show="!searchQuery || '{{ table.number }}'.includes(searchQuery.trim())">
             
             <!-- Table Column -->
-            <td class="py-3.5 px-4 sm:px-6 whitespace-nowrap">
+            <td class="py-3 px-4 sm:px-6 whitespace-nowrap">
               <div class="flex items-center gap-3">
-                <span class="w-9 h-9 rounded-xl bg-primary-50 text-primary-800 font-extrabold font-mono text-xs border border-primary-100 flex items-center justify-center shrink-0 shadow-2xs">
+                <span class="w-9 h-9 rounded-xl {% if table.diners_count > 0 %}bg-emerald-50 text-emerald-700 border-emerald-200{% else %}bg-slate-100 text-slate-700 border-slate-200/80{% endif %} font-extrabold font-mono text-xs border flex items-center justify-center shrink-0">
                   T-{{ table.number }}
                 </span>
                 <div>
-                  <span class="font-bold text-slate-900 text-sm block">Table {{ table.number }}</span>
-                  <span class="text-[10px] text-slate-400 font-mono">Stand #{{ table.number }}</span>
+                  <span class="font-bold text-slate-900 text-[13px] block leading-tight">Table {{ table.number }}</span>
+                  <span class="text-[11px] text-slate-400 font-medium">Stand #{{ table.number }}</span>
                 </div>
               </div>
             </td>
 
-            <!-- Live Diners Column (Requirement 3) -->
-            <td class="py-3.5 px-4" id="table-diners-col-{{ table.number }}">
+            <!-- Live Diners Column -->
+            <td class="py-3 px-4 whitespace-nowrap" id="table-diners-col-{{ table.number }}">
               <div class="table-diners-wrapper" data-table="{{ table.number }}" data-count="{{ table.diners_count }}">
                 {% if table.diners_count > 0 %}
-                  <div class="space-y-1">
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/70 font-mono">
+                  <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80 whitespace-nowrap">
                       <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                       <span>{{ table.diners_count }} Seated</span>
                     </span>
-                    <div class="text-[11px] font-medium text-slate-700 truncate max-w-[200px]" title="{{ table.diners|join:', ' }}">
+                    <span class="text-[11px] font-medium text-slate-600 truncate max-w-[140px]" title="{{ table.diners|join:', ' }}">
                       {{ table.diners|join:', ' }}
-                    </div>
+                    </span>
                   </div>
                 {% else %}
-                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-500 border border-slate-200 font-mono">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-slate-100 text-slate-500 whitespace-nowrap">
                     <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
-                    <span>0 Diners (Empty)</span>
+                    <span>Empty</span>
                   </span>
                 {% endif %}
               </div>
             </td>
 
-            <!-- QR Preview Column -->
-            <td class="py-3.5 px-4 whitespace-nowrap">
-              <a href="{% url 'dashboard:table_qr' table_number=table.number %}" target="_blank"
-                 class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors shadow-2xs cursor-pointer"
-                 title="Preview high-resolution QR Code PNG">
-                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
-                <span>Preview QR</span>
-              </a>
-            </td>
-
             <!-- Direct URL Column -->
-            <td class="py-3.5 px-4">
-              <div class="flex items-center gap-2 max-w-xs sm:max-w-sm lg:max-w-md">
-                <span class="font-mono text-xs text-slate-700 truncate bg-slate-100/80 px-2.5 py-1 rounded-lg border border-slate-200/70 select-all" title="{{ table.url }}">
-                  {{ table.url }}
-                </span>
-                <a href="{{ table.url }}" target="_blank"
-                   class="p-1 rounded-lg text-slate-400 hover:text-primary-600 hover:bg-slate-100 transition-colors shrink-0 cursor-pointer"
-                   title="Open &amp; test Table {{ table.number }} live menu">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                </a>
-              </div>
-            </td>
-
-            <!-- Actions Column -->
-            <td class="py-3.5 px-4 sm:px-6 whitespace-nowrap text-right">
-              <div class="flex items-center justify-end gap-2">
-                <!-- Copy URL Button with Confirmation Feedback -->
+            <td class="py-3 px-4 whitespace-nowrap">
+              <div class="inline-flex items-center gap-1.5">
                 <button type="button"
                         @click="
                           navigator.clipboard.writeText('{{ table.url }}');
                           copiedTable = {{ table.number }};
                           setTimeout(() => { if (copiedTable === {{ table.number }}) copiedTable = null; }, 2000);
                         "
-                        class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 inline-flex items-center gap-1.5 transition-colors shadow-2xs cursor-pointer">
+                        class="px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                        title="Copy table link">
                   <template x-if="copiedTable !== {{ table.number }}">
                     <span class="inline-flex items-center gap-1.5">
                       <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
@@ -160,12 +135,29 @@
                   <template x-if="copiedTable === {{ table.number }}">
                     <span class="inline-flex items-center gap-1 text-emerald-600 font-bold">
                       <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                      <span>Copied!</span>
+                      <span>Copied</span>
                     </span>
                   </template>
                 </button>
+                <a href="{{ table.url }}" target="_blank"
+                   class="px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 hover:text-primary-600 inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                   title="Open Table {{ table.number }} menu">
+                  <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                  <span>Open</span>
+                </a>
+              </div>
+            </td>
 
-                <!-- Download QR PNG Button -->
+            <!-- Actions Column -->
+            <td class="py-3 px-4 sm:px-6 whitespace-nowrap text-right">
+              <div class="inline-flex items-center justify-end gap-2">
+                <a href="{% url 'dashboard:table_qr' table_number=table.number %}" target="_blank"
+                   class="px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                   title="Preview QR Code">
+                  <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+                  <span>Preview</span>
+                </a>
+
                 <a href="{% url 'dashboard:table_qr' table_number=table.number %}" 
                    download="{{ restaurant.slug }}-table-{{ table.number }}-qr.png"
                    class="px-3 py-1.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold inline-flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer">
@@ -174,6 +166,7 @@
                 </a>
 
                 <!-- Quick Clear Table Session Button -->
+                {% if request.staff_role == 'owner' or request.staff_role == 'manager' or request.staff_role == 'cashier' %}
                 {% if table.diners_count > 0 or table.is_active %}
                   <form method="post" action="{% url 'dashboard:table_clear_session' table_number=table.number %}" class="inline" onsubmit="return confirm('Clear Table {{ table.number }} and reset active session?');">
                     {% csrf_token %}
@@ -182,6 +175,7 @@
                       <span>Clear</span>
                     </button>
                   </form>
+                {% endif %}
                 {% endif %}
               </div>
             </td>
@@ -223,22 +217,22 @@
             if (col) {
               if (count > 0) {
                 col.innerHTML = `
-                  <div class="table-diners-wrapper space-y-1" data-table="${tableNum}" data-count="${count}">
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/70 font-mono">
+                  <div class="table-diners-wrapper flex items-center gap-2" data-table="${tableNum}" data-count="${count}">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80 whitespace-nowrap">
                       <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                       <span>${count} Seated</span>
                     </span>
-                    <div class="text-[11px] font-medium text-slate-700 truncate max-w-[200px]" title="${diners.join(', ')}">
+                    <span class="text-[11px] font-medium text-slate-600 truncate max-w-[140px]" title="${diners.join(', ')}">
                       ${diners.join(', ')}
-                    </div>
+                    </span>
                   </div>
                 `;
               } else {
                 col.innerHTML = `
                   <div class="table-diners-wrapper" data-table="${tableNum}" data-count="0">
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-500 border border-slate-200 font-mono">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-slate-100 text-slate-500 whitespace-nowrap">
                       <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
-                      <span>0 Diners (Empty)</span>
+                      <span>Empty</span>
                     </span>
                   </div>
                 `;

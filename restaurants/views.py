@@ -6,13 +6,15 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from core.decorators import owner_required
+from core.decorators import owner_required, role_required, strict_owner_required
 from .forms import RestaurantProfileForm
 
 
 @owner_required
 def dashboard_home(request):
-    """Owner dashboard home screen with status, quick stats, and primary actions."""
+    """Owner/Manager dashboard home screen with status, quick stats, and primary actions."""
+    if request.staff_role not in ('owner', 'manager'):
+        return redirect('dashboard:orders')
     from django.utils import timezone
     from django.db.models import Sum, Q
 
@@ -44,7 +46,7 @@ def dashboard_home(request):
     return render(request, 'dashboard/home.html', context)
 
 
-@owner_required
+@strict_owner_required
 def dashboard_profile(request):
     """Edit restaurant profile: name, logo, WhatsApp number, review link, etc."""
     restaurant = request.restaurant
@@ -66,7 +68,7 @@ def dashboard_profile(request):
     })
 
 
-@owner_required
+@strict_owner_required
 def dashboard_toggle_status(request):
     """Toggle restaurant status between active and paused with one tap."""
     if request.method == 'POST':
@@ -81,7 +83,7 @@ def dashboard_toggle_status(request):
     return redirect('dashboard:home')
 
 
-@owner_required
+@role_required('owner', 'manager', 'waiter')
 def dashboard_tables(request):
     """View and download QR codes and links for each table, with live seated diner presence."""
     restaurant = request.restaurant
@@ -132,7 +134,7 @@ def dashboard_tables(request):
     })
 
 
-@owner_required
+@role_required('owner', 'manager', 'waiter')
 def table_qr_code(request, table_number):
     """Generate and stream a high-resolution PNG QR code for a specific table."""
     from restaurants.utils import encode_table_token
@@ -163,7 +165,7 @@ def table_qr_code(request, table_number):
     return response
 
 
-@owner_required
+@role_required('owner', 'manager', 'waiter')
 def table_print_sheet(request):
     """Printable sheet with table QR cards for table stands or sticker prints."""
     from restaurants.utils import encode_table_token
@@ -185,7 +187,7 @@ def table_print_sheet(request):
     })
 
 
-@owner_required
+@strict_owner_required
 def owner_password_change(request):
     """Allow logged-in restaurant owner to change their account password securely."""
     restaurant = request.restaurant
@@ -209,3 +211,97 @@ def owner_password_change(request):
         'restaurant': restaurant,
         'form': form,
     })
+
+
+@strict_owner_required
+def dashboard_staff(request):
+    """List and add restaurant staff members (Managers, Cashiers, Waiters, Kitchen)."""
+    from django.contrib.auth.models import User
+    from django.shortcuts import get_object_or_404
+    from accounts.models import StaffMember
+
+    restaurant = request.restaurant
+
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        role = request.POST.get('role', 'waiter').strip()
+        phone = request.POST.get('phone', '').strip()
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '').strip()
+
+        valid_roles = {c[0] for c in StaffMember.ROLE_CHOICES}
+        if role not in valid_roles:
+            role = 'waiter'
+
+        if not name:
+            messages.error(request, 'Staff name is required.')
+            return redirect('dashboard:staff')
+
+        linked_user = None
+        if username or password:
+            if not username or not password:
+                messages.error(request, 'Both username and password are required to create a login account.')
+                return redirect('dashboard:staff')
+            if User.objects.filter(username__iexact=username).exists():
+                messages.error(request, f'Username "{username}" is already taken. Please choose another.')
+                return redirect('dashboard:staff')
+            linked_user = User.objects.create_user(
+                username=username,
+                password=password,
+                first_name=name[:30],
+                is_staff=False,
+            )
+
+        StaffMember.objects.create(
+            restaurant=restaurant,
+            user=linked_user,
+            name=name,
+            role=role,
+            phone=phone,
+            is_active=True,
+        )
+        messages.success(request, f'Staff member "{name}" added successfully.')
+        return redirect('dashboard:staff')
+
+    staff_list = StaffMember.objects.filter(restaurant=restaurant).select_related('user')
+    active_count = staff_list.filter(is_active=True).count()
+
+    return render(request, 'dashboard/staff.html', {
+        'restaurant': restaurant,
+        'staff_list': staff_list,
+        'active_count': active_count,
+        'role_choices': StaffMember.ROLE_CHOICES,
+    })
+
+
+@strict_owner_required
+def staff_toggle_active(request, pk):
+    """Activate or deactivate a staff member (and their login account if linked)."""
+    if request.method == 'POST':
+        from django.shortcuts import get_object_or_404
+        from accounts.models import StaffMember
+        staff = get_object_or_404(StaffMember, pk=pk, restaurant=request.restaurant)
+        staff.is_active = not staff.is_active
+        staff.save(update_fields=['is_active'])
+        if staff.user:
+            staff.user.is_active = staff.is_active
+            staff.user.save(update_fields=['is_active'])
+        state = 'activated' if staff.is_active else 'deactivated'
+        messages.success(request, f'{staff.name} has been {state}.')
+    return redirect('dashboard:staff')
+
+
+@strict_owner_required
+def staff_delete(request, pk):
+    """Remove a staff member and their dedicated staff login user if applicable."""
+    if request.method == 'POST':
+        from django.shortcuts import get_object_or_404
+        from accounts.models import StaffMember
+        staff = get_object_or_404(StaffMember, pk=pk, restaurant=request.restaurant)
+        staff_name = staff.name
+        linked_user = staff.user
+        staff.delete()
+        if linked_user and not hasattr(linked_user, 'owner_profile') and not linked_user.is_superuser:
+            linked_user.delete()
+        messages.success(request, f'Staff member "{staff_name}" removed.')
+    return redirect('dashboard:staff')

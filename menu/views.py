@@ -1,12 +1,12 @@
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from core.decorators import owner_required
+from core.decorators import role_required
 from .forms import CategoryForm, MenuItemForm
 from .models import Category, MenuItem
 
 
-@owner_required
+@role_required('owner', 'manager', 'waiter', 'kitchen')
 def menu_manager(request):
     """View and manage all categories and menu items for the owner's restaurant."""
     restaurant = request.restaurant
@@ -18,7 +18,7 @@ def menu_manager(request):
     })
 
 
-@owner_required
+@role_required('owner', 'manager')
 def category_create(request):
     """Create a new category for the owner's restaurant."""
     restaurant = request.restaurant
@@ -43,7 +43,7 @@ def category_create(request):
     })
 
 
-@owner_required
+@role_required('owner', 'manager')
 def category_edit(request, pk):
     """Edit an existing category scoped strictly to the owner's restaurant."""
     restaurant = request.restaurant
@@ -66,7 +66,7 @@ def category_edit(request, pk):
     })
 
 
-@owner_required
+@role_required('owner', 'manager')
 def category_delete(request, pk):
     """Delete a category scoped strictly to the owner's restaurant."""
     restaurant = request.restaurant
@@ -86,7 +86,7 @@ def category_delete(request, pk):
     })
 
 
-@owner_required
+@role_required('owner', 'manager')
 def item_create(request):
     """Add a new menu item scoped strictly to the owner's restaurant."""
     restaurant = request.restaurant
@@ -109,7 +109,7 @@ def item_create(request):
     })
 
 
-@owner_required
+@role_required('owner', 'manager')
 def item_edit(request, pk):
     """Edit a menu item scoped strictly to the owner's restaurant."""
     restaurant = request.restaurant
@@ -132,7 +132,7 @@ def item_edit(request, pk):
     })
 
 
-@owner_required
+@role_required('owner', 'manager')
 def item_delete(request, pk):
     """Delete a menu item scoped strictly to the owner's restaurant."""
     restaurant = request.restaurant
@@ -152,7 +152,7 @@ def item_delete(request, pk):
     })
 
 
-@owner_required
+@role_required('owner', 'manager', 'waiter', 'kitchen')
 def item_toggle_availability(request, pk):
     """1-Tap toggle: Mark item available or sold out."""
     if request.method == 'POST':

@@ -17,6 +17,11 @@ urlpatterns = [
     path('tables/<int:table_number>/qr/', views.table_qr_code, name='table_qr'),
     path('tables/print/', views.table_print_sheet, name='table_print'),
 
+    # Staff Management
+    path('staff/', views.dashboard_staff, name='staff'),
+    path('staff/<int:pk>/toggle/', views.staff_toggle_active, name='staff_toggle'),
+    path('staff/<int:pk>/delete/', views.staff_delete, name='staff_delete'),
+
     # Menu Manager
     path('menu/', menu_views.menu_manager, name='menu'),
     path('menu/category/add/', menu_views.category_create, name='category_create'),

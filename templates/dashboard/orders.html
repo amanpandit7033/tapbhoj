@@ -188,6 +188,7 @@
               </p>
             </div>
 
+            {% if request.staff_role == 'owner' or request.staff_role == 'manager' or request.staff_role == 'cashier' %}
             <div class="flex items-center space-x-2 shrink-0">
               <form method="post" action="{% url 'dashboard:order_payment_status' pk=order.pk %}">
                 {% csrf_token %}
@@ -207,6 +208,7 @@
                 </button>
               </form>
             </div>
+            {% endif %}
           </div>
         {% endif %}
 
@@ -248,6 +250,7 @@
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                 <span>e-Receipt</span>
               </a>
+              {% if request.staff_role == 'owner' or request.staff_role == 'manager' or request.staff_role == 'cashier' %}
               <form method="post" action="{% url 'dashboard:order_payment_status' pk=order.pk %}" class="inline" onsubmit="return confirm('Revert Table {{ order.table_number }} order back to Unpaid?');">
                 {% csrf_token %}
                 <input type="hidden" name="payment_status" value="unpaid">
@@ -255,6 +258,7 @@
                   Revert
                 </button>
               </form>
+              {% endif %}
             {% elif order.payment_status == 'pending' %}
               <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-50 text-amber-800 animate-pulse">
                 UPI Pending
@@ -283,6 +287,7 @@
             </button>
 
             <!-- Kitchen Progression Button (only when not yet completed) -->
+            {% if request.staff_role == 'owner' or request.staff_role == 'manager' or request.staff_role == 'kitchen' or request.staff_role == 'waiter' %}
             {% if order.status == 'sent' or order.status == 'preparing' or order.status == 'served' %}
               <form method="post" action="{% url 'dashboard:order_status' pk=order.pk %}" class="inline">
                 {% csrf_token %}
@@ -304,8 +309,10 @@
                 {% endif %}
               </form>
             {% endif %}
+            {% endif %}
 
             <!-- Payment Actions -->
+            {% if request.staff_role == 'owner' or request.staff_role == 'manager' or request.staff_role == 'cashier' %}
             {% if order.payment_status != 'paid' %}
               {% if order.status == 'served' or order.status == 'completed' or order.status == 'preparing' %}
                 <form method="post" action="{% url 'dashboard:order_request_payment' pk=order.pk %}" class="inline">
@@ -338,6 +345,7 @@
                   <span>Clear Table</span>
                 </button>
               </form>
+            {% endif %}
             {% endif %}
           </div>
         </div>

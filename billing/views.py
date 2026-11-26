@@ -13,7 +13,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from accounts.models import OwnerProfile
-from core.decorators import owner_required
+from core.decorators import strict_owner_required
 from menu.models import MenuItem
 from orders.models import OrderLog, TableSession
 from restaurants.models import Restaurant
@@ -629,7 +629,7 @@ def platform_plan_toggle(request, pk):
 # Owner Subscription & Renewal Views
 # ==============================================================================
 
-@owner_required
+@strict_owner_required
 def owner_subscription(request):
     """Owner subscription status and renewal screen in owner dashboard."""
     restaurant = request.restaurant
@@ -644,7 +644,7 @@ def owner_subscription(request):
     })
 
 
-@owner_required
+@strict_owner_required
 def owner_renew(request):
     """Simulate or execute plan renewal with Razorpay reference."""
     if request.method == 'POST':

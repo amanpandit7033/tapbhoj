@@ -30,10 +30,10 @@
   <!-- LEFT: Brand Story & Live Dining Experience Mockup -->
   <section class="order-2 lg:order-1 lg:col-span-7 relative overflow-hidden bg-slate-950 text-white px-6 py-10 sm:p-10 lg:py-8 xl:px-14 xl:py-10 hidden lg:flex flex-col justify-between lg:h-screen">
     
-    <!-- Background Gradient Accents -->
+    <!-- Background Image & Dark Scrim -->
     <div class="absolute inset-0 pointer-events-none z-0">
-      <div class="absolute -top-32 -left-32 w-96 h-96 bg-[#283891]/30 rounded-full blur-3xl"></div>
-      <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-[#1ac9bf]/20 rounded-full blur-3xl"></div>
+      <img src="{% static 'images/login-hero-bg.jpg' %}" alt="" class="w-full h-full object-cover object-center">
+      <div class="absolute inset-0 bg-gradient-to-br from-slate-950/85 via-slate-950/75 to-slate-900/80"></div>
     </div>
 
     <!-- Brand Header -->
@@ -88,35 +88,148 @@
         </ul>
       </div>
 
-      <!-- Compact Phone Dining Preview -->
+      <!-- Realistic iPhone 16 Pro Menu Preview -->
       <div class="hidden xl:block shrink-0">
-        <div class="w-64 rounded-3xl bg-slate-900 border-4 border-slate-700/80 p-3 shadow-2xl text-slate-800 space-y-2.5">
-          <div class="flex items-center justify-between px-2 pt-1 pb-1">
-            <span class="text-[10px] font-bold text-slate-400 font-mono">Table 4</span>
-            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-          </div>
-          <div class="bg-white rounded-2xl p-3 shadow-sm space-y-2">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-xs font-bold text-slate-900 leading-tight">Butter Chicken</p>
-                <p class="text-[10px] text-slate-400 font-mono">₹390</p>
+        <div class="relative mx-auto w-[264px]">
+          <!-- Left Side Hardware Buttons (Action + Volume) -->
+          <div class="absolute -left-[3px] top-[76px] w-[3px] h-6 bg-slate-500 rounded-l-sm"></div>
+          <div class="absolute -left-[3px] top-[114px] w-[3px] h-10 bg-slate-500 rounded-l-sm"></div>
+          <div class="absolute -left-[3px] top-[162px] w-[3px] h-10 bg-slate-500 rounded-l-sm"></div>
+          <!-- Right Side Power Button -->
+          <div class="absolute -right-[3px] top-[128px] w-[3px] h-14 bg-slate-500 rounded-r-sm"></div>
+
+          <!-- Outer Brushed Titanium Chassis -->
+          <div class="rounded-[3rem] p-[3px] bg-gradient-to-b from-slate-400/80 via-slate-600/90 to-slate-500/80 shadow-[0_28px_65px_-12px_rgba(0,0,0,0.85)]">
+            <!-- Inner Black Glass Bezel -->
+            <div class="rounded-[2.82rem] bg-[#090b10] p-[8px] relative overflow-hidden">
+              <!-- Subtle Glass Glare -->
+              <div class="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.04] to-white/[0.09] z-20 rounded-[2.82rem]"></div>
+
+              <!-- iPhone OLED Screen -->
+              <div class="rounded-[2.32rem] bg-[#f4f6f9] text-slate-900 overflow-hidden flex flex-col justify-between min-h-[488px] relative z-10">
+                <div>
+                  <!-- iOS Status Bar & Dynamic Island -->
+                  <div class="bg-white px-5 pt-2.5 pb-1.5 flex items-center justify-between">
+                    <span class="text-[10px] font-bold tracking-tight text-slate-900">9:41</span>
+                    <div class="w-[74px] h-[20px] rounded-full bg-black flex items-center justify-end px-2 shadow-inner">
+                      <span class="w-2.5 h-2.5 rounded-full bg-[#13192b] ring-1 ring-slate-700/70"></span>
+                    </div>
+                    <div class="flex items-center gap-1 text-slate-900">
+                      <svg class="w-3 h-2.5" viewBox="0 0 16 12" fill="currentColor"><rect x="1" y="7" width="2.5" height="4" rx="0.6"/><rect x="5" y="5" width="2.5" height="6" rx="0.6"/><rect x="9" y="3" width="2.5" height="8" rx="0.6"/><rect x="13" y="1" width="2.5" height="10" rx="0.6"/></svg>
+                      <svg class="w-4 h-2.5" viewBox="0 0 24 12" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1" y="1.5" width="18" height="9" rx="2"/><rect x="3" y="3.5" width="12" height="5" rx="0.8" fill="currentColor" stroke="none"/><path d="M21 4.5v3" stroke-linecap="round"/></svg>
+                    </div>
+                  </div>
+
+                  <!-- Menu Header (Exact Public Menu Style) -->
+                  <div class="bg-white px-3.5 py-2.5 border-b border-slate-200/70 flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-2 min-w-0">
+                      <div class="w-8 h-8 rounded-full bg-[#283891] text-white font-extrabold text-xs flex items-center justify-center shrink-0">
+                        D
+                      </div>
+                      <div class="min-w-0">
+                        <p class="text-xs font-extrabold text-[#283891] truncate leading-tight">Dilli Rasoi</p>
+                        <p class="text-[9px] text-slate-500 truncate">Table 4 &bull; Dine-in</p>
+                      </div>
+                    </div>
+                    <span class="px-2 py-0.5 rounded-full border border-emerald-200 bg-emerald-50 text-[9px] font-bold text-emerald-700 shrink-0">
+                      Veg
+                    </span>
+                  </div>
+
+                  <!-- Category Pills -->
+                  <div class="px-3 pt-2.5 pb-1.5 flex items-center gap-1.5 overflow-hidden">
+                    <span class="px-2.5 py-1 rounded-full bg-[#283891] text-white text-[9px] font-bold shrink-0">Main Course</span>
+                    <span class="px-2.5 py-1 rounded-full bg-white text-slate-600 border border-slate-200/80 text-[9px] font-semibold shrink-0">Starters</span>
+                    <span class="px-2.5 py-1 rounded-full bg-white text-slate-600 border border-slate-200/80 text-[9px] font-semibold shrink-0">Breads</span>
+                  </div>
+
+                  <!-- Menu Dish Cards -->
+                  <div class="px-3 py-1.5 space-y-2">
+                    <!-- Dish 1: Butter Chicken -->
+                    <div class="bg-white rounded-xl p-2.5 border border-slate-200/70 shadow-2xs flex items-center justify-between gap-2">
+                      <div class="min-w-0">
+                        <div class="flex items-center gap-1.5">
+                          <span class="w-2.5 h-2.5 rounded-[2px] border border-[#dc2626] flex items-center justify-center shrink-0">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#dc2626]"></span>
+                          </span>
+                          <p class="text-[11px] font-bold text-slate-900 truncate">Butter Chicken</p>
+                        </div>
+                        <p class="text-[10px] font-semibold text-slate-600 mt-0.5">₹390</p>
+                      </div>
+                      <div class="inline-flex items-center rounded-lg bg-[#283891] text-white text-[10px] font-bold px-1.5 py-1 gap-2 shrink-0">
+                        <span>−</span>
+                        <span>1</span>
+                        <span>+</span>
+                      </div>
+                    </div>
+
+                    <!-- Dish 2: Garlic Naan -->
+                    <div class="bg-white rounded-xl p-2.5 border border-slate-200/70 shadow-2xs flex items-center justify-between gap-2">
+                      <div class="min-w-0">
+                        <div class="flex items-center gap-1.5">
+                          <span class="w-2.5 h-2.5 rounded-[2px] border border-[#16a34a] flex items-center justify-center shrink-0">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#16a34a]"></span>
+                          </span>
+                          <p class="text-[11px] font-bold text-slate-900 truncate">Garlic Naan</p>
+                        </div>
+                        <p class="text-[10px] font-semibold text-slate-600 mt-0.5">₹60</p>
+                      </div>
+                      <div class="inline-flex items-center rounded-lg bg-[#283891] text-white text-[10px] font-bold px-1.5 py-1 gap-2 shrink-0">
+                        <span>−</span>
+                        <span>2</span>
+                        <span>+</span>
+                      </div>
+                    </div>
+
+                    <!-- Dish 3: Paneer Tikka -->
+                    <div class="bg-white rounded-xl p-2.5 border border-slate-200/70 shadow-2xs flex items-center justify-between gap-2">
+                      <div class="min-w-0">
+                        <div class="flex items-center gap-1.5">
+                          <span class="w-2.5 h-2.5 rounded-[2px] border border-[#16a34a] flex items-center justify-center shrink-0">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#16a34a]"></span>
+                          </span>
+                          <p class="text-[11px] font-bold text-slate-900 truncate">Paneer Tikka</p>
+                        </div>
+                        <p class="text-[10px] font-semibold text-slate-600 mt-0.5">₹280</p>
+                      </div>
+                      <span class="px-2.5 py-1 rounded-lg bg-[#eef1fa] border border-[#bdcaee] text-[#283891] text-[10px] font-bold shrink-0">
+                        + ADD
+                      </span>
+                    </div>
+
+                    <!-- Dish 4: Jeera Rice -->
+                    <div class="bg-white rounded-xl p-2.5 border border-slate-200/70 shadow-2xs flex items-center justify-between gap-2">
+                      <div class="min-w-0">
+                        <div class="flex items-center gap-1.5">
+                          <span class="w-2.5 h-2.5 rounded-[2px] border border-[#16a34a] flex items-center justify-center shrink-0">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#16a34a]"></span>
+                          </span>
+                          <p class="text-[11px] font-bold text-slate-900 truncate">Jeera Rice</p>
+                        </div>
+                        <p class="text-[10px] font-semibold text-slate-600 mt-0.5">₹150</p>
+                      </div>
+                      <span class="px-2.5 py-1 rounded-lg bg-[#eef1fa] border border-[#bdcaee] text-[#283891] text-[10px] font-bold shrink-0">
+                        + ADD
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Sticky Bottom Cart Bar & Home Indicator -->
+                <div class="px-3 pt-2 pb-2 bg-gradient-to-t from-[#f4f6f9] via-[#f4f6f9] to-transparent">
+                  <div class="rounded-xl bg-[#283891] text-white px-3 py-2 flex items-center justify-between shadow-md">
+                    <div>
+                      <p class="text-[9px] text-blue-100 font-medium leading-none">3 items</p>
+                      <p class="text-xs font-extrabold leading-tight mt-0.5">₹510</p>
+                    </div>
+                    <span class="text-[10px] font-bold inline-flex items-center gap-1">
+                      View Cart &rarr;
+                    </span>
+                  </div>
+                  <div class="w-24 h-1 rounded-full bg-slate-900/25 mx-auto mt-2.5"></div>
+                </div>
               </div>
-              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700">1x</span>
             </div>
-            <div class="flex items-center justify-between pt-1 border-t border-slate-100">
-              <div>
-                <p class="text-xs font-bold text-slate-900 leading-tight">Garlic Naan</p>
-                <p class="text-[10px] text-slate-400 font-mono">₹60</p>
-              </div>
-              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700">2x</span>
-            </div>
-            <div class="pt-2 border-t border-slate-100 flex justify-between items-center text-xs font-bold">
-              <span>Total Bill</span>
-              <span class="font-mono text-primary-700">₹510</span>
-            </div>
-          </div>
-          <div class="py-2 px-3 rounded-xl bg-primary-600 text-white text-center text-xs font-semibold shadow-xs">
-            Pay ₹510 via UPI (0% Fee)
           </div>
         </div>
       </div>
@@ -167,14 +280,9 @@
         </div>
 
         <div class="space-y-1.5">
-          <div class="flex items-center justify-between">
-            <label for="id_password" class="block text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Password
-            </label>
-            <a href="{% url 'password_reset' %}" class="text-xs font-medium text-primary-600 hover:underline">
-              Forgot password?
-            </a>
-          </div>
+          <label for="id_password" class="block text-xs font-semibold uppercase tracking-wider text-slate-500">
+            Password
+          </label>
           <input type="password" name="password" id="id_password" required autocomplete="current-password" class="fld" placeholder="••••••••">
         </div>
 
