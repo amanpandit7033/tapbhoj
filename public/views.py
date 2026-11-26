@@ -255,7 +255,9 @@ def log_public_order(request, slug):
         if existing_order.status == 'served':
             existing_order.status = 'preparing'
 
-        existing_order.save(update_fields=['items_json', 'total_amount', 'customer_note', 'status'])
+        # Refresh order timestamp so add-on rounds show latest Indian local time
+        existing_order.created_at = timezone.now()
+        existing_order.save(update_fields=['items_json', 'total_amount', 'customer_note', 'status', 'created_at'])
         order = existing_order
         is_add_on = True
     else:

@@ -152,7 +152,7 @@
             <div class="flex flex-wrap items-center gap-2 text-xs text-slate-400">
               <span class="inline-flex items-center gap-1 font-medium">
                 <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <span>{{ order.created_at|date:"M d, h:i A" }}</span>
+                <span class="order-created-at">{{ order.created_at|date:"M d, h:i A" }}</span>
               </span>
               {% if order.customer_note %}
                 <span class="text-slate-300">&bull;</span>
@@ -490,6 +490,10 @@
       existingCard.classList.add('ring-2', 'ring-emerald-500', 'animate-pulse');
       const priceEl = existingCard.querySelector('.text-xl.font-mono');
       if (priceEl) priceEl.textContent = `₹${Number(order.total_amount).toFixed(0)}`;
+      const timeEl = existingCard.querySelector('.order-created-at');
+      if (timeEl && order.created_at) timeEl.textContent = order.created_at;
+      const dataEl = document.getElementById(`order-items-data-${order.id}`);
+      if (dataEl && order.items) dataEl.textContent = JSON.stringify(order.items);
       setTimeout(() => existingCard.classList.remove('animate-pulse', 'ring-2', 'ring-emerald-500'), 4000);
       return;
     }
@@ -521,7 +525,7 @@
           <div class="flex flex-wrap items-center gap-2 text-xs text-slate-400">
             <span class="inline-flex items-center gap-1 font-medium">
               <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              <span>${order.created_at || 'Just now'}</span>
+              <span class="order-created-at">${order.created_at || 'Just now'}</span>
             </span>
             ${order.customer_note ? `<span class="text-slate-300">&bull;</span><span class="text-[11px] text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/60 font-medium truncate max-w-[260px]">Note: "${order.customer_note}"</span>` : ''}
           </div>
