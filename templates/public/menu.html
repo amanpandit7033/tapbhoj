@@ -149,6 +149,27 @@
         </div>
       </template>
 
+      {% if active_order_tracking_url %}
+        <a href="{{ active_order_tracking_url }}"
+           class="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all active:scale-[0.99]">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <span class="w-2 h-2 rounded-full bg-white animate-pulse flex-shrink-0"></span>
+            <div class="min-w-0">
+              <p class="text-xs font-bold leading-tight truncate">
+                Order #{{ active_order.id }} Active &bull; ₹{{ active_order.total_amount|floatformat:0 }}
+              </p>
+              <p class="text-[10px] opacity-90 truncate">
+                Tap to track kitchen progress or pay bill
+              </p>
+            </div>
+          </div>
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/20 text-[11px] font-bold flex-shrink-0">
+            <span>Track Order</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+          </span>
+        </a>
+      {% endif %}
+
       {% if restaurant.description %}
         <p class="text-xs text-tapbhoj-muted dark:text-tapbhoj-muted-dark leading-relaxed">
           {{ restaurant.description }}

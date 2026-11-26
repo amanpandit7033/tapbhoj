@@ -4,6 +4,7 @@ from django.db import models
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
 from django.views.decorators.http import require_POST, require_GET
 from restaurants.models import Restaurant
 from menu.models import Category
@@ -33,6 +34,8 @@ def restaurant_menu(request, slug):
     # redirect directly to the tracking/payment screen to prevent ordering on a finalized bill!
     cookie_session_token = request.COOKIES.get(f"tbl_token_{restaurant.slug}_{table_number}")
     session_obj = None
+    active_order = None
+    active_order_tracking_url = ''
 
     if table_number:
         import re, secrets
@@ -70,6 +73,12 @@ def restaurant_menu(request, slug):
                 else:
                     return redirect('public:order_tracking', slug=restaurant.slug, order_id=settling_order.id)
 
+            active_order = active_session.orders.filter(
+                payment_status='unpaid'
+            ).exclude(status__in=['completed', 'cancelled']).order_by('-created_at').first()
+            if active_order:
+                active_order_tracking_url = reverse('public:order_tracking', kwargs={'slug': restaurant.slug, 'order_id': active_order.id})
+
     # Fetch visible categories with pre-fetched menu items ordered by position (Requirement C3, Performance)
     categories = restaurant.categories.filter(is_visible=True).prefetch_related('items')
 
@@ -78,6 +87,8 @@ def restaurant_menu(request, slug):
         'categories': categories,
         'table_number': table_number,
         'table_token': table_token if table_number else '',
+        'active_order': active_order,
+        'active_order_tracking_url': active_order_tracking_url,
     }
     response = render(request, 'public/menu.html', context)
     if session_obj and session_obj.session_token:
@@ -294,7 +305,7 @@ def log_public_order(request, slug):
                         'payment_method': order.payment_method,
                         'status': order.status,
                         'diners': active_session.active_diners if active_session else [],
-                        'created_at': order.created_at.strftime('%I:%M %p, %d %b'),
+                        'created_at': timezone.localtime(order.created_at).strftime('%b %d, %I:%M %p'),
                     }
                 }
             )
