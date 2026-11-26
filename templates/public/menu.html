@@ -4,7 +4,48 @@
 {% block title %}{{ restaurant.name }} - Digital Menu{% endblock %}
 
 {% block extra_head %}
+<script src="https://cdn.tailwindcss.com"></script>
 <script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        fontFamily: {
+          heading: ['"Bricolage Grotesque"', 'Figtree', 'sans-serif'],
+          body: ['Figtree', 'sans-serif'],
+        },
+        colors: {
+          primary: {
+            DEFAULT: '#283891',
+            50: '#eef1fa',
+            100: '#dce2f5',
+            200: '#bdcaee',
+            600: '#283891',
+            700: '#1f2c73',
+          },
+          tapbhoj: {
+            bg: '#f4f6f9',
+            'bg-dark': '#0f172a',
+            surface: '#ffffff',
+            'surface-dark': '#1e293b',
+            ink: '#0f172a',
+            'ink-dark': '#f1f5f9',
+            muted: '#64748b',
+            'muted-dark': '#94a3b8',
+            brand: '#283891',
+            'brand-dark': '#1ac9bf',
+            accent: '#1ac9bf',
+            veg: '#16a34a',
+            'veg-dark': '#4ade80',
+            nonveg: '#dc2626',
+            'nonveg-dark': '#f87171',
+            whatsapp: '#16a34a',
+          },
+        },
+      },
+    },
+  };
+
   // Public Customer Menu: Default to Light Mode
   (function() {
     const savedTheme = localStorage.getItem('public_menu_theme');
@@ -151,7 +192,7 @@
 
       {% if active_order_tracking_url %}
         <a href="{{ active_order_tracking_url }}"
-           class="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all active:scale-[0.99]">
+           class="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white shadow-sm transition-all active:scale-[0.99]">
           <div class="flex items-center gap-2.5 min-w-0">
             <span class="w-2 h-2 rounded-full bg-white animate-pulse flex-shrink-0"></span>
             <div class="min-w-0">
