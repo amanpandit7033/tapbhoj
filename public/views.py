@@ -339,14 +339,15 @@ def log_public_order(request, slug):
     })
 
 
-def _build_upi_url(restaurant, table_number, amount):
+def _build_upi_url(restaurant, table_number, amount, order_id=None):
     """Build UPI deep-link URI for the given restaurant, table, and payable amount."""
     if not restaurant.upi_id:
         return ''
     import urllib.parse
     payee = urllib.parse.quote(restaurant.upi_payee_name or restaurant.name)
     note = urllib.parse.quote(f"Table {table_number} {restaurant.name}")
-    return f"upi://pay?pa={urllib.parse.quote(restaurant.upi_id)}&pn={payee}&am={amount:.2f}&cu=INR&tn={note}"
+    tr_param = f"&tr=TB{order_id}" if order_id else ""
+    return f"upi://pay?pa={urllib.parse.quote(restaurant.upi_id)}&pn={payee}&mc=5812{tr_param}&am={amount:.2f}&cu=INR&tn={note}"
 
 
 def order_tracking(request, slug, order_id):
@@ -385,7 +386,7 @@ def order_tracking(request, slug, order_id):
 
     tip_amount = Decimal(str(order.tip_amount or 0))
     grand_total = combined_total + tip_amount
-    upi_url = _build_upi_url(restaurant, order.table_number, grand_total)
+    upi_url = _build_upi_url(restaurant, order.table_number, grand_total, order_id=order.id)
 
     from restaurants.utils import encode_table_token
     table_token = encode_table_token(restaurant, order.table_number)
@@ -450,8 +451,38 @@ def save_order_tip(request, slug):
         'combined_total': float(combined_total),
         'grand_total': float(grand_total),
         'staff_id': tipped_staff.id if tipped_staff else None,
-        'upi_url': _build_upi_url(restaurant, order.table_number, grand_total),
+        'upi_url': _build_upi_url(restaurant, order.table_number, grand_total, order_id=order.id),
     })
+
+
+@require_GET
+def order_upi_qr(request, slug, order_id):
+    """Stream a dynamic UPI QR code PNG for the order's payable amount."""
+    import io
+    import qrcode
+    from django.http import HttpResponse
+
+    restaurant = get_object_or_404(Restaurant, slug=slug)
+    order = get_object_or_404(restaurant.orders, pk=order_id)
+    if not restaurant.upi_id:
+        return HttpResponse(status=404)
+
+    if order.session:
+        session_orders = order.session.orders.filter(~models.Q(status='cancelled'))
+    else:
+        session_orders = [order]
+    combined_total = sum(Decimal(str(o.total_amount)) for o in session_orders)
+    grand_total = combined_total + Decimal(str(order.tip_amount or 0))
+
+    upi_uri = _build_upi_url(restaurant, order.table_number, grand_total, order_id=order.id)
+    qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_M, box_size=8, border=2)
+    qr.add_data(upi_uri)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="#0f172a", back_color="#ffffff")
+
+    buf = io.BytesIO()
+    img.save(buf, format='PNG')
+    return HttpResponse(buf.getvalue(), content_type='image/png')
 
 
 @require_GET

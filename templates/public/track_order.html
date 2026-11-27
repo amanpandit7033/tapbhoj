@@ -321,14 +321,39 @@
           </div>
           {% endif %}
 
+          {% if restaurant.upi_id %}
+          <!-- Dynamic UPI QR & Copy UPI ID Fallback -->
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
+            <div class="flex justify-center">
+              <img :src="upiQrUrl" alt="UPI Payment QR" class="w-36 h-36 rounded-xl bg-white p-1.5 border border-slate-200 shadow-2xs">
+            </div>
+            <div class="flex items-center justify-between gap-2 bg-white px-3 py-2 rounded-xl border border-slate-200">
+              <div class="text-left min-w-0">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">UPI ID</span>
+                <span class="text-xs font-mono font-bold text-slate-800 truncate block">{{ restaurant.upi_id }}</span>
+              </div>
+              <button type="button"
+                      @click="copyUpiId('{{ restaurant.upi_id|escapejs }}')"
+                      class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold shrink-0 transition-colors cursor-pointer">
+                <span x-text="upiCopied ? 'Copied!' : 'Copy ID'">Copy ID</span>
+              </button>
+            </div>
+          </div>
+          {% endif %}
+
           <!-- 1-Tap UPI Intent Button -->
           <template x-if="upiUrl">
-            <a :href="upiUrl"
-               @click="onUpiAppOpened()"
-               class="w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs flex items-center justify-center space-x-2 transition-all">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-              <span x-text="'Pay ₹' + grandTotal + ' with GPay / PhonePe / Paytm'">Pay with GPay / PhonePe / Paytm</span>
-            </a>
+            <div class="space-y-1.5">
+              <a :href="upiUrl"
+                 @click="onUpiAppOpened()"
+                 class="w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs flex items-center justify-center space-x-2 transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                <span x-text="'Pay ₹' + grandTotal + ' with GPay / PhonePe / Paytm'">Pay with GPay / PhonePe / Paytm</span>
+              </a>
+              <p class="text-[10px] text-slate-400 leading-snug">
+                If your UPI app blocks direct links, scan the QR or tap <strong>Copy ID</strong> to pay manually.
+              </p>
+            </div>
           </template>
 
           <button type="button"
@@ -423,10 +448,17 @@ function orderTracker() {
     submitUpiUrl: "{% url 'public:submit_upi_payment' slug=restaurant.slug %}",
     saveTipUrl: "{% url 'public:save_order_tip' slug=restaurant.slug %}",
     upiUrl: "{{ upi_url|default:''|escapejs }}",
+    upiQrBaseUrl: "{% url 'public:order_upi_qr' slug=restaurant.slug order_id=order.id %}",
+    upiQrVersion: 0,
+    upiCopied: false,
     baseBillTotal: {{ combined_total|default:order.total_amount|floatformat:0 }},
     tipAmount: {{ tip_amount|default:0|floatformat:0 }},
     selectedWaiterId: "{{ order.tipped_staff_id|default:'' }}",
     csrfToken: '{{ csrf_token }}',
+
+    get upiQrUrl() {
+      return `${this.upiQrBaseUrl}?v=${this.upiQrVersion}`;
+    },
 
     get grandTotal() {
       return Number(this.baseBillTotal || 0) + Number(this.tipAmount || 0);
@@ -501,6 +533,12 @@ function orderTracker() {
       this.isAwaitingVerification = true;
     },
 
+    copyUpiId(upiId) {
+      navigator.clipboard.writeText(upiId);
+      this.upiCopied = true;
+      setTimeout(() => { this.upiCopied = false; }, 2000);
+    },
+
     async setTip(amount) {
       this.tipAmount = amount;
       await this.saveTip();
@@ -525,6 +563,7 @@ function orderTracker() {
         if (data.status === 'ok') {
           this.tipAmount = Number(data.tip_amount || 0);
           if (data.upi_url !== undefined) this.upiUrl = data.upi_url;
+          this.upiQrVersion += 1;
         }
       } catch (e) {}
     },
