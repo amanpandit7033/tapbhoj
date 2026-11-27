@@ -218,13 +218,15 @@
             </div>
 
             <div class="flex items-center gap-2 sm:gap-3">
-                <!-- View Live Menu Frosted Glass Pill -->
-                <a href="{% url 'public:menu' slug=restaurant.slug %}" target="_blank"
+                {% if request.staff_role == 'owner' or request.staff_role == 'manager' or request.staff_role == 'waiter' %}
+                <!-- Table Menus Shortcut -->
+                <a href="{% url 'dashboard:tables' %}"
                    class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-2xl bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 transition-all text-white text-xs font-semibold shadow-2xs group cursor-pointer"
-                   title="Open Customer Digital Menu">
-                    <span>View Live Menu</span>
+                   title="Open Table QR Links">
+                    <span>Table Menus</span>
                     <svg class="w-3.5 h-3.5 text-white/80 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" fill="none" stroke="currentColor"><use href="#i-external"/></svg>
                 </a>
+                {% endif %}
 
                 <!-- Notification Bell with Latest 5 Notifications Dialog -->
                 <div class="relative" @click.outside="notifOpen = false">

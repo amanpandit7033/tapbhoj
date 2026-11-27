@@ -52,8 +52,10 @@ class PublicMenuTests(TestCase):
         )
 
     def test_active_menu_renders_success(self):
-        """Active restaurant should return HTTP 200 with menu and restaurant info."""
-        url = reverse('public:menu', kwargs={'slug': 'test-dhaba'})
+        """Active restaurant with valid signed table token should return HTTP 200."""
+        from restaurants.utils import encode_table_token
+        token = encode_table_token(self.active_restaurant, '1')
+        url = reverse('public:menu', kwargs={'slug': 'test-dhaba'}) + f'?t={token}'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'public/menu.html')
@@ -63,17 +65,20 @@ class PublicMenuTests(TestCase):
         self.assertContains(response, '₹20')
 
     def test_table_param_prefill(self):
-        """Signed ?t=<token> should pre-fill table; plain ?table=7 must be ignored."""
+        """Access without signed ?t=<token> is closed (403); signed ?t=<token> works cleanly."""
         from restaurants.utils import encode_table_token
-        # 1. Plain ?table=7 is rejected / ignored
-        plain_url = reverse('public:menu', kwargs={'slug': 'test-dhaba'}) + '?table=7'
-        plain_res = self.client.get(plain_url)
-        self.assertEqual(plain_res.status_code, 200)
-        self.assertEqual(plain_res.context['table_number'], '')
+        # 1. No table token -> permanently closed (403)
+        bare_url = reverse('public:menu', kwargs={'slug': 'test-dhaba'})
+        self.assertEqual(self.client.get(bare_url).status_code, 403)
 
-        # 2. Signed ?t=<token> works cleanly
+        # 2. Plain ?table=7 is rejected (403)
+        plain_url = bare_url + '?table=7'
+        plain_res = self.client.get(plain_url)
+        self.assertEqual(plain_res.status_code, 403)
+
+        # 3. Signed ?t=<token> works cleanly
         token = encode_table_token(self.active_restaurant, '7')
-        url = reverse('public:menu', kwargs={'slug': 'test-dhaba'}) + f'?t={token}'
+        url = bare_url + f'?t={token}'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['table_number'], '7')
@@ -81,7 +86,9 @@ class PublicMenuTests(TestCase):
 
     def test_sold_out_item_display(self):
         """Unavailable item should show 'Unavailable' marker."""
-        url = reverse('public:menu', kwargs={'slug': 'test-dhaba'})
+        from restaurants.utils import encode_table_token
+        token = encode_table_token(self.active_restaurant, '1')
+        url = reverse('public:menu', kwargs={'slug': 'test-dhaba'}) + f'?t={token}'
         response = self.client.get(url)
         self.assertContains(response, 'Garlic Naan')
         self.assertContains(response, 'Unavailable')

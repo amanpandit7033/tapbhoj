@@ -30,6 +30,11 @@ def restaurant_menu(request, slug):
     table_token = request.GET.get('t', '').strip()
     table_number = decode_table_token(restaurant, table_token)
 
+    if not table_number:
+        return render(request, 'public/table_required.html', {
+            'restaurant': restaurant
+        }, status=403)
+
     # If this table already has an order where bill has been requested or payment is pending/paid,
     # redirect directly to the tracking/payment screen to prevent ordering on a finalized bill!
     cookie_session_token = request.COOKIES.get(f"tbl_token_{restaurant.slug}_{table_number}")
